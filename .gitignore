@@ -1,0 +1,5 @@
+/.vs
+/TTNguVan/bin/
+/TTNguVan/obj/
+*.zip
+TTNguVan/TTNguVan.csproj.user
