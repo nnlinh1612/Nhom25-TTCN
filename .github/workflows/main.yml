@@ -1,13 +1,13 @@
-name: Đẩy code tự động bằng WebDeploy
+name: Build, publish and deploy to MonsterASP.NET
 
 on:
   push:
     branches:
-      - main
+      - main # Chạy khi code đẩy vào nhánh main
 
 jobs:
-  build-and-deploy:
-    runs-on: windows-latest # Chuyển sang hệ điều hành Windows để dùng WebDeploy gốc
+  build_and_deploy:
+    runs-on: windows-latest
 
     steps:
     - name: 1. Tải code từ GitHub về
@@ -16,11 +16,18 @@ jobs:
     - name: 2. Cài đặt .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x' # Nhớ sửa thành 6.0.x hoặc 7.0.x nếu dự án dùng bản cũ hơn
+        dotnet-version: '8.0.x' # Sửa lại nếu dự án của bạn dùng .NET 6.0 hoặc 7.0
 
-    - name: 3. Biên dịch và Đóng gói (Publish)
-      run: dotnet publish -c Release -o ./publish_output
+    - name: 3. Cài đặt thư viện (Restore)
+      run: dotnet restore
 
-    - name: 4. Đẩy file lên MonsterASP bằng WebDeploy chính chủ
-      run: |
-        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" -source:contentPath='${{ github.workspace }}\publish_output' -dest:contentPath='${{ secrets.WEBDEPLOY_SITENAME }}',computerName='${{ secrets.WEBDEPLOY_SERVER }}',userName='${{ secrets.WEBDEPLOY_USERNAME }}',password='${{ secrets.WEBDEPLOY_PASSWORD }}',authType='Basic' -verb:sync -enableRule:AppOffline
+    - name: 4. Đóng gói ứng dụng (Publish)
+      run: dotnet publish --configuration Release --output ./publish
+
+    - name: 5. Đẩy file lên MonsterASP qua Action chuyên dụng
+      uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+      with:
+        website-name: ${{ secrets.WEBSITE_NAME }}
+        server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
+        server-username: ${{ secrets.SERVER_USERNAME }}
+        server-password: ${{ secrets.SERVER_PASSWORD }}
