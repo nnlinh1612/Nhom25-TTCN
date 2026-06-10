@@ -1,32 +1,26 @@
+name: Đẩy code tự động bằng WebDeploy
+
 on:
   push:
     branches:
-      - main # Chạy kịch bản khi có thay đổi ở nhánh main
+      - main
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # Chuyển sang hệ điều hành Windows để dùng WebDeploy gốc
 
     steps:
-    - name: 1. Tải code từ GitHub về máy chủ trung gian
+    - name: 1. Tải code từ GitHub về
       uses: actions/checkout@v4
 
     - name: 2. Cài đặt .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x' # LƯU Ý: Sửa thành 6.0.x hoặc 7.0.x nếu dự án của bạn dùng bản cũ hơn
+        dotnet-version: '8.0.x' # Nhớ sửa thành 6.0.x hoặc 7.0.x nếu dự án dùng bản cũ hơn
 
-    - name: 3. Cài đặt thư viện (Restore)
-      run: dotnet restore
-
-    - name: 4. Biên dịch và Đóng gói (Publish)
+    - name: 3. Biên dịch và Đóng gói (Publish)
       run: dotnet publish -c Release -o ./publish_output
 
-    - name: 5. Đẩy file lên MonsterASP qua FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./publish_output/
-        server-dir: /wwwroot/
+    - name: 4. Đẩy file lên MonsterASP bằng WebDeploy chính chủ
+      run: |
+        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" -source:contentPath='${{ github.workspace }}\publish_output' -dest:contentPath='${{ secrets.WEBDEPLOY_SITENAME }}',computerName='${{ secrets.WEBDEPLOY_SERVER }}',userName='${{ secrets.WEBDEPLOY_USERNAME }}',password='${{ secrets.WEBDEPLOY_PASSWORD }}',authType='Basic' -verb:sync -enableRule:AppOffline
