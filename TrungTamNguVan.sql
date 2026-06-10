@@ -296,11 +296,10 @@ INSERT INTO CT_PHU_TRACH (MaTK, MaLop, VaiTro, NgayBatDauPT, NgayKetThucPT) VALU
 ('TK016', 'LH019', N'Trợ giảng', '2025-08-15', '2026-05-31'),
 ('TK016', 'LH021', N'Trợ giảng', '2025-08-15', '2026-05-31');
 
-
 -- 1. BẢNG HỌC VIÊN (205 học viên)
 INSERT INTO HOC_VIEN (MaHocVien, MaLop, TenHocVien, NgaySinh, SDT, KhoiLop, TrangThai) VALUES
 -- GIAI ĐOẠN 1: THÁNG 8 & 9/2025
-('HV001', 'LH010', N'Nguyễn Thị Thu Hà', '2011-05-15', '0983112233', 9, N'Đang học'),
+('HV001', 'LH010', N'Nguyễn Thị Thu Hà', '2011-05-15', '0983646295', 9, N'Đang học'),
 ('HV002', 'LH019', N'Trần Hoàng Gia Bảo', '2008-12-05', '0912445566', 12, N'Đang học'),
 ('HV003', 'LH001', N'Lê Thị Ngọc Mai', '2014-08-20', '0975778899', 6, N'Đang học'),
 ('HV004', 'LH007', N'Phạm Đức Trung Kiên', '2012-02-28', '0904112244', 8, N'Đang học'),
