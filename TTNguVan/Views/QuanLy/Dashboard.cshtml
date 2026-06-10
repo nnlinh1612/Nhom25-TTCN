@@ -1,0 +1,544 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* --- STYLE BIẾN TẤU MÀU SẮC CHUYÊN NGHIỆP --- */
+        :root {
+            --primary-soft: #6366f1;
+            --success-soft: #10b981;
+            --warning-soft: #f59e0b;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        .hang-kpi {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-bento {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-tron {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 22px;
+        }
+
+        .nhan-kpi {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .so-kpi {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .hang-bieu-do-full {
+            display: grid;
+            grid-template-columns: 1fr;
+            margin-bottom: 24px;
+        }
+
+        .hang-bieu-do {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .khung-ve {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .ten-bieu-do {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        /* --- STYLE BẢNG LỊCH HỌC NÂNG CẤP --- */
+        .bento-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .bento-table th {
+                background: #f8fafc;
+                color: #64748b;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                padding: 14px 16px;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .bento-table td {
+                padding: 16px;
+                border-bottom: 1px solid #f8fafc;
+                font-size: 14px;
+                color: #334155;
+                vertical-align: middle;
+            }
+
+            .bento-table tr:hover td {
+                background-color: #f8fafc;
+                transition: 0.2s;
+            }
+
+        /* Chuyển đổi màu chữ lớp sang màu xanh biển đậm quý phái, chuyên nghiệp */
+        .text-xanh-bien-dam {
+            color: #1e3a8a !important;
+            font-weight: 700;
+        }
+
+        .shift-badge {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bg-morning {
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #ffedd5;
+        }
+
+        .bg-afternoon {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+        }
+
+        .bg-evening {
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #e0e7ff;
+        }
+
+        /* --- EMPTY STATE & DROPDOWN --- */
+        .chart-relative-box {
+            position: relative;
+            flex: 1;
+            width: 100%;
+        }
+
+        .empty-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(2px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 12px;
+        }
+
+            .empty-state i {
+                font-size: 42px;
+                color: #cbd5e1;
+                margin-bottom: 12px;
+            }
+
+            .empty-state p {
+                color: #64748b;
+                font-weight: 600;
+                font-size: 15px;
+                margin: 0;
+            }
+
+        .group-filter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .select-bento-sm {
+            padding: 6px 16px 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f8fafc;
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s;
+        }
+
+            .select-bento-sm:hover {
+                border-color: #cbd5e1;
+            }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <div>
+        <h2 style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+            Dashboard
+
+        </h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Quản lý toàn diện dữ liệu Trung tâm Ngữ Văn Minh Anh</p>
+    </div>
+</div>
+
+<div class="hang-kpi">
+    <div class="card-bento">
+        <div class="icon-tron" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-user-plus"></i></div>
+        <div class="nhan-kpi">Tổng tiếp nhận</div>
+        <div class="so-kpi">@ViewBag.TongKhachHang</div>
+    </div>
+    <div class="card-bento">
+        <div class="icon-tron" style="background:#eaf4f1; color:var(--success-soft);"><i class="fas fa-user-check"></i></div>
+        <div class="nhan-kpi">Học viên chính thức</div>
+        <div class="so-kpi">@ViewBag.TongHocVien</div>
+    </div>
+    <div class="card-bento">
+        <div class="icon-tron" style="background:#fff7ed; color:var(--warning-soft);"><i class="fas fa-chart-line"></i></div>
+        <div class="nhan-kpi">Tỷ lệ chuyển đổi</div>
+        <div class="so-kpi">@ViewBag.TyLeChuyenDoi%</div>
+    </div>
+    <div class="card-bento">
+        <div class="icon-tron" style="background:#f3e8ff; color:#9333ea;"><i class="fas fa-school"></i></div>
+        <div class="nhan-kpi">Lớp học đang mở</div>
+        <div class="so-kpi">@ViewBag.SoLopHoc</div>
+    </div>
+</div>
+
+<div class="hang-bieu-do">
+    <div class="khung-ve" style="padding: 0; overflow: hidden;">
+        <div class="ten-bieu-do" style="padding: 24px 24px 0 24px; margin-bottom: 16px;">
+            LỊCH HỌC HÀNG NGÀY
+
+            <form method="get" style="margin: 0;">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="date" name="ngayXemLich" class="select-bento-sm"
+                           style="background: #eff6ff; color: #3b82f6; border: none; padding: 6px 12px; font-weight: 700; border-radius: 8px; cursor: pointer; outline: none;"
+                           value="@(((DateTime)(ViewBag.NgayXemLich ?? DateTime.Now)).ToString("yyyy-MM-dd"))"
+                           onchange="this.form.submit()" />
+                </div>
+            </form>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto;">
+            <table class="bento-table">
+                <thead>
+                    <tr>
+                        <th>LỚP HỌC</th>
+                        <th>CA HỌC</th>
+                        <th>KHUNG GIỜ</th>
+                        <th>GIÁO VIÊN PHỤ TRÁCH</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        System.Text.Json.JsonDocument doc = null;
+                        if (ViewBag.LichHocHomNayJson != null)
+                        {
+                            doc = System.Text.Json.JsonDocument.Parse(ViewBag.LichHocHomNayJson);
+                        }
+                    }
+
+                    @if (doc != null && doc.RootElement.GetArrayLength() > 0)
+                    {
+                        foreach (var item in doc.RootElement.EnumerateArray())
+                        {
+                            string tenLop = item.GetProperty("TenLop").GetString();
+                            string caHoc = item.GetProperty("CaHoc").GetString() ?? "";
+                            string gioBatDau = item.GetProperty("GioBatDau").GetString();
+                            string gioKetThuc = item.GetProperty("GioKetThuc").GetString();
+                            string tenGiaoVien = item.GetProperty("TenGiaoVien").GetString();
+
+                            string shiftClass = "bg-morning";
+                            string shiftIcon = "fa-cloud-sun";
+
+                            if (caHoc.Contains("Chiều"))
+                            {
+                                shiftClass = "bg-afternoon";
+                                shiftIcon = "fa-sun";
+                            }
+                            else if (caHoc.Contains("Tối"))
+                            {
+                                shiftClass = "bg-evening";
+                                shiftIcon = "fa-moon";
+                            }
+
+                            <tr>
+                                <td class="text-xanh-bien-dam">@tenLop</td>
+                                <td>
+                                    <span class="shift-badge @shiftClass">
+                                        <i class="fas @shiftIcon" style="font-size: 11px;"></i> @caHoc
+                                    </span>
+                                </td>
+                                <td class="fw-bold text-dark">@gioBatDau - @gioKetThuc</td>
+                                <td style="color: #475569; font-weight: 500;">
+                                    @tenGiaoVien
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-calendar-times fs-4 mb-2 text-light"></i><br />
+                                Không có lớp nào được xếp lịch vào ngày này.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="khung-ve">
+        <div class="ten-bieu-do">NGUỒN TIẾP NHẬN</div>
+        <div class="chart-container"><canvas id="bieuDoNguon"></canvas></div>
+    </div>
+</div>
+
+<div class="hang-bieu-do-full">
+    <div class="khung-ve" style="height: 380px;">
+        <div class="ten-bieu-do">
+            XU HƯỚNG CHUYỂN ĐỔI HỌC VIÊN
+            <div class="d-flex gap-3" style="font-size: 13px; font-weight: normal;">
+                <span><i class="fas fa-square me-1" style="color: #f97316;"></i> Tổng tiếp nhận</span>
+                <span><i class="fas fa-square me-1" style="color: #10b981;"></i> Đã đăng ký</span>
+            </div>
+        </div>
+        <div class="chart-container"><canvas id="bieuDoThuHut"></canvas></div>
+    </div>
+</div>
+
+<div class="hang-bieu-do-full">
+    <div class="khung-ve" style="height: 480px;">
+        <div class="ten-bieu-do">
+            <div class="d-flex align-items-center">
+                PHÂN TÍCH TỶ LỆ CHUYÊN CẦN VÀ ĐIỂM TRUNG BÌNH CỦA TỪNG KHỐI LỚP
+            </div>
+
+            <div class="group-filter">
+                <select id="selKhoi" class="select-bento-sm">
+                    @foreach (var i in new[] { 6, 7, 8, 9, 10, 11, 12 })
+                    {
+                        <option value="@i">Khối @i</option>
+                    }
+                </select>
+                <select id="selLevel" class="select-bento-sm">
+                    <option value="ALL" selected>Tất cả</option>
+                    <option value="TB">Trung bình</option>
+                    <option value="KHA">Khá</option>
+                    <option value="GIOI">Giỏi</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chart-relative-box">
+            <div id="chartEmpty" class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <p>Lớp học này chưa bắt đầu hoặc chưa có dữ liệu</p>
+            </div>
+            <canvas id="bieuDoKiep"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="hang-bieu-do-full">
+    <div class="khung-ve" style="height: 350px;">
+        <div class="ten-bieu-do">THỐNG KÊ HỌC VIÊN THEO KHỐI LỚP</div>
+        <div class="chart-container"><canvas id="bieuDoKhoi"></canvas></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // 1. CHART NGUỒN KHÁCH HÀNG (Doughnut)
+            const labelsNguon = [@Html.Raw(ViewBag.LabelsNguon)];
+            if (labelsNguon.length > 0) {
+                new Chart(document.getElementById('bieuDoNguon'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labelsNguon,
+                        datasets: [{ data: [@Html.Raw(ViewBag.DataNguon)], backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'], borderWidth: 3, borderColor: '#ffffff', hoverOffset: 6 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 12 } } } } }
+                });
+            }
+
+            // 2. CHART THU HÚT & CHUYỂN ĐỔI (Bar Kép)
+            const ctxTS = document.getElementById('bieuDoThuHut').getContext('2d');
+            const gradTS = ctxTS.createLinearGradient(0, 0, 0, 300);
+            gradTS.addColorStop(0, '#10b981'); gradTS.addColorStop(1, 'rgba(16, 185, 129, 0.5)');
+
+            new Chart(ctxTS, {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(ViewBag.LabelsTrend)],
+                    datasets: [
+                        { label: 'Tiếp nhận', data: [@Html.Raw(ViewBag.DataLeads)], backgroundColor: '#f97316', borderRadius: 6, barPercentage: 0.6 },
+                        { label: 'Đăng ký', data: [@Html.Raw(ViewBag.DataSuccess)], backgroundColor: gradTS, borderRadius: 6, barPercentage: 0.6 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } } }
+            });
+
+            // 3. CHART KHỐI LỚP (Bar Ngang)
+            new Chart(document.getElementById('bieuDoKhoi'), {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(ViewBag.LabelsKhoi)],
+                    datasets: [{ label: 'Số lượng học viên', data: [@Html.Raw(ViewBag.DataKhoi)], backgroundColor: '#8b5cf6', borderRadius: 8, barThickness: 24 }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { borderDash: [4, 4] }, border: { display: false } }, y: { grid: { display: false }, border: { display: false } } } }
+            });
+
+            // 4. BIỂU ĐỒ KẾT HỢP (MIXED CHART)
+            const chartDataMap = @Html.Raw(ViewBag.MixedChartData ?? "{}");
+            const ctx = document.getElementById('bieuDoKiep').getContext('2d');
+
+            const gradBar = ctx.createLinearGradient(0, 0, 0, 400);
+            gradBar.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+            gradBar.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+            let mixedChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Tỷ lệ điểm danh (%)',
+                            type: 'bar',
+                            yAxisID: 'yRight',
+                            backgroundColor: gradBar,
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.5,
+                            data: []
+                        },
+                        {
+                            label: 'Điểm số trung bình',
+                            type: 'line',
+                            yAxisID: 'yLeft',
+                            borderColor: '#10b981',
+                            backgroundColor: '#10b981',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#10b981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: false,
+                            data: []
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 25, font: {size: 13, weight: '600'} } },
+                        tooltip: { backgroundColor: 'rgba(255, 255, 255, 0.95)', titleColor: '#0f172a', bodyColor: '#475569', borderColor: '#e2e8f0', borderWidth: 1, padding: 12, usePointStyle: true }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, border: { display: false } },
+                        yLeft: {
+                            type: 'linear', position: 'left', min: 0, max: 10,
+                            title: { display: true, text: 'Điểm số (0 - 10)', color: '#10b981', font: { weight: 'bold' } },
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' }, border: { display: false }
+                        },
+                        yRight: {
+                            type: 'linear', position: 'right', min: 0, max: 100,
+                            title: { display: true, text: 'Tỷ lệ điểm danh (%)', color: '#3b82f6', font: { weight: 'bold' } },
+                            grid: { drawOnChartArea: false }, border: { display: false }
+                        }
+                    }
+                }
+            });
+
+            function updateMixedChart() {
+                const khoi = document.getElementById('selKhoi').value;
+                const level = document.getElementById('selLevel').value;
+                const key = khoi + "_" + level;
+
+                const data = chartDataMap[key];
+                const emptyEl = document.getElementById('chartEmpty');
+
+                if (data && data.isStarted) {
+                    emptyEl.style.display = 'none';
+                    mixedChart.data.labels = data.labels;
+                    mixedChart.data.datasets[0].data = data.diemDanh;
+                    mixedChart.data.datasets[1].data = data.diemTB;
+                    mixedChart.update();
+                } else {
+                    emptyEl.style.display = 'flex';
+                    mixedChart.data.datasets[0].data = [];
+                    mixedChart.data.datasets[1].data = [];
+                    mixedChart.update();
+                }
+            }
+
+            document.getElementById('selKhoi').addEventListener('change', updateMixedChart);
+            document.getElementById('selLevel').addEventListener('change', updateMixedChart);
+
+            updateMixedChart();
+        });
+    </script>
+}
+

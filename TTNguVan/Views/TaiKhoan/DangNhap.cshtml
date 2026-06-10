@@ -1,0 +1,253 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập - Ngữ Văn Minh Anh</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f8f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .khung-bao-ngoai {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+        }
+
+        .phan-dau {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hop-logo {
+            background-color: #52ab98;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 15px auto;
+        }
+
+        .tieu-de-chinh {
+            color: #1a2b3c;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .mo-ta-nho {
+            color: #6c757d;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .the-trang {
+            background-color: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .dong-nhap {
+            margin-bottom: 20px;
+        }
+
+        .nhan-chu {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .o-vien-ngoai {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
+
+            .o-vien-ngoai:focus-within {
+                border-color: #52ab98;
+                box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.15);
+            }
+
+        .bieu-tuong {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-right: 12px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .o-dien-chu {
+            border: none;
+            outline: none;
+            padding: 14px 0;
+            width: 100%;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+        }
+
+        .quen-mat-khau {
+            display: block;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .chu-link {
+            color: #52ab98;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .chu-link:hover {
+                text-decoration: underline;
+            }
+
+        .nut-dang-ky {
+            background-color: #52ab98;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .nut-dang-ky:hover {
+                background-color: #3e8e7e;
+            }
+
+        .chan-trang {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+
+
+        .tieude-demo {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .thong-bao-loi {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f8d7da;
+            color: #842029;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .an-thong-bao {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    </style>
+</head>
+<body>
+
+    @if (ViewBag.Loi != null)
+    {
+        <div id="hopThongBao" class="thong-bao-loi">
+            <i class="fas fa-exclamation-circle" style="color: #dc3545; font-size: 18px;"></i>
+            <span>@ViewBag.Loi</span>
+        </div>
+    }
+
+    <div class="khung-bao-ngoai">
+
+        <div class="phan-dau">
+            <div class="hop-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h3 class="tieu-de-chinh">Chào mừng trở lại</h3>
+            <p class="mo-ta-nho">Đăng nhập để tiếp tục quản lý trung tâm</p>
+        </div>
+
+        <div class="the-trang">
+            <form action="/TaiKhoan/DangNhap" method="post">
+
+                <div class="dong-nhap">
+                    <label class="nhan-chu">Email</label>
+                    <div class="o-vien-ngoai">
+                        <i class="far fa-envelope bieu-tuong"></i>
+                        <input type="email" name="Email" class="o-dien-chu" placeholder="your.email@example.com" required>
+                    </div>
+                </div>
+
+                <div class="dong-nhap" style="margin-bottom: 10px;">
+                    <label class="nhan-chu">Mật khẩu</label>
+                    <div class="o-vien-ngoai">
+                        <i class="fas fa-lock bieu-tuong"></i>
+                        <input type="password" name="MatKhau" class="o-dien-chu" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="quen-mat-khau">
+                    <a href="/TaiKhoan/QuenMatKhau" class="chu-link" style="font-weight: normal;">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="nut-dang-ky">Đăng nhập</button>
+
+            </form>
+
+            <div class="chan-trang">
+                Chưa có tài khoản? <a href="/TaiKhoan/DangKy" class="chu-link" style="font-weight: 600;">Đăng ký ngay</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function () {
+            var thongBao = document.getElementById('hopThongBao');
+            if (thongBao) {
+                thongBao.classList.add('an-thong-bao');
+                setTimeout(function() { thongBao.remove(); }, 500);
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

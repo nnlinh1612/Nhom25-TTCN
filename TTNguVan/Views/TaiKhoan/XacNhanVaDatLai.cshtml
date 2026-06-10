@@ -1,0 +1,102 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xác nhận & Đổi mật khẩu - Ngữ Văn Minh Anh</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 380px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            color: #1e293b;
+            text-align: center;
+        }
+
+        p {
+            color: #64748b;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #52ab98;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-box">
+        <h2>Xác nhận đổi mật khẩu</h2>
+        <p>Nhập mã vừa nhận được trong Email và mật khẩu mới của bạn</p>
+        <form action="/TaiKhoan/XacNhanVaDatLai" method="post">
+            <div class="input-group">
+                <label>Mã xác nhận (6 số)</label>
+                <input type="text" name="maNhap" required placeholder="Nhập mã xác nhận">
+            </div>
+            <div class="input-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" name="matKhauMoi" required placeholder="Nhập mật khẩu mới">
+            </div>
+            @if (ViewBag.Loi != null)
+            {
+                <div class="error">@ViewBag.Loi</div>
+            }
+            <button type="submit" class="btn-submit">Đổi mật khẩu & Đăng nhập</button>
+        </form>
+    </div>
+</body>
+</html>

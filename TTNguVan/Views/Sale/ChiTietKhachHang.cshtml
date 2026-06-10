@@ -1,0 +1,477 @@
+﻿@model TTNguVan.Models.KhachHang
+@{
+    ViewData["Title"] = "Chi tiết khách hàng";
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    // Lấy lịch sử tương tác từ Controller truyền sang
+    var lichSuList = ViewBag.LichSuTuongTac as IEnumerable<TTNguVan.Models.LichSuTuongTac>;
+}
+
+@section Styles {
+    <style>
+        /* --- BẢNG (TABLE) CHUẨN BENTO TRÀN VIỀN --- */
+        .card-bento-table {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* --- KHUNG BỌC LỊCH SỬ TƯ VẤN --- */
+        .card-history-wrapper {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 24px; /* Tạo khoảng cách thở bên trong khung */
+            margin-top: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Bóng đổ nhẹ */
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table-custom thead th {
+                background: var(--bg-body);
+                color: var(--text-muted);
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border-color);
+                text-align: left;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody td {
+                padding: 16px 24px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: var(--text-main);
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: var(--bg-body);
+                transition: 0.2s;
+            }
+
+        /* Nút quay lại chuẩn */
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+            .btn-back:hover {
+                color: var(--primary-hover);
+                transform: translateX(-4px);
+            }
+
+        /* --- ICON INFO --- */
+        .icon-tron-nho {
+            width: 44px;
+            height: 44px;
+            background-color: #eaf4f1;
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 16px;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        /* --- BADGES --- */
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .bg-blue-light {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .bg-orange-light {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        .bg-green-light {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .bg-red-light {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .bg-gray-light {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        /* --- THAO TÁC --- */
+        .action-icon {
+            color: var(--text-muted);
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 16px;
+            transition: 0.2s;
+            display: inline-flex;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--bg-body);
+            text-decoration: none;
+        }
+
+            .action-icon.edit {
+                color: #64748b;
+            }
+                .action-icon.edit:hover {
+                    background-color: #64748b;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4);
+                }
+            .action-icon.delete {
+                color: #ef4444;
+            }
+                .action-icon.delete:hover {
+                    background-color: #ef4444;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+                }
+
+        /* --- MODAL BENTO --- */
+        .modal-bento {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+        .form-label-bento {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-control-bento {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--bg-body);
+            transition: 0.2s;
+            width: 100%;
+        }
+
+            .form-control-bento:focus {
+                border-color: var(--primary);
+                background: #fff;
+                box-shadow: none;
+                outline: none;
+            }
+
+        .form-select-bento {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background-color: var(--bg-body);
+            width: 100%;
+        }
+
+            .form-select-bento:focus {
+                border-color: var(--primary);
+                background-color: #fff;
+                box-shadow: none;
+                outline: none;
+            }
+    </style>
+}
+
+<a href="@Url.Action("QuanLyKhachHang", "Sale")" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Quay lại
+</a>
+
+<div class="card-bento mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: var(--text-main); font-size: 24px;">@Model.TenKhachHang</h3>
+            <p class="text-muted mb-0">Mã khách hàng: <span class="fw-bold text-dark">#@Model.MaKhachHang</span></p>
+        </div>
+        <div>
+            @{
+                var badgeClass = "bg-gray-light";
+                switch (Model.TrangThai)
+                {
+                    case "Đã đăng ký": badgeClass = "bg-green-light"; break;
+                    case "Quan tâm": badgeClass = "bg-orange-light"; break;
+                }
+            }
+            <span class="badge-custom @badgeClass">@Model.TrangThai</span>
+        </div>
+    </div>
+
+    <hr style="border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-tron-nho"><i class="fas fa-phone-alt"></i></div>
+                <div>
+                    <span class="info-label">Số điện thoại liên hệ</span>
+                    <p class="info-value">@Model.Sdt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-tron-nho" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-book"></i></div>
+                <div>
+                    <span class="info-label">Khối lớp quan tâm</span>
+                    <p class="info-value">Lớp @Model.KhoiLop</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BẮT ĐẦU KHUNG BỌC LỊCH SỬ TƯ VẤN -->
+<div class="card-history-wrapper">
+    
+    <!-- Phần Tiêu đề và Nút bấm -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1" style="color: var(--text-main);">Lịch sử tư vấn</h4>
+            <p class="text-muted mb-0 fs-6">Ghi chú các lần tương tác với khách hàng</p>
+        </div>
+        <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addHistoryModal">
+            <i class="fas fa-plus me-1"></i> Thêm lịch sử
+        </button>
+    </div>
+
+    <!-- Phần Bảng dữ liệu -->
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th style="width: 5%;" class="ps-4">STT</th>
+                    <th style="width: 15%;">NGÀY TƯ VẤN</th>
+                    <th style="width: 20%;">LOẠI TƯ VẤN</th>
+                    <th style="width: 45%;">NỘI DUNG</th>
+                    <th style="width: 160px;" class="text-end pe-4">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (lichSuList != null && lichSuList.Any())
+                {
+                    int stt = 1;
+                    foreach (var ls in lichSuList)
+                    {
+                        // ĐỔI MÀU LOẠI TƯ VẤN
+                        string badgeBg = "#f1f5f9";
+                        string badgeText = "#475569";
+
+                        switch (ls.LoaiTuongTac)
+                        {
+                            case "Tư vấn qua điện thoại": badgeBg = "#e0f2fe"; badgeText = "#0369a1"; break;
+                            case "Gặp trực tiếp": badgeBg = "#dcfce7"; badgeText = "#15803d"; break;
+                            case "Nhắn tin (Zalo/Mess)": badgeBg = "#ffedd5"; badgeText = "#c2410c"; break;
+                            case "Nhắn tin": badgeBg = "#ffedd5"; badgeText = "#c2410c"; break;
+                            case "Giải đáp thắc mắc": badgeBg = "#f3e8ff"; badgeText = "#7e22ce"; break;
+                        }
+
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">@stt</td>
+                            <td class="fw-bold text-dark">@ls.NgayTuongTac.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span style="background-color: @badgeBg; color: @badgeText; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                    @ls.LoaiTuongTac
+                                </span>
+                            </td>
+                            <td class="text-secondary" style="white-space: normal; min-width: 300px;">@ls.NoiDung</td>
+
+                            <td class="pe-4">
+                                <div class="d-flex justify-content-end gap-1 flex-nowrap">                             
+                                    <a href="#" class="action-icon edit" data-bs-toggle="modal" data-bs-target="#editHistoryModal_@ls.MaTuongTac" title="Sửa"><i class="far fa-edit"></i></a>
+                                    <a href="#" class="action-icon delete" data-bs-toggle="modal" data-bs-target="#deleteHistoryModal_@ls.MaTuongTac" title="Xóa"><i class="fas fa-trash-alt"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="editHistoryModal_@ls.MaTuongTac" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content modal-bento">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold" style="color: var(--text-main);">Chỉnh sửa lịch sử</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form asp-controller="Sale" asp-action="UpdateLichSu" method="post">
+                                        <div class="modal-body p-3">
+                                            <input type="hidden" name="MaTuongTac" value="@ls.MaTuongTac" />
+                                            <input type="hidden" name="MaKhachHang" value="@ls.MaKhachHang" />
+
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label-bento">Loại tư vấn <span class="text-danger">*</span></label>
+                                                    <select name="LoaiTuongTac" class="form-select-bento" required>
+                                                        <option value="Tư vấn qua điện thoại" selected="@(ls.LoaiTuongTac == "Tư vấn qua điện thoại")">Tư vấn qua điện thoại</option>
+                                                        <option value="Gặp trực tiếp" selected="@(ls.LoaiTuongTac == "Gặp trực tiếp")">Gặp trực tiếp</option>
+                                                        <option value="Nhắn tin (Zalo/Mess)" selected="@(ls.LoaiTuongTac == "Nhắn tin (Zalo/Mess)")">Nhắn tin (Zalo/Mess)</option>
+                                                        <option value="Giải đáp thắc mắc" selected="@(ls.LoaiTuongTac == "Giải đáp thắc mắc")">Giải đáp thắc mắc</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label-bento">Ngày tư vấn <span class="text-danger">*</span></label>
+                                                    <input type="date" name="NgayTuongTac" class="form-control-bento" value="@ls.NgayTuongTac.ToString("yyyy-MM-dd")" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label-bento">Ghi chú <span class="text-danger">*</span></label>
+                                                <textarea name="NoiDung" class="form-control-bento" rows="3" required style="resize:none;">@ls.NoiDung</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn fw-medium" data-bs-dismiss="modal" style="color: var(--text-muted); background: var(--bg-body); border-radius: 12px; padding: 10px 20px;">Hủy</button>
+                                            <button type="submit" class="btn-primary-custom">Cập nhật</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="deleteHistoryModal_@ls.MaTuongTac" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content modal-bento text-center p-4">
+                                    <div class="text-danger mb-3"><i class="fas fa-exclamation-triangle" style="font-size: 50px;"></i></div>
+                                    <h4 class="fw-bold text-dark mb-2">Xác nhận xóa?</h4>
+                                    <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa lịch sử tư vấn ngày <strong class="text-danger">@ls.NgayTuongTac.ToString("dd/MM/yyyy")</strong> không?</p>
+                                    <div class="d-flex justify-content-center gap-3">
+                                        <button type="button" class="btn fw-medium w-50" data-bs-dismiss="modal" style="background: var(--bg-body); color: var(--text-muted); border-radius: 12px; padding: 12px;">Hủy bỏ</button>
+                                        <form asp-controller="Sale" asp-action="DeleteLichSu" method="post" class="w-50 m-0">
+                                            <input type="hidden" name="id" value="@ls.MaTuongTac" />
+                                            <input type="hidden" name="maKhachHang" value="@ls.MaKhachHang" />
+                                            <button type="submit" class="btn text-white w-100 fw-medium" style="background: #ef4444; border-radius: 12px; padding: 12px;">Xóa bỏ</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        stt++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5 fst-italic">
+                            <i class="fas fa-box-open fs-2 d-block mb-3" style="color: var(--border-color);"></i>
+                            Khách hàng này chưa có lịch sử tư vấn nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-bento">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" style="color: var(--text-main);">Thêm lịch sử tư vấn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Sale" asp-action="ThemLichSu" method="post">
+                <div class="modal-body p-3">
+                    <input type="hidden" name="MaKhachHang" value="@Model.MaKhachHang" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Loại tư vấn <span class="text-danger">*</span></label>
+                            <select name="LoaiTuongTac" class="form-select-bento" required>
+                                <option value="" selected disabled>Chọn loại tư vấn</option>
+                                <option value="Tư vấn qua điện thoại">Tư vấn qua điện thoại</option>
+                                <option value="Gặp trực tiếp">Gặp trực tiếp</option>
+                                <option value="Nhắn tin (Zalo/Mess)">Nhắn tin (Zalo/Mess)</option>
+                                <option value="Giải đáp thắc mắc">Giải đáp thắc mắc</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Ngày tư vấn <span class="text-danger">*</span></label>
+                            <input type="date" name="NgayTuongTac" class="form-control-bento" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label-bento">Ghi chú <span class="text-danger">*</span></label>
+                        <textarea name="NoiDung" class="form-control-bento" rows="3" placeholder="Nhập nội dung tư vấn chi tiết..." required style="resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn fw-medium" data-bs-dismiss="modal" style="color: var(--text-muted); background: var(--bg-body); border-radius: 12px; padding: 10px 20px;">Hủy</button>
+                    <button type="submit" class="btn-primary-custom">Lưu lịch sử</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let linkQuanLy = document.querySelector('a[href*="QuanLyKhachHang"]');
+            if (linkQuanLy) {
+                let cacLinkCu = document.querySelectorAll('.menu-item.active');
+                cacLinkCu.forEach(l => l.classList.remove('active'));
+                linkQuanLy.classList.add('active');
+            }
+        });
+    </script>
+}

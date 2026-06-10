@@ -1,0 +1,882 @@
+﻿@{
+    Layout = null;
+}
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Accessor
+@{
+    var hoTen = Accessor.HttpContext?.Session.GetString("HoTen") ?? "Nhân viên Sale";
+    var Email = Accessor.HttpContext?.Session.GetString("Email") ?? "admin@gmail.com";
+    var avatarChar = !string.IsNullOrEmpty(hoTen) ? hoTen.Substring(0, 1).ToUpper() : "S";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý người dùng - Ngữ Văn Minh Anh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #52ab98;
+            --primary-hover: #428e7d;
+            --bg-body: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box !important;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex !important;
+            height: 100vh !important;
+            background-color: var(--bg-body) !important;
+            overflow: hidden !important;
+        }
+
+        .thanh-sidebar {
+            width: var(--sidebar-width) !important;
+            min-width: var(--sidebar-width) !important;
+            height: 100vh !important;
+            background-color: #ffffff !important;
+            border-right: 1px solid var(--border-color) !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .logo-header {
+            padding: 32px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .menu-list {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            text-decoration: none !important;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 400;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            transition: 0.2s;
+        }
+
+            .menu-item i {
+                font-size: 18px;
+                width: 20px;
+                text-align: center;
+            }
+
+            .menu-item.active {
+                background-color: #eaf4f1;
+                color: var(--primary);
+                font-weight: 500;
+            }
+
+            .menu-item:hover:not(.active) {
+                background-color: var(--bg-body);
+                color: var(--text-main);
+            }
+
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .profile-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .avatar-circle {
+            width: 44px;
+            height: 44px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: block;
+        }
+
+        .profile-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .vung-chinh {
+            flex: 1;
+            padding: 35px 40px;
+            overflow-y: auto;
+            display: block;
+        }
+
+        .page-title-group {
+            margin-bottom: 30px;
+        }
+
+            .page-title-group h2 {
+                font-size: 26px;
+                font-weight: 700;
+                color: var(--text-main);
+                margin-bottom: 6px;
+            }
+
+            .page-title-group p {
+                color: var(--text-muted);
+                font-size: 15px;
+                margin: 0;
+            }
+
+        .hang-the {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .the-kpi {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .icon-tron {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .so-kpi {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            margin-top: 4px;
+        }
+
+        .nhan-kpi {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .khung-bang {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            overflow: visible;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 18px 24px;
+            background: var(--bg-body);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--bg-body);
+            transition: 0.2s;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .cv-admin {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .cv-sale {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .cv-cskh {
+            background: #f3e8ff;
+            color: #7e22ce;
+        }
+
+        .cv-gv {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .cv-tj {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .cv-ql {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .btn-duyet {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+            .btn-duyet:hover {
+                background: var(--primary-hover);
+                transform: translateY(-1px);
+            }
+
+        .btn-tuchoi {
+            background: #fef2f2;
+            color: #ef4444;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+            .btn-tuchoi:hover {
+                background: #fee2e2;
+                color: #dc2626;
+                transform: translateY(-1px);
+            }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-locked {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-pending {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        #toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transform: translateX(150%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+            #toast.show {
+                transform: translateX(0);
+            }
+
+        /* --- CSS CHO THAO TÁC (SỬA/XÓA) --- */
+        .action-icon {
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 16px;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: transparent;
+            text-decoration: none;
+            border: none;
+        }
+
+            .action-icon.edit {
+                color: #64748b;
+            }
+
+                .action-icon.edit:hover {
+                    background-color: #64748b;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4);
+                }
+
+            .action-icon.delete {
+                color: #ef4444;
+            }
+
+                .action-icon.delete:hover {
+                    background-color: #ef4444;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+                }
+
+        /* --- CSS CHO MODAL BENTO (SỬA) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-bento {
+            background: #fff;
+            width: 450px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 24px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+            .close-btn:hover {
+                color: #ef4444;
+            }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label-bento {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-control-bento, .form-select-bento {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--bg-body);
+            transition: 0.2s;
+            outline: none;
+        }
+
+            .form-control-bento:focus, .form-select-bento:focus {
+                border-color: var(--primary);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.15);
+            }
+
+        .btn-primary-custom {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+            .btn-primary-custom:hover {
+                background: var(--primary-hover);
+            }
+
+        /* --- CSS CHO MODAL XÓA (MOCKUP XÁC NHẬN) --- */
+        .modal-delete {
+            background: #fff;
+            width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px 24px;
+            position: relative;
+            text-align: center;
+        }
+
+        .icon-warning {
+            font-size: 56px;
+            color: #ef4444;
+            margin-bottom: 15px;
+        }
+
+        .delete-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .delete-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+            .delete-desc strong {
+                color: #ef4444;
+                font-weight: 700;
+            }
+
+        .delete-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+            .btn-cancel:hover {
+                background: var(--bg-body);
+            }
+
+        .btn-danger {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: #ef4444;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+            .btn-danger:hover {
+                background: #dc2626;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            }
+    </style>
+</head>
+<body>
+
+    <div id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Thông báo!</span>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-bento">
+            <h3 style="margin-bottom: 20px; font-size: 18px; color: var(--text-main);">Cập nhật nhân sự</h3>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <form action="/Admin/SuaNguoiDung" method="post">
+                <input type="hidden" id="edit-matk" name="maTk" />
+
+                <div class="form-group">
+                    <label class="form-label-bento">Họ và tên</label>
+                    <input type="text" id="edit-hoten" name="hoTen" class="form-control-bento" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bento">Chức vụ</label>
+                    <select id="edit-chucvu" name="maChucVu" class="form-select-bento" required>
+                        <option value="CV001">Admin</option>
+                        <option value="CV002">Nhân viên Sale</option>
+                        <option value="CV003">Nhân viên CSKH</option>
+                        <option value="CV004">Giáo viên</option>
+                        <option value="CV005">Trợ giảng</option>
+                        <option value="CV006">Quản lý</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-bento">Trạng thái</label>
+                    <select id="edit-trangthai" name="trangThai" class="form-select-bento" required>
+                        <option value="Đã duyệt">Đang hoạt động</option>
+                        <option value="Đã khóa">Khóa tài khoản</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary-custom">Lưu thay đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-delete">
+            <i class="fas fa-exclamation-triangle icon-warning"></i>
+            <h3 class="delete-title">Xác nhận xóa?</h3>
+            <p class="delete-desc">Bạn có chắc chắn muốn xóa nhân sự <strong id="delete-name-display"></strong> không?</p>
+
+            <form action="/Admin/XoaNguoiDung" method="post" class="delete-actions">
+                <input type="hidden" id="delete-id" name="id" />
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Hủy bỏ</button>
+                <button type="submit" class="btn-danger">Xóa ngay</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="thanh-sidebar">
+        <div class="logo-header">
+            <div class="logo-box"><i class="fas fa-graduation-cap"></i></div>
+            <span class="logo-text">Ngữ Văn Minh Anh</span>
+        </div>
+
+        <div class="menu-list">
+            <a href="/Admin/QuanLyNguoiDung" class="menu-item active">
+                <i class="fas fa-users"></i><span>Quản lý người dùng</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="profile-box">
+                <div class="avatar-circle">@avatarChar</div>
+                <div class="profile-info">
+                    <span class="profile-name">@hoTen</span>
+                    <span class="profile-email">@Email</span>
+                </div>
+            </div>
+            <a href="/TaiKhoan/DangXuat" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="vung-chinh">
+        <div class="page-title-group">
+            <h2>Quản lý người dùng</h2>
+            <p>Phê duyệt và theo dõi danh sách nhân sự của hệ thống</p>
+        </div>
+
+        <div class="hang-the">
+            <div class="the-kpi">
+                <div class="icon-tron" style="background:#fff7ed; color:#ea580c;"><i class="far fa-clock"></i></div>
+                <div><div class="nhan-kpi">Chờ phê duyệt</div><div class="so-kpi">@ViewBag.ChoDuyet.Count</div></div>
+            </div>
+            <div class="the-kpi">
+                <div class="icon-tron" style="background:#eaf4f1; color:var(--primary);"><i class="far fa-check-circle"></i></div>
+                <div><div class="nhan-kpi">Đã phê duyệt</div><div class="so-kpi">@ViewBag.DaDuyet.Count</div></div>
+            </div>
+            <div class="the-kpi">
+                <div class="icon-tron" style="background:#eff6ff; color:#3b82f6;"><i class="fas fa-users"></i></div>
+                <div><div class="nhan-kpi">Tổng tài khoản</div><div class="so-kpi">@(ViewBag.ChoDuyet.Count + ViewBag.DaDuyet.Count)</div></div>
+            </div>
+        </div>
+
+        <h3 style="font-size:18px; margin-bottom:15px; color:var(--text-main); font-weight:700;">Danh sách chờ phê duyệt</h3>
+        <div class="khung-bang">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="10%">Mã TK</th>
+                        <th width="20%">Họ tên</th>
+                        <th width="25%">Email</th>
+                        <th width="15%">Chức vụ</th>
+                        <th width="15%">Trạng thái</th>
+                        <th width="15%" style="text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.ChoDuyet.Count == 0)
+                    {
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:40px; font-style: italic;">Không có yêu cầu nào đang chờ.</td></tr>
+                    }
+                    @foreach (var user in ViewBag.ChoDuyet)
+                    {
+                        <tr>
+                            <td style="color:var(--text-muted); font-family:monospace; font-weight: 600;">@user.MaTk</td>
+                            <td style="font-weight:600; color: var(--text-main);">@user.HoTen</td>
+                            <td style="color: var(--text-muted);">@user.Email</td>
+                            <td>
+                                @{
+                                    string cls = user.MaChucVu == "CV002" ? "cv-sale" : user.MaChucVu == "CV003" ? "cv-cskh" : user.MaChucVu == "CV004" ? "cv-gv" : user.MaChucVu == "CV005" ? "cv-tj" : "cv-ql";
+                                    string name = user.MaChucVu == "CV002" ? "Sale" : user.MaChucVu == "CV003" ? "CSKH" : user.MaChucVu == "CV004" ? "Giáo viên" : user.MaChucVu == "CV005" ? "Trợ giảng" : "Quản lý";
+                                }
+                                <span class="badge @cls">@name</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-pending"><i class="far fa-clock"></i> Chờ duyệt</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <form action="/Admin/PheDuyet" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" value="@user.MaTk" />
+                                    <button type="submit" class="btn-duyet me-1">Duyệt</button>
+                                </form>
+                                <form action="/Admin/TuChoi" method="post" style="display:inline;" onsubmit="return confirm('Tài khoản sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?')">
+                                    <input type="hidden" name="id" value="@user.MaTk" />
+                                    <button type="submit" class="btn-tuchoi">Từ chối</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size:18px; margin-bottom:15px; color:var(--text-main); font-weight:700;">Nhân sự đã phê duyệt</h3>
+        <div class="khung-bang">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="10%">Mã TK</th>
+                        <th width="20%">Họ tên</th>
+                        <th width="25%">Email</th>
+                        <th width="15%">Chức vụ</th>
+                        <th width="15%">Trạng thái</th>
+                        <th width="15%" style="text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.DaDuyet.Count == 0)
+                    {
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:40px; font-style: italic;">Chưa có nhân sự nào được duyệt.</td></tr>
+                    }
+                    @foreach (var user in ViewBag.DaDuyet)
+                    {
+                        <tr>
+                            <td style="color:var(--text-muted); font-family:monospace; font-weight: 600;">@user.MaTk</td>
+                            <td style="font-weight:600; color: var(--text-main);">@user.HoTen</td>
+                            <td style="color: var(--text-muted);">@user.Email</td>
+                            <td>
+                                @{
+                                    string cls2 = user.MaChucVu == "CV001" ? "cv-admin" : user.MaChucVu == "CV002" ? "cv-sale" : user.MaChucVu == "CV003" ? "cv-cskh" : user.MaChucVu == "CV004" ? "cv-gv" : user.MaChucVu == "CV005" ? "cv-tj" : "cv-ql";
+                                    string name2 = user.MaChucVu == "CV001" ? "Admin" : user.MaChucVu == "CV002" ? "Sale" : user.MaChucVu == "CV003" ? "CSKH" : user.MaChucVu == "CV004" ? "Giáo viên" : user.MaChucVu == "CV005" ? "Trợ giảng" : "Quản lý";
+                                }
+                                <span class="badge @cls2">@name2</span>
+                            </td>
+                            <td>
+                                @if (user.TrangThai == "Đã khóa")
+                                {
+                                    <span class="status-badge status-locked"><i class="fas fa-lock"></i> Đã khóa</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-active"><i class="fas fa-check-circle"></i> Đang hoạt động</span>
+                                }
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" class="action-icon edit" onclick="openModal('@user.MaTk')" title="Sửa thông tin">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                @if (user.MaChucVu != "CV001") // Không cho phép xóa Admin gốc
+                                {
+                                    <button type="button" class="action-icon delete" title="Xóa nhân sự" onclick="openDeleteModal('@user.MaTk', '@user.HoTen')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- TOAST THÔNG BÁO ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        window.onload = function() {
+            var msg = "@Html.Raw(TempData["ThongBao"])";
+            if (msg && msg !== "") { showToast(msg); }
+        };
+
+        // --- XỬ LÝ MODAL SỬA ---
+        async function openModal(maTk) {
+            try {
+                const response = await fetch(`/Admin/LayThongTinNguoiDung?id=${maTk}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('edit-matk').value = result.data.maTk;
+                    document.getElementById('edit-hoten').value = result.data.hoTen;
+                    document.getElementById('edit-chucvu').value = result.data.maChucVu;
+
+                    // Set giá trị cho trạng thái
+                    const trangThaiSelect = document.getElementById('edit-trangthai');
+                    if(result.data.trangThai === "Đã khóa") {
+                        trangThaiSelect.value = "Đã khóa";
+                    } else {
+                        trangThaiSelect.value = "Đã duyệt";
+                    }
+
+                    document.getElementById('editModal').style.display = 'flex';
+                }
+            } catch (error) {
+                alert("Lỗi khi tải dữ liệu người dùng!");
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // --- XỬ LÝ MODAL XÓA (MOCKUP XỊN) ---
+        function openDeleteModal(id, name) {
+            document.getElementById('delete-id').value = id;
+            document.getElementById('delete-name-display').innerText = name; // In đậm tên nhân sự lên bảng xóa
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Click ra ngoài modal để đóng
+        window.onclick = function(event) {
+            var editModal = document.getElementById('editModal');
+            var deleteModal = document.getElementById('deleteModal');
+            if (event.target == editModal) {
+                closeModal();
+            }
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+</html>

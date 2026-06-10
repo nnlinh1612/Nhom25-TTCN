@@ -1,0 +1,522 @@
+﻿@model IEnumerable<TTNguVan.Models.HocVien>
+@{
+    ViewData["Title"] = "Theo dõi học tập";
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    ViewBag.ActiveMenu = "TheoDoiHocTap";
+}
+
+@section Styles {
+    <style>
+        .toolbar-bento {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+        }
+
+            .search-box input {
+                width: 100%;
+                padding: 12px 16px 12px 40px;
+                border-radius: 10px;
+                border: 1px solid var(--border-color);
+                background: var(--bg-body);
+                outline: none;
+                transition: 0.2s;
+                font-size: 14px;
+                color: var(--text-main);
+            }
+
+                .search-box input:focus {
+                    border-color: var(--primary);
+                    background: #fff;
+                }
+
+        /* --- CSS CHO DROPDOWN BỘ LỌC --- */
+        .filter-select {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            background: var(--bg-body, #f8fafc);
+            font-size: 14px;
+            color: var(--text-main, #0f172a);
+            outline: none;
+            cursor: pointer;
+            min-width: 150px;
+            transition: 0.2s;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        /* --- NÚT TÌM KIẾM --- */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .btn-primary-custom:hover {
+                background: var(--primary-hover);
+            }
+
+        .card-bento-table {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 16px 16px; 
+            margin-bottom: 30px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table-custom thead th {
+                background: var(--bg-body); 
+                color: var(--text-muted);
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 16px 16px;
+                border-bottom: 1px var(--border-color); 
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody td {
+                padding: 16px 16px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: var(--text-main);
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: var(--bg-body);
+                transition: 0.2s;
+            }
+
+        /* --- HIỂN THỊ TIẾN TRÌNH (PROGRESS) --- */
+        .progress {
+            height: 6px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+        }
+
+        /* --- BADGE LỚP & TRẠNG THÁI --- */
+        .badge-lg {
+            font-size: 12px !important;
+            padding: 6px 12px !important;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- THAO TÁC --- */
+        .action-icon {
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 16px;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: transparent;
+            text-decoration: none;
+            border: none; 
+        }
+            .action-icon.view { color: #0ea5e9; }
+            .action-icon.view:hover { background-color: #0ea5e9; color: white; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.4); }
+            .action-icon.edit { color: #64748b; }
+            .action-icon.edit:hover { background-color: #64748b; color: white; box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4); }
+            .action-icon.delete { color: #ef4444; }
+            .action-icon.delete:hover { background-color: #ef4444; color: white; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
+
+        /* --- MODAL BENTO --- */
+        .modal-bento {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+        .form-label-bento {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-control-bento, .form-select-bento {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--bg-body);
+            transition: 0.2s;
+            width: 100%;
+            outline: none;
+        }
+
+            .form-control-bento:focus, .form-select-bento:focus {
+                border-color: var(--primary);
+                background: #fff;
+            }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <div>
+        <h2 style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Theo dõi học tập</h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Xem thông tin học tập, cập nhật trạng thái và xếp lớp </p>
+    </div>
+</div>
+
+<form asp-controller="Sale" asp-action="TheoDoiHocTap" method="get" class="toolbar-bento">
+    <div class="search-box flex-grow-1" style="min-width: 250px; position: relative;">
+        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; z-index: 2;"></i>
+        <input type="text" name="searchString" value="@ViewBag.CurrentSearch" 
+               placeholder="Tìm kiếm theo tên, mã hoặc SĐT..." 
+               class="form-control"
+               style="width: 100%; padding: 12px 40px 12px 42px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 14px; color: #0f172a;">
+    </div>
+
+    <select name="trangThai" class="filter-select" onchange="this.form.submit()">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Chờ xếp lớp" selected="@(ViewBag.CurrentStatus == "Chờ xếp lớp")">Chờ xếp lớp</option>
+        <option value="Học viên mới" selected="@(ViewBag.CurrentStatus == "Học viên mới")">Học viên mới</option>
+        <option value="Đang học" selected="@(ViewBag.CurrentStatus == "Đang học")">Đang học</option>
+        <option value="Bảo lưu" selected="@(ViewBag.CurrentStatus == "Bảo lưu")">Bảo lưu</option>
+        <option value="Nghỉ học" selected="@(ViewBag.CurrentStatus == "Nghỉ học")">Nghỉ học</option>
+    </select>
+
+    <select name="khoiLop" class="filter-select" onchange="this.form.submit()">
+        <option value="">Tất cả khối</option>
+        @for (int i = 6; i <= 12; i++)
+        {
+            <option value="@i" selected="@(ViewBag.CurrentKhoiLop == i.ToString())">Khối @i</option>
+        }
+    </select>
+
+    <select name="maLop" class="filter-select" onchange="this.form.submit()">
+        <option value="">Tất cả lớp</option>
+        @if (ViewBag.DanhSachLop != null)
+        {
+            foreach (var lop in ViewBag.DanhSachLop)
+            {
+                <option value="@lop.MaLop" selected="@(ViewBag.CurrentMaLop == lop.MaLop)">@lop.TenLop</option>
+            }
+        }
+    </select>
+
+    <button type="submit" class="d-none">Tìm kiếm</button>
+</form>
+
+<div class="card-bento-table">
+    <div class="table-responsive">
+        <table class="table-custom">
+           <thead>
+                <tr>
+                    <th class="text-nowrap">STT</th>
+                    <th class="text-nowrap">MÃ HỌC VIÊN</th>
+                    <th class="text-nowrap">HỌ TÊN</th>
+                    <th class="text-nowrap">KHỐI</th>
+                    <th class="text-nowrap">LỚP</th>
+                    <th class="text-nowrap">ĐIỂM DANH</th>
+                    <th class="text-nowrap">BTVN</th>
+                    <th class="text-center text-nowrap">TRẠNG THÁI</th>
+                    <th class="text-center text-nowrap">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int stt = 1;
+                    foreach (var item in Model)
+                    {
+                        int phanTramDiemDanh = 0;
+                        double diemTrungBinh = 0; 
+                        string khoiLopHV = item.KhoiLop.ToString();
+                        
+                        if (item.KqHocTaps != null && item.KqHocTaps.Any())
+                        {
+                            int tongBuoi = item.KqHocTaps.Count;
+
+                            // 1. CHỈNH SỬA LẠI LOGIC TÍNH % ĐIỂM DANH (Loại bỏ cả chữ "nghỉ" và chữ "vắng")
+                            int coMat = item.KqHocTaps.Count(k => !string.IsNullOrEmpty(k.DiemDanh) 
+                                                                  && !k.DiemDanh.ToLower().Contains("nghỉ") 
+                                                                  && !k.DiemDanh.ToLower().Contains("vắng"));
+                            
+                            phanTramDiemDanh = (int)Math.Round((double)coMat / tongBuoi * 100);
+
+                            // 2. CHỈNH SỬA LOGIC TÍNH TRUNG BÌNH BTVN (Lọc bỏ các buổi Nghỉ/Vắng MÀ ĐỒNG THỜI điểm = 0)
+                            var cacBuoiHople = item.KqHocTaps.Where(k => 
+                                !(k.DiemSo == 0 && !string.IsNullOrEmpty(k.DiemDanh) && (k.DiemDanh.ToLower().Contains("nghỉ") || k.DiemDanh.ToLower().Contains("vắng")))
+                            ).ToList();
+
+                            if (cacBuoiHople.Any())
+                            {
+                                diemTrungBinh = Math.Round(cacBuoiHople.Average(k => k.DiemSo), 1);
+                            }
+                        }
+
+                        <tr>
+                            <td class="fw-bold text-muted">@(stt++)</td>
+                            <td class="fw-bold" style="color: var(--primary);">@item.MaHocVien</td>
+                            <td class="text-nowrap">
+                                <div class="student-info">           
+                                    <span class="text-dark">@item.TenHocVien</span>
+                                </div>
+                            </td>
+                            <td class="text-nowrap">Lớp @khoiLopHV</td>
+
+                            <td>
+                                @{
+                                    string tenLopHienThi = item.MaLopNavigation != null ? item.MaLopNavigation.TenLop : item.MaLop;
+                                    string mauLop = "bg-light text-dark border";
+
+                                    if (!string.IsNullOrEmpty(tenLopHienThi))
+                                    {
+                                        string tenLower = tenLopHienThi.ToLower();
+                                        if (tenLower.Contains("trung bình")) mauLop = "bg-danger-subtle text-danger border border-danger-subtle";
+                                        else if (tenLower.Contains("giỏi")) mauLop = "bg-primary-subtle text-primary border border-primary-subtle";
+                                        else if (tenLower.Contains("khá") || tenLower.Contains("tb")) mauLop = "bg-warning-subtle text-warning border border-warning-subtle";
+                                    }
+                                }
+                                @if (item.TrangThai == "Chờ xếp lớp" || string.IsNullOrEmpty(item.MaLop))
+                                {
+                                    <span class="text-muted fst-italic">-</span>
+                                }
+                                else
+                                {                            
+                                    <span class="badge rounded badge-lg @mauLop">@tenLopHienThi</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.TrangThai == "Học viên mới" || item.TrangThai == "Chờ xếp lớp" || item.KqHocTaps == null || !item.KqHocTaps.Any())
+                                {
+                                    <span class="text-muted fst-italic" style="font-size: 13px;">Chưa có dữ liệu</span>
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1">
+                                            <div class="progress-bar" style="width: @(phanTramDiemDanh)%;"></div>
+                                        </div>
+                                        <span class="small fw-bold text-muted" style="width: 35px;">@(phanTramDiemDanh)%</span>
+                                    </div>
+                                }
+                            </td>
+
+                            <td class="text-nowrap">
+                                @if (item.TrangThai == "Học viên mới" || item.TrangThai == "Chờ xếp lớp" || item.KqHocTaps == null || !item.KqHocTaps.Any())
+                                {
+                                    <span class="text-muted fst-italic" style="font-size: 13px;">-</span>
+                                }
+                                else
+                                {
+                                    int phanTramDiem = (int)(diemTrungBinh * 10); 
+                                    string mauDiem = "bg-success";
+                                    if (diemTrungBinh < 5) mauDiem = "bg-danger";
+                                    else if (diemTrungBinh < 8) mauDiem = "bg-warning";
+
+                                    <div class="d-flex align-items-center gap-2" title="Điểm trung bình: @diemTrungBinh/10">
+                                        <div class="progress flex-grow-1" style="height: 6px; background-color: #f1f5f9; min-width: 60px;">
+                                            <div class="progress-bar @mauDiem" style="width: @(phanTramDiem)%; border-radius: 10px;"></div>
+                                        </div>
+                                        <span class="small fw-bold text-dark">@diemTrungBinh</span>
+                                    </div>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                            @if (item.TrangThai == "Đang học")
+                            {
+                                <span class="badge rounded badge-lg bg-success-subtle text-success border border-success-subtle">@item.TrangThai</span>
+                            }
+                            else if (item.TrangThai == "Học viên mới")
+                            {
+                                <span class="badge rounded badge-lg bg-info-subtle text-info border border-info-subtle">@item.TrangThai</span>
+                            }
+                            else if (item.TrangThai == "Chờ xếp lớp")
+                            {
+                                <span class="badge rounded badge-lg bg-secondary text-white border border-secondary">@item.TrangThai</span>
+                            }
+                            else if (item.TrangThai == "Bảo lưu")
+                            {
+                                <span class="badge rounded badge-lg bg-warning-subtle text-warning border border-warning-subtle">@item.TrangThai</span>
+                            }
+                            else if (item.TrangThai == "Nghỉ học")
+                            {
+                                <span class="badge rounded badge-lg bg-danger-subtle text-danger border border-danger-subtle">@item.TrangThai</span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded badge-lg bg-light text-dark border">@item.TrangThai</span>
+                            }
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                    <a href="@Url.Action("HoSoHocTap", "Sale", new { id = item.MaHocVien })" class="action-icon view" title="Xem hồ sơ chi tiết"><i class="far fa-eye"></i></a>
+                                    <a href="#" class="action-icon edit" data-bs-toggle="modal" data-bs-target="#modalSua_@item.MaHocVien" title="Chỉnh sửa"><i class="far fa-edit"></i></a>
+                                    <a href="#" class="action-icon delete" data-bs-toggle="modal" data-bs-target="#modalXoa_@item.MaHocVien" title="Xóa"><i class="fas fa-trash-alt"></i></a>                            
+                                </div>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="modalSua_@item.MaHocVien" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content modal-bento">
+                                    <form asp-action="CapNhatHocTapSale" asp-controller="Sale" method="post">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title fw-bold" style="color: var(--text-main);">Cập nhật học viên: @item.TenHocVien</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body p-3">
+                                            <input type="hidden" name="maHocVien" value="@item.MaHocVien" />
+                                            <div class="mb-3">
+                                                <label class="form-label-bento">Trạng thái</label>
+                                                <select class="form-select-bento" name="trangThaiHocVien">
+                                                    <option value="Chờ xếp lớp" selected="@(item.TrangThai == "Chờ xếp lớp" ? "selected" : null)">Chờ xếp lớp</option>
+                                                    <option value="Học viên mới" selected="@(item.TrangThai == "Học viên mới" ? "selected" : null)">Học viên mới</option>
+                                                    <option value="Đang học" selected="@(item.TrangThai == "Đang học" ? "selected" : null)">Đang học</option>
+                                                    <option value="Bảo lưu" selected="@(item.TrangThai == "Bảo lưu" ? "selected" : null)">Bảo lưu</option>
+                                                    <option value="Nghỉ học" selected="@(item.TrangThai == "Nghỉ học" ? "selected" : null)">Nghỉ học</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="form-label-bento">Xếp vào lớp (Khối @khoiLopHV)</label>
+                                                <select class="form-select-bento" name="maLopMoi">
+                                                    <option value="">-- Chọn lớp phù hợp --</option>
+                                                    @if (ViewBag.DanhSachLop != null)
+                                                    {
+                                                        string tenLopChuan1 = "Lớp " + khoiLopHV + " ";
+                                                        string tenLopChuan2 = "Lớp " + khoiLopHV + "-";
+
+                                                        var lopPhuHop = ((IEnumerable<TTNguVan.Models.LopHoc>)ViewBag.DanhSachLop)
+                                                        .Where(l => l.TenLop.Contains(tenLopChuan1) || l.TenLop.Contains(tenLopChuan2) || l.TenLop == ("Lớp " + khoiLopHV));
+
+                                                        foreach (var lop in lopPhuHop)
+                                                        {
+                                                            <option value="@lop.MaLop" selected="@(item.MaLop == lop.MaLop ? "selected" : null)">
+                                                                @lop.TenLop
+                                                            </option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="p-3 bg-light rounded-3" style="border: 1px solid var(--border-color);">
+                                                <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Thông tin Học vụ (Chỉ đọc)</h6>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted small mb-1">Tỷ lệ điểm danh</label>
+                                                    <input type="text" class="form-control-bento text-muted" value="@(item.TrangThai == "Chờ xếp lớp" || item.TrangThai == "Học viên mới" || item.KqHocTaps == null || !item.KqHocTaps.Any() ? "-" : phanTramDiemDanh + "%")" readonly style="background-color: var(--border-color); cursor: not-allowed; padding: 8px 12px;">
+                                                </div>
+                                                <div class="mb-0">
+                                                    <label class="form-label text-muted small mb-1">Điểm trung bình (Thang 10)</label>
+                                                    <input type="text" class="form-control-bento text-muted" value="@(item.TrangThai == "Chờ xếp lớp" || item.TrangThai == "Học viên mới" || item.KqHocTaps == null || !item.KqHocTaps.Any() ? "-" : diemTrungBinh.ToString())" readonly style="background-color: var(--border-color); cursor: not-allowed; padding: 8px 12px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-top-0 pt-0">
+                                            <button type="button" class="btn fw-medium" data-bs-dismiss="modal" style="color: var(--text-muted); background: var(--bg-body); border-radius: 10px; padding: 10px 20px;">Đóng</button>
+                                            <button type="submit" class="btn-primary-custom">Lưu thay đổi</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="modalXoa_@item.MaHocVien" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content modal-bento text-center p-4">
+                                    <div class="text-danger mb-3"><i class="fas fa-exclamation-triangle" style="font-size: 50px;"></i></div>
+                                    <h4 class="fw-bold text-dark mb-2">Xác nhận xóa?</h4>
+                                    <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa học viên <strong class="text-danger">@item.TenHocVien</strong> không?</p>
+                                    <div class="d-flex justify-content-center gap-3">
+                                        <button type="button" class="btn fw-medium w-50" data-bs-dismiss="modal" style="background: var(--bg-body); color: var(--text-muted); border-radius: 10px; padding: 12px;">Hủy bỏ</button>
+                                        <form asp-action="XoaHocTapSale" asp-controller="Sale" method="post" class="w-50 m-0">
+                                            <input type="hidden" name="maHocVien" value="@item.MaHocVien" />
+                                            <button type="submit" class="btn text-white w-100 fw-medium" style="background: #ef4444; border-radius: 10px; padding: 12px;">Xóa ngay</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5 fst-italic">Không tìm thấy học viên nào</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputTimKiem = document.querySelector('input[name="searchString"]');
+            const form = document.querySelector('.toolbar-bento');
+            
+            if(inputTimKiem && form) {
+                inputTimKiem.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        form.submit();
+                    }
+                });
+
+                inputTimKiem.addEventListener('search', function() {
+                    if(this.value === "") {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

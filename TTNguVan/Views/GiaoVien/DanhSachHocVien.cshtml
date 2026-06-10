@@ -1,0 +1,150 @@
+﻿@model IEnumerable<TTNguVan.Models.HocVien>
+@{
+    // Khai báo Layout dùng chung và Title
+    ViewData["Title"] = "Danh sách học viên - " + ViewBag.TenLop;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* Nút quay lại */
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+            .btn-back:hover {
+                color: var(--primary-hover);
+                transform: translateX(-4px); /* Lùi lại mượt hơn */
+            }
+
+        /* KHUNG CARD DÀNH RIÊNG CHO BẢNG (Bỏ padding để bảng tràn viền) */
+        .card-bento-table {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            overflow: hidden; /* Ép bảng bo góc theo card */
+            margin-bottom: 30px;
+        }
+
+        /* CSS BẢNG CHUẨN BENTO */
+        .table-hv {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table-hv thead th {
+                background-color: #f8fafc;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 18px 24px;
+                border-bottom: 1px solid #e2e8f0;
+                text-align: left;
+            }
+
+            .table-hv tbody td {
+                padding: 18px 24px;
+                vertical-align: middle;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: #1e293b;
+            }
+
+            .table-hv tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-hv tbody tr:hover {
+                background-color: #f8fafc;
+                transition: 0.2s;
+            }
+
+        /* Nút Xem chi tiết (Chuyển sang nền nhạt, chữ đậm) */
+        .action-link-btn {
+            background: #eaf4f1;
+            color: #52ab98;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+            .action-link-btn:hover {
+                background: #52ab98;
+                color: #fff;
+            }
+    </style>
+}
+
+<a href="/GiaoVien/QuanLyLop" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Quay lại
+</a>
+
+<div class="page-title-group mb-4">
+    <h2 style="color: #0f172a; font-weight: 700; font-size: 26px; margin-bottom: 6px;">Lớp: @ViewBag.TenLop</h2>
+    <p style="color: #64748b; font-size: 15px; margin: 0;">Danh sách học viên chính thức của lớp</p>
+</div>
+
+<div class="card-bento-table">
+    <div class="table-responsive">
+        <table class="table-hv">
+            <thead>
+                <tr>
+                    <th>MÃ HV</th>
+                    <th>HỌ VÀ TÊN</th>
+                    <th>NGÀY SINH</th>
+                    <th>SỐ ĐIỆN THOẠI</th>
+                    <th class="text-end pe-4">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var hv in Model)
+                    {
+                        <tr>
+                            <td style="color: #64748b; font-weight: 600;">@hv.MaHocVien</td>
+                            <td><b style="color: #0f172a;">@hv.TenHocVien</b></td>
+                            <td>@hv.NgaySinh.ToString("dd/MM/yyyy")</td>
+                            <td>@(string.IsNullOrEmpty(hv.Sdt) ? "Chưa cập nhật" : hv.Sdt)</td>
+                            <td class="text-end pe-4">
+                                <button class="action-link-btn" onclick="location.href='/GiaoVien/NhatKyHocVien?maHV=@hv.MaHocVien'">
+                                    Xem chi tiết
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5" style="color: #94a3b8; font-style: italic;">
+                            Chưa có học viên nào trong lớp này.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

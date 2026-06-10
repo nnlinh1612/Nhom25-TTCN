@@ -1,0 +1,460 @@
+﻿@model IEnumerable<TTNguVan.Models.KqHocTap>
+@{
+    var hv = (TTNguVan.Models.HocVien)ViewBag.HocVien;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+
+    int? thangLoc = ViewBag.ThangLoc;
+    int namLoc = ViewBag.NamLoc;
+}
+
+@section Styles {
+    <style>
+        .back-link {
+            color: #52ab98;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .back-link:hover {
+                color: #3d8878;
+                transform: translateX(-3px);
+            }
+
+        .bento-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 30px;
+            margin-bottom: 24px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+        }
+
+        .student-status {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #dcfce7;
+            color: #15803d;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .student-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 5px 0;
+        }
+
+        .student-id {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+            .student-id b {
+                color: #334155;
+            }
+
+        .info-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #f1f9f7;
+            padding: 14px 20px;
+            border-radius: 12px;
+            min-width: 250px;
+        }
+
+            .info-box i {
+                font-size: 22px;
+                color: #52ab98;
+            }
+
+            .info-box .info-label {
+                font-size: 11px;
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                margin-bottom: 2px;
+            }
+
+            .info-box .info-value {
+                font-size: 15px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+        .log-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .log-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+            .log-title i {
+                color: #3b82f6;
+                font-size: 24px;
+            }
+
+        .log-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* --- STYLE CHO Ô LỌC THÁNG NĂM --- */
+        .filter-select-sm {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            outline: none;
+            cursor: pointer;
+            transition: 0.2s;
+            height: 40px;
+        }
+
+            .filter-select-sm:focus {
+                border-color: #52ab98;
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(82,171,152,0.1);
+            }
+
+        .btn-copy {
+            background: #52ab98;
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .btn-copy:hover {
+                background: #3d8878;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(82,171,152,0.2);
+            }
+
+        .timeline-container {
+            position: relative;
+            padding-left: 32px;
+            margin-top: 10px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 5px;
+            top: 15px;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .buoi-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .buoi-dot {
+            position: absolute;
+            left: -34px;
+            top: 15px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border: 3px solid #52ab98;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .buoi-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: 0.2s;
+        }
+
+            .buoi-card:hover {
+                border-color: #52ab98;
+                box-shadow: 0 4px 15px rgba(82,171,152,0.08);
+            }
+
+        .buoi-title {
+            color: #52ab98;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .buoi-info-grid {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+            .buoi-info-grid label {
+                color: #64748b;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .buoi-info-grid span {
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+        .text-btvn {
+            color: #0284c7 !important;
+        }
+
+        .loi-phe-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 20px;
+        }
+
+        .loi-phe-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .loi-phe-header i {
+                color: #f59e0b;
+                font-size: 14px;
+            }
+
+        .loi-phe-content {
+            font-size: 14px;
+            color: #334155;
+            font-style: italic;
+            line-height: 1.5;
+        }
+    </style>
+}
+
+<a href="/GiaoVien/TheoDoiHocTap" class="back-link">
+    <i class="fas fa-arrow-left"></i> Quay lại
+</a>
+
+<div class="bento-card">
+    <div class="student-status">@hv.TrangThai</div>
+    <h1 class="student-name">@hv.TenHocVien</h1>
+    <div class="student-id">Mã học viên: <b>#@hv.MaHocVien</b></div>
+
+    <div class="info-wrapper">
+        <div class="info-box">
+            <i class="fas fa-phone-alt"></i>
+            <div>
+                <div class="info-label">SỐ ĐIỆN THOẠI LIÊN HỆ</div>
+                <div class="info-value">@hv.Sdt</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <i class="fas fa-users" style="color: #3b82f6;"></i>
+            <div>
+                <div class="info-label">LỚP ĐANG HỌC</div>
+                <div class="info-value">@(hv.MaLopNavigation?.TenLop ?? "Chưa xếp lớp")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bento-card">
+    <div class="log-header-top">
+        <div>
+            <h2 class="log-title"><i class="fas fa-history"></i> Lịch sử học tập</h2>
+            <div class="log-subtitle">Tiến trình các buổi học gần nhất</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <form method="get" action="/GiaoVien/NhatKyHocVien" class="m-0 d-flex gap-2">
+                <input type="hidden" name="maHV" value="@hv.MaHocVien" />
+
+                <select name="thang" id="thangFilter" class="filter-select-sm" onchange="this.form.submit()">
+                    <option value="">Cả năm</option>
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" selected="@(thangLoc == i)">Tháng @i</option>
+                    }
+                </select>
+
+                <select name="nam" id="namFilter" class="filter-select-sm" onchange="this.form.submit()">
+                    @for (int i = DateTime.Now.Year - 1; i <= DateTime.Now.Year + 1; i++)
+                    {
+                        <option value="@i" selected="@(namLoc == i)">Năm @i</option>
+                    }
+                </select>
+            </form>
+
+            <button onclick="copyBaoCao()" class="btn-copy">
+                <i class="fas fa-clipboard-check"></i> Copy báo cáo
+            </button>
+        </div>
+    </div>
+
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        @if (Model != null && Model.Any())
+        {
+            var total = Model.Count();
+            var index = 0;
+            foreach (var item in Model)
+            {
+                <div class="buoi-item">
+                    <div class="buoi-dot"></div>
+                    <div class="buoi-card">
+                        <div class="buoi-title">Buổi @(total - index): @item.MaBuoiHocNavigation.NgayHoc.ToString("dd/MM/yyyy")</div>
+
+                        <div class="buoi-info-grid">
+                            <label><i class="fas fa-user-check"></i> Điểm danh:</label>
+                            <span class="@(item.DiemDanh.Contains("Vắng") ? "text-danger" : "")">@item.DiemDanh</span>
+                        </div>
+
+                        <div class="buoi-info-grid">
+                            <label><i class="fas fa-book"></i> BTVN:</label>
+                            <span class="text-btvn">@item.Btvn (Điểm: @item.DiemSo)</span>
+                        </div>
+
+                        <div class="loi-phe-box">
+                            <div class="loi-phe-header">
+                                <i class="fas fa-comment-dots"></i> Lời phê của Trợ giảng:
+                            </div>
+                            <div class="loi-phe-content">
+                                "@item.NhanXet"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                index++;
+            }
+        }
+        else
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-folder-open d-block fs-1 mb-3 opacity-25"></i>
+                Học viên chưa có nhật ký học tập cho thời gian này.
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    // --- HÀM TẠO TOAST XỊN SÒ ---
+    function showModernToast(message) {
+        let container = document.getElementById('modern-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'modern-toast-container';
+            container.style.cssText = 'position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.style.cssText = 'background: #52ab98; color: white; padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 15px; box-shadow: 0 10px 25px rgba(82, 171, 152, 0.4); display: flex; align-items: center; gap: 12px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);';
+        toast.innerHTML = `<i class="fas fa-check-circle" style="font-size: 20px;"></i> <span>${message}</span>`;
+
+        container.appendChild(toast);
+
+        // Hiệu ứng trượt vào
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        });
+
+        // Hiệu ứng trượt ra sau 3 giây
+        setTimeout(() => {
+            toast.style.transform = 'translateX(120%)';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 400); // Xóa khỏi DOM
+        }, 3000);
+    }
+
+    function copyBaoCao() {
+        // Lấy dữ liệu từ Dropdown
+        const thangEl = document.getElementById("thangFilter");
+        const namEl = document.getElementById("namFilter");
+        const thang = thangEl.options[thangEl.selectedIndex].text; // Lấy chữ "Tháng 5" hoặc "Cả năm"
+        const nam = namEl.options[namEl.selectedIndex].text;       // Lấy chữ "Năm 2026"
+
+        const tenHV = '@Html.Raw(hv.TenHocVien)';
+
+        let textToCopy = `✨ TRUNG TÂM NGỮ VĂN MINH ANH ✨\n`;
+        textToCopy += `📊 BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
+        textToCopy += `👤 Học viên: ${tenHV}\n`;
+        textToCopy += `--------------------------\n`;
+
+        @foreach (var item in Model.OrderBy(x => x.MaBuoiHocNavigation.NgayHoc))
+        {
+                    <text>
+                        textToCopy += `\n🔹 Buổi học: @item.MaBuoiHocNavigation.NgayHoc.ToString("dd/MM/yyyy")\n`;
+                        textToCopy += `- Điểm danh: @Html.Raw(item.DiemDanh)\n`;
+                        textToCopy += `- BTVN/Điểm: @Html.Raw(item.Btvn) (@item.DiemSo)\n`;
+                        textToCopy += `- Nhận xét: @Html.Raw(item.NhanXet.Replace("\n", " ").Replace("\r", ""))\n`;
+                        textToCopy += `--------------------------`;
+                    </text>
+        }
+
+        textToCopy += `\n\nNếu phụ huynh có thắc mắc gì về kết quả học tập, vui lòng liên hệ lại với trung tâm để được hỗ trợ. Trân trọng!`;
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showModernToast(`Đã sao chép báo cáo ${thang} - ${nam}!`);
+            }).catch(err => {
+                alert("Lỗi sao chép: " + err);
+            });
+        }
+    }
+</script>
+

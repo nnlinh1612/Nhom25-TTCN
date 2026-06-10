@@ -1,0 +1,211 @@
+﻿@model TTNguVan.Models.SaleBaiTestViewModel
+@{
+    ViewData["Title"] = "Danh sách bài test";
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    ViewBag.ActiveMenu = "DanhSachBaiTest";
+}
+
+@section Styles {
+    <style>
+        /* --- CSS CHO CỘT COPY LINK --- */
+        .link-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            max-width: 280px;
+        }
+
+            .link-wrapper input {
+                border: none;
+                background: transparent;
+                font-size: 13px;
+                color: var(--text-muted);
+                flex: 1;
+                outline: none;
+            }
+
+        .copy-icon {
+            color: var(--primary);
+            cursor: pointer;
+            margin-left: 10px;
+            transition: 0.2s;
+        }
+
+            .copy-icon:hover {
+                transform: scale(1.1);
+            }
+
+        /* --- CSS BẢNG DỮ LIỆU BENTO --- */
+        .card-bento-table {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        /* Thêm class dùng chung để giới hạn chiều cao và tạo thanh cuộn cho bảng */
+        .table-scroll-wrapper {
+            max-height: 380px; /* Giới hạn chiều cao vừa phải để chứa 2 bảng trên 1 trang */
+            overflow-y: auto;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .table-custom thead th {
+                background: #f8fafc;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 16px;
+                border-bottom: 1px solid #e2e8f0;
+                text-align: left;
+                /* Thuộc tính giúp tiêu đề cột luôn cố định khi cuộn dọc */
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .table-custom tbody td {
+                padding: 16px;
+                vertical-align: middle;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: #334155;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: #f8fafc;
+                transition: 0.2s;
+            }
+
+        /* CSS BỔ SUNG CHO PHẦN KẾT QUẢ */
+        .badge-score {
+            background: #52ab98;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .btn-view {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <h2 style="color: var(--text-main); font-weight: 700; font-size: 26px; margin-bottom: 6px;">Danh sách bài test</h2>
+    <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Xem danh sách và sao chép đường dẫn bài kiểm tra gửi cho học viên</p>
+</div>
+
+<div class="card-bento-table mb-5">
+    <div class="table-responsive table-scroll-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th class="ps-4" style="width: 100px;">Mã đề</th>
+                    <th>Tên bài test</th>
+                    <th>Link công khai</th>
+                    <th>Nội dung tổng quan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DanhSachDeTest != null && Model.DanhSachDeTest.Any())
+                {
+                    foreach (var item in Model.DanhSachDeTest)
+                    {
+                        var publicLink = "https://localhost:7149/BaiTest/XacThucDauVao?maDe=" + item.MaBaiTest;
+                        <tr>
+                            <td class="ps-4" style="font-weight: 600; color: var(--text-muted); font-family: monospace;">@item.MaBaiTest</td>
+                            <td style="font-weight:600; color: var(--text-main);">@item.TenBaiTest</td>
+                            <td>
+                                <div class="link-wrapper">
+                                    <input type="text" readonly value="@publicLink">
+                                    <i class="far fa-copy copy-icon" onclick="copyToClipboard('@publicLink')" title="Sao chép link"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--text-muted);">
+                                    @Html.Raw(System.Text.RegularExpressions.Regex.Replace(item.NoiDungDe ?? "", "<.*?>", string.Empty))
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h5 class="fw-bold mb-3 mt-5" style="color: var(--text-main);">Kết quả bài test đã chấm</h5>
+<div class="card-bento-table mb-5">
+    <div class="table-responsive table-scroll-wrapper">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th class="ps-4">Học sinh</th>
+                    <th>Ngày chấm</th>
+                    <th class="text-center">Điểm số</th>
+                    <th>Lớp đề xuất</th>
+                    <th>Người chấm</th>
+                    <th class="text-end pe-4">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DanhSachKetQua != null && Model.DanhSachKetQua.Any())
+                {
+                    foreach (var kq in Model.DanhSachKetQua)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@kq.MaBaiLamNavigation?.MaHocVienNavigation?.TenHocVien</div>
+                                <div class="small text-muted">Mã HV: @kq.MaBaiLamNavigation?.MaHocVien</div>
+                            </td>
+                            <td>@kq.NgayCham.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                <span class="badge-score">@kq.DiemTest</span>
+                            </td>
+                            <td><span class="fw-medium" style="color: #334155;">@kq.GhiChu</span></td>
+                            <td><span class="small text-muted">@kq.MaTkNavigation?.HoTen</span></td>
+                            <td class="text-end pe-4">
+                                <a href="/Sale/XuatPdf/@kq.MaBaiLam" target="_blank" class="btn btn-sm btn-outline-danger border-0">
+                                    <i class="fas fa-file-pdf"></i> Tải PDF
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" class="text-center py-5 text-muted">Chưa có kết quả nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (typeof showModernToast === "function") {
+                    showModernToast("Đã sao chép link bài kiểm tra thành công!");
+                } else {
+                    alert("Đã sao chép link bài kiểm tra thành công!");
+                }
+            }).catch(err => {
+                alert("Lỗi sao chép: " + err);
+            });
+        }
+    </script>
+}

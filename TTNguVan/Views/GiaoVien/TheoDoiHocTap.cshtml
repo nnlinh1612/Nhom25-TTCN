@@ -1,0 +1,411 @@
+﻿@model IEnumerable<TTNguVan.Models.HocVien>
+@{
+    ViewData["Title"] = "Theo dõi học tập";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    var ngayLoc = ViewBag.NgayLoc;
+    var maLopLoc = ViewBag.MaLopLoc;
+    var caHoc = ViewBag.CaHoc;
+    var danhSachLop = ViewBag.DanhSachLop as IEnumerable<TTNguVan.Models.LopHoc>;
+}
+
+@section Styles {
+    <style>
+        /* --- KHUNG BẢNG & CARD --- */
+        .bento-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.015);
+        }
+
+        /* --- BÊN TRÁI: CHỌN NGÀY & LỚP --- */
+        .class-list-container {
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+            .class-list-container::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .class-list-container::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+        .date-picker-left {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            background: #ffffff;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .date-picker-left:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.1);
+            }
+
+        .class-box {
+            display: block;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            text-decoration: none !important;
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+
+            .class-box:hover {
+                border-color: #cbd5e1;
+                background: #f8fafc;
+            }
+
+            .class-box.active {
+                background: rgba(82, 171, 152, 0.05);
+                border: 1px solid var(--primary);
+            }
+
+                .class-box.active h6 {
+                    color: var(--primary);
+                }
+
+                .class-box.active .text-muted {
+                    color: #64748b !important;
+                }
+
+        /* --- BÊN PHẢI: TÌM KIẾM & BẢNG --- */
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+        }
+
+            .search-box input {
+                width: 100%;
+                padding: 12px 16px 12px 40px;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                outline: none;
+                font-size: 14px;
+                background: #ffffff;
+                color: var(--text-main);
+            }
+
+                .search-box input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.1);
+                }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .table-custom thead th {
+                background: #ffffff;
+                color: var(--text-muted);
+                font-size: 12px;
+                font-weight: 600;
+                padding: 16px 20px;
+                border-bottom: 1px solid #e2e8f0;
+                text-transform: uppercase;
+            }
+
+            .table-custom tbody td {
+                padding: 16px 20px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                vertical-align: middle;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: #f8fafc;
+            }
+
+        .progress {
+            height: 6px;
+            border-radius: 10px;
+            background-color: #f1f5f9;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+        }
+
+        .action-icon {
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            text-decoration: none;
+            color: #64748b;
+        }
+            /* Icon mắt khi hover sẽ sáng màu xanh dương */
+            .action-icon:hover {
+                border-color: #0ea5e9;
+                color: #0ea5e9;
+                background: #f0f9ff;
+            }
+
+        /* Đã sửa: Nút Chấm điểm có nền xanh nhạt, chữ xanh đậm */
+        .btn-update-log {
+            background: #eaf4f1;
+            color: var(--primary);
+            border: 1px solid rgba(82, 171, 152, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-update-log:hover {
+                background: var(--primary);
+                color: #ffffff;
+                border-color: var(--primary);
+            }
+    </style>
+}
+
+<div class="row h-100">
+    <!-- NỬA BÊN TRÁI -->
+    <div class="col-md-3">
+        <div class="bento-card h-100 d-flex flex-column">
+            <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center text-dark">
+                <span>Danh sách lớp</span>
+                <span class="badge bg-light text-muted border">@(danhSachLop?.Count() ?? 0)</span>
+            </h5>
+
+            <!-- CHỌN NGÀY DẠY -->
+            <form method="get" id="formLop" class="mb-4">
+                <input type="hidden" name="maLop" value="@maLopLoc" />
+                <input type="hidden" name="searchString" value="@ViewBag.CurrentSearch" />
+                <label class="text-muted fw-semibold mb-2" style="font-size: 11px; text-transform: uppercase;">Chọn ngày dạy:</label>
+                <input type="date" name="ngay" value="@ngayLoc" class="date-picker-left" onchange="document.getElementById('formLop').submit()">
+            </form>
+
+            <div class="class-list-container flex-grow-1">
+                <a href="/GiaoVien/TheoDoiHocTap?ngay=@ngayLoc&searchString=@ViewBag.CurrentSearch"
+                       class="class-box @(string.IsNullOrEmpty(maLopLoc) ? "active" : "")">
+                    <h6 class="fw-bold mb-1">Tất cả lớp</h6>
+                    <small class="text-muted">Hiển thị toàn bộ học viên</small>
+                </a>
+
+                @if (danhSachLop != null && danhSachLop.Any())
+                {
+                    foreach (var lop in danhSachLop)
+                    {
+                        <a href="/GiaoVien/TheoDoiHocTap?ngay=@ngayLoc&maLop=@lop.MaLop&searchString=@ViewBag.CurrentSearch"
+                               class="class-box @(maLopLoc == lop.MaLop ? "active" : "")">
+                            <h6 class="fw-bold mb-1">@lop.TenLop</h6>
+                            <small class="text-muted">Mã: @lop.MaLop</small>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-4 opacity-50">
+                        <i class="fas fa-box-open fs-3 mb-2 text-muted"></i>
+                        <p class="text-muted" style="font-size: 13px;">Không có lịch dạy</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- NỬA BÊN PHẢI -->
+    <div class="col-md-9">
+        <div class="bento-card h-100 d-flex flex-column p-0 overflow-hidden">
+
+            <!-- HEADER -->
+            <div class="p-4 bg-white d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #e2e8f0;">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark">
+                        @(string.IsNullOrEmpty(maLopLoc) ? "Tất cả học viên" : "Học viên lớp " + danhSachLop?.FirstOrDefault(l => l.MaLop == maLopLoc)?.TenLop)
+                    </h4>
+                    @if (!string.IsNullOrEmpty(ngayLoc))
+                    {
+                        <small class="text-muted fst-italic">Danh sách học ngày @DateTime.Parse(ngayLoc).ToString("dd/MM/yyyy")</small>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(maLopLoc) && !string.IsNullOrEmpty(ngayLoc))
+                {
+                    // LOGIC NGHIỆP VỤ: Kiểm tra thời gian ca học
+                    DateTime parsedDate;
+                    bool choPhepCapNhat = false;
+
+                    if (DateTime.TryParse(ngayLoc, out parsedDate))
+                    {
+                        // So sánh phần ngày: Nếu ngày dạy nhỏ hơn hoặc bằng ngày hôm nay thì cho phép mở
+                        // (Nếu ông muốn kiểm tra chặt chẽ đến từng giờ phút của biến caHoc, có thể parse thêm giờ vào đây)
+                        if (parsedDate.Date <= DateTime.Now.Date)
+                        {
+                            choPhepCapNhat = true;
+                        }
+                    }
+
+                    if (choPhepCapNhat)
+                    {
+                        // Nút mở bình thường khi đã đến ngày học
+                        <a href="/GiaoVien/CapNhatBuoiHoc?maLop=@maLopLoc&ngay=@ngayLoc&ca=@caHoc" class="btn-update-log">
+                            <i class="fas fa-edit"></i> Cập nhật buổi học
+                        </a>
+                    }
+                    else
+                    {
+                        // Nút bị KHÓA (Disable) nếu ngày học ở trong tương lai
+                        <button class="btn-update-log" style="opacity: 0.5; cursor: not-allowed; background: #f8fafc; color: #94a3b8; border-color: #e2e8f0;" title="Chưa đến thời gian diễn ra ca học. Bạn không thể điểm danh trước!">
+                            <i class="fas fa-lock"></i> Chưa đến giờ học
+                        </button>
+                    }
+                }
+            </div>
+
+            <!-- TÌM KIẾM -->
+            <div class="p-3 bg-white" style="border-bottom: 1px solid #e2e8f0;">
+                <form method="get" action="/GiaoVien/TheoDoiHocTap" class="m-0 border-0 p-0 shadow-none d-flex gap-2">
+                    <input type="hidden" name="maLop" value="@maLopLoc" />
+                    <input type="hidden" name="ngay" value="@ngayLoc" />
+                    <div class="search-box">
+                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                        <input type="text" name="searchString" value="@ViewBag.CurrentSearch" placeholder="Tìm tên hoặc mã học viên..." onchange="this.form.submit()">
+                    </div>
+                </form>
+            </div>
+
+            <!-- BẢNG DỮ LIỆU -->
+            <div class="table-responsive flex-grow-1">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">HỌC VIÊN</th>
+                            <th>LỚP</th>
+                            <th>ĐIỂM DANH</th>
+                            <th>ĐIỂM TB</th>
+                            <th class="text-center pe-4">NHẬT KÝ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                int phanTramDiemDanh = 0;
+                                double diemTrungBinh = 0;
+
+                                if (item.KqHocTaps != null && item.KqHocTaps.Any())
+                                {
+                                    int tongBuoi = item.KqHocTaps.Count;
+
+                                    int coMat = item.KqHocTaps.Count(k => k.DiemDanh == "Có mặt");
+
+                                    phanTramDiemDanh = (int)Math.Round((double)coMat / tongBuoi * 100);
+                                    diemTrungBinh = Math.Round(item.KqHocTaps.Average(k => k.DiemSo), 1);
+                                }
+
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">@item.TenHocVien</div>
+                                        <small class="text-muted">@item.MaHocVien</small>
+                                    </td>
+                                    <td>
+                                        <!-- Đã phân loại màu sắc Khối Lớp -->
+                                        @{
+                                            string tenLopHienThi = item.MaLopNavigation?.TenLop ?? "Chưa xếp";
+                                            string mauLop = "bg-light text-dark border";
+
+                                            if (item.KhoiLop == 6) mauLop = "bg-info-subtle text-info border border-info-subtle";
+                                            else if (item.KhoiLop == 7) mauLop = "bg-success-subtle text-success border border-success-subtle";
+                                            else if (item.KhoiLop == 8) mauLop = "bg-warning-subtle text-warning border border-warning-subtle";
+                                            else if (item.KhoiLop == 9) mauLop = "bg-danger-subtle text-danger border border-danger-subtle";
+                                            else if (item.KhoiLop == 10) mauLop = "bg-primary-subtle text-primary border border-primary-subtle";
+                                            else if (item.KhoiLop == 11) mauLop = "bg-secondary-subtle text-secondary border border-secondary-subtle";
+                                            else if (item.KhoiLop == 12) mauLop = "bg-dark-subtle text-dark border border-dark-subtle";
+                                        }
+                                        <span class="badge rounded px-2 py-1 @mauLop" style="font-weight: 500;">
+                                            @tenLopHienThi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (item.KqHocTaps == null || !item.KqHocTaps.Any())
+                                        {
+                                            <span class="text-muted fst-italic" style="font-size: 13px;">Chưa có</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="min-width: 50px;">
+                                                    <div class="progress-bar" style="width: @(phanTramDiemDanh)%;"></div>
+                                                </div>
+                                                <span class="small fw-bold text-muted" style="width: 30px;">@(phanTramDiemDanh)%</span>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.KqHocTaps == null || !item.KqHocTaps.Any())
+                                        {
+                                            <span class="text-muted fst-italic">-</span>
+                                        }
+                                        else
+                                        {
+                                            int ptDiem = (int)(diemTrungBinh * 10);
+                                            string mauDiem = diemTrungBinh < 5 ? "bg-danger" : (diemTrungBinh < 8 ? "bg-warning" : "bg-success");
+
+                                            <div class="d-flex align-items-center gap-2" title="Điểm TB: @diemTrungBinh">
+                                                <div class="progress flex-grow-1" style="height: 6px; min-width: 50px;">
+                                                    <div class="progress-bar @mauDiem" style="width: @(ptDiem)%;"></div>
+                                                </div>
+                                                <b class="text-dark">@diemTrungBinh</b>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="pe-4 text-center">
+                                        <!-- Đã sửa: Chuyển Icon Pen sang Icon Eye (Mắt) -->
+                                        <a href="/GiaoVien/NhatKyHocVien?maHV=@item.MaHocVien" class="action-icon view" title="Xem Nhật ký">
+                                            <i class="far fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="fas fa-folder-open mb-3 fs-3 opacity-50"></i><br />
+                                    Không có học viên nào.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

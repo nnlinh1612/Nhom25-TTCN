@@ -1,0 +1,126 @@
+﻿@model IEnumerable<TTNguVan.Models.HocVien>
+
+@{
+    ViewData["Title"] = "Chọn tài khoản học viên";
+}
+
+<style>
+    /* 1. Ẩn Header và Footer mặc định */
+    header, footer {
+        display: none !important;
+    }
+
+    /* 2. Đè lại cấu trúc Container của ASP.NET để nó full viền */
+    body {
+        background-color: #f0f5f4;
+    }
+
+    .container, main {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* 3. Khối bọc ngoài cùng ép mọi thứ vảo đúng giữa màn hình */
+    .full-screen-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    /* 4. Khối Card */
+    .custom-card {
+        background-color: #ffffff;
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(82, 171, 152, 0.15);
+        width: 100%;
+        max-width: 550px;
+        padding: 50px 40px;
+    }
+
+    /* 5. Icon */
+    .icon-container {
+        width: 80px;
+        height: 80px;
+        background-color: #e6f2f0;
+        color: #52ab98;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px auto;
+    }
+
+    .custom-title {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+
+    .custom-subtitle {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 35px;
+    }
+
+    /* 6. Nút bấm */
+    .custom-btn {
+        background-color: #ffffff;
+        color: #52ab98;
+        border: 2px solid #52ab98;
+        border-radius: 16px;
+        padding: 15px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 8px;
+        min-width: 200px;
+    }
+
+        .custom-btn:hover {
+            background-color: #52ab98;
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(82, 171, 152, 0.3);
+        }
+
+        .custom-btn span {
+            font-weight: 400;
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+</style>
+
+<div class="full-screen-wrapper">
+    <div class="custom-card text-center">
+
+        <div class="icon-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+            </svg>
+        </div>
+
+        <h3 class="custom-title">Có @Model.Count() học viên dùng số điện thoại này</h3>
+        <p class="custom-subtitle">Vui lòng chọn đúng tên của bạn để bắt đầu bài thi:</p>
+
+        <div class="d-flex justify-content-center flex-wrap">
+            @foreach (var item in Model)
+            {
+                <a asp-controller="BaiTest"
+                   asp-action="LamTest"
+                   asp-route-ma="@item.MaHocVien"
+                   asp-route-ten="@item.TenHocVien"
+                   asp-route-maDe="@ViewBag.MaDeHienTai"
+                   class="custom-btn">
+                    @item.TenHocVien <br />
+                    <span>(Mã: @item.MaHocVien)</span>
+                </a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,661 @@
+﻿@model IEnumerable<TTNguVan.Models.KhachHang>
+@{
+    ViewData["Title"] = "Quản lý khách hàng";
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* --- THANH TOOLBAR TÌM KIẾM VÀ LỌC --- */
+        .toolbar-bento {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            flex-wrap: nowrap; /* Bắt buộc tất cả nằm trên 1 dòng */
+            overflow-x: auto; /* Hiển thị thanh cuộn ngang nếu màn hình quá nhỏ */
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+            /* Tùy chỉnh thanh cuộn ngang cho Toolbar mượt mà hơn */
+            .toolbar-bento::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .toolbar-bento::-webkit-scrollbar-thumb {
+                background-color: #cbd5e1;
+                border-radius: 10px;
+            }
+
+        /* --- BẢNG DỮ LIỆU --- */
+        .card-bento-table {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 20px 24px;
+            margin-bottom: 30px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table-custom thead th {
+                background: var(--bg-body);
+                color: var(--text-muted);
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 16px 24px;
+                border-bottom: 1px solid var(--border-color);
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody td {
+                padding: 16px 24px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: var(--text-main);
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+
+            .table-custom tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: var(--bg-body);
+                transition: 0.2s;
+            }
+
+        /* --- BỘ LỌC VÀ TÌM KIẾM --- */
+        .search-box {
+            flex: 1 1 auto;
+            min-width: 250px;
+        }
+
+        .filter-select {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            background: var(--bg-body, #f8fafc);
+            font-size: 14px;
+            color: var(--text-main, #0f172a);
+            outline: none;
+            cursor: pointer;
+            min-width: 150px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: 0.2s;
+        }
+
+            .filter-select:focus {
+                border-color: var(--primary);
+                background: #fff;
+            }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap; /* Không cho chữ rớt dòng */
+            flex-shrink: 0; /* Không cho nút bị bóp méo */
+        }
+
+            .btn-primary-custom:hover {
+                background: var(--primary-hover);
+            }
+
+        /* --- BADGE TRẠNG THÁI --- */
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .bg-blue-light {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .bg-orange-light {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        .bg-green-light {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .bg-red-light {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .bg-gray-light {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        /* --- THAO TÁC (ICON ACTIONS) --- */
+        .action-icon {
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 16px;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: transparent;
+            text-decoration: none;
+            border: none;
+        }
+
+            .action-icon.view {
+                color: #0ea5e9;
+            }
+
+                .action-icon.view:hover {
+                    background-color: #0ea5e9;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(14, 165, 233, 0.4);
+                }
+
+            .action-icon.edit {
+                color: #64748b;
+            }
+
+                .action-icon.edit:hover {
+                    background-color: #64748b;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4);
+                }
+
+            .action-icon.delete {
+                color: #ef4444;
+            }
+
+                .action-icon.delete:hover {
+                    background-color: #ef4444;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+                }
+
+        /* --- MODAL BENTO --- */
+        .modal-bento {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+        .form-label-bento {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-control-bento {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--bg-body);
+            transition: 0.2s;
+            width: 100%;
+        }
+
+            .form-control-bento:focus {
+                border-color: var(--primary);
+                background: #fff;
+                outline: none;
+            }
+
+        .form-select-bento {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background-color: var(--bg-body);
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+        }
+
+            .form-select-bento:focus {
+                border-color: var(--primary);
+                background-color: #fff;
+            }
+        /* Style ô chọn ngày chuẩn Bento */
+        .form-control-date-bento {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background-color: var(--bg-body);
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+            color: var(--text-main);
+            font-family: inherit;
+        }
+
+            .form-control-date-bento:focus {
+                border-color: var(--primary);
+                background-color: #fff;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            }
+
+        .label-bento {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <div>
+        <h2 style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Quản lý khách hàng</h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Theo dõi và cập nhật trạng thái khách hàng tiềm năng</p>
+    </div>
+</div>
+
+<form asp-controller="Sale" asp-action="QuanLyKhachHang" method="get" class="toolbar-bento">
+    <div class="search-box position-relative">
+        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; z-index: 2;"></i>
+        <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+               placeholder="Tìm kiếm theo tên, mã hoặc SĐT..."
+               class="form-control"
+               style="width: 100%; padding: 12px 40px 12px 42px; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 14px; color: #0f172a;">
+        <i class="fas fa-times clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; display: none; z-index: 2;" title="Xóa tìm kiếm"></i>
+    </div>
+
+    <select name="trangThai" class="filter-select" onchange="this.form.submit()">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Quan tâm" selected="@(ViewBag.CurrentStatus == "Quan tâm")">Quan tâm</option>
+        <option value="Đã đăng ký" selected="@(ViewBag.CurrentStatus == "Đã đăng ký")">Đã đăng ký</option>
+        <option value="Không đăng ký" selected="@(ViewBag.CurrentStatus == "Không đăng ký")">Không đăng ký</option>
+    </select>
+
+    <select name="khoiLop" class="filter-select" onchange="this.form.submit()">
+        <option value="">Tất cả lớp</option>
+        <option value="6" selected="@(ViewBag.CurrentClass == "6")">Lớp 6</option>
+        <option value="7" selected="@(ViewBag.CurrentClass == "7")">Lớp 7</option>
+        <option value="8" selected="@(ViewBag.CurrentClass == "8")">Lớp 8</option>
+        <option value="9" selected="@(ViewBag.CurrentClass == "9")">Lớp 9</option>
+        <option value="10" selected="@(ViewBag.CurrentClass == "10")">Lớp 10</option>
+        <option value="11" selected="@(ViewBag.CurrentClass == "11")">Lớp 11</option>
+        <option value="12" selected="@(ViewBag.CurrentClass == "12")">Lớp 12</option>
+    </select>
+
+    <button type="submit" class="d-none">Tìm kiếm ẩn</button>
+
+    <button type="button" class="btn-primary-custom ms-auto" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+        <i class="fas fa-plus me-1"></i> Thêm khách hàng
+    </button>
+</form>
+
+<div class="card-bento-table">
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>MÃ KH</th>
+                    <th>HỌ TÊN</th>
+                    <th>SĐT</th>
+                    <th>NGUỒN</th>
+                    <th class="text-center">KHỐI</th>
+                    <th>MÃ HV</th>
+                    <th class="text-center">TRẠNG THÁI</th>
+                    <th class="text-center text-nowrap">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold" style="color: var(--primary);">@item.MaKhachHang</td>
+                            <td class="text-dark">@item.TenKhachHang</td>
+                            <td>@item.Sdt</td>
+                            <td>@item.NguonDen</td>
+                            <td class="text-center">@item.KhoiLop</td>
+                            <td class="fw-bold" style="color: var(--primary);">
+                                @(!string.IsNullOrEmpty(item.MaHocVien) ? item.MaHocVien : "-")
+                            </td>
+                            <td class="text-center">
+                                @{
+                                    string mauTrangThai = "bg-light text-dark border";
+                                    switch (item.TrangThai)
+                                    {
+                                        case "Đã đăng ký":
+                                            mauTrangThai = "bg-success-subtle text-success border border-success-subtle";
+                                            break;
+                                        case "Quan tâm":
+                                            mauTrangThai = "bg-warning-subtle text-warning border border-warning-subtle";
+                                            break;
+                                        case "Không đăng ký":
+                                            mauTrangThai = "bg-danger-subtle text-danger border border-danger-subtle";
+                                            break;
+                                    }
+                                }
+                                <span class="badge rounded @mauTrangThai" style="font-size: 12px; padding: 6px 14px; font-weight: 600;">@item.TrangThai</span>
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                    <a href="@Url.Action("ChiTietKhachHang", "Sale", new { id = item.MaKhachHang })" class="action-icon view" title="Xem chi tiết"><i class="far fa-eye"></i></a>
+                                    <a href="#" class="action-icon edit" data-bs-toggle="modal" data-bs-target="#editModal_@item.MaKhachHang" title="Chỉnh sửa"><i class="far fa-edit"></i></a>
+                                    <a href="#" class="action-icon delete" data-bs-toggle="modal" data-bs-target="#deleteModal_@item.MaKhachHang" title="Xóa"><i class="fas fa-trash-alt"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5 fst-italic">Chưa có dữ liệu khách hàng</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        <div class="modal fade" id="editModal_@item.MaKhachHang" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-bento">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold" style="color: var(--text-main);">Chỉnh sửa khách hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="@Url.Action("UpdateKhachHang", "Sale")" method="post">
+                        <div class="modal-body p-3">
+                            <div class="mb-3">
+                                <label class="label-bento">Mã khách hàng <span class="text-danger">*</span></label>
+                                <input type="text" name="MaKhachHang" class="form-control-bento" placeholder="Ví dụ: KH001" value="@item.MaKhachHang" required maxlength="5" readonly style="background-color: var(--border-color); cursor: not-allowed;">
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="label-bento">Họ tên <span class="text-danger">*</span></label>
+                                    <input type="text" name="TenKhachHang" class="form-control-bento" value="@item.TenKhachHang" placeholder="Nhập họ tên..." required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="label-bento">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input type="text" name="SDT" class="form-control-bento" value="@item.Sdt" placeholder="Nhập số điện thoại..." required>
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="label-bento">Nguồn tiếp nhận <span class="text-danger">*</span></label>
+                                    <select name="NguonDen" class="form-select-bento" required>
+                                        <option value="" disabled>Chọn nguồn</option>
+                                        <option value="Website" selected="@(item.NguonDen == "Website")">Website</option>
+                                        <option value="Facebook" selected="@(item.NguonDen == "Facebook")">Facebook</option>
+                                        <option value="Hotline" selected="@(item.NguonDen == "Hotline")">Hotline</option>
+                                        <option value="Giới thiệu" selected="@(item.NguonDen == "Giới thiệu")">Giới thiệu</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="label-bento">Khối lớp <span class="text-danger">*</span></label>
+                                    <select name="KhoiLop" class="form-select-bento" required>
+                                        <option value="" disabled>Chọn khối lớp</option>
+                                        @for (int i = 6; i <= 12; i++)
+                                        {
+                                            <option value="@i" selected="@(item.KhoiLop == i)">Lớp @i</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="label-bento">Trạng thái</label>
+                                <select name="TrangThai" class="form-select-bento" onchange="document.getElementById('editGroupNgayDangKy_@item.MaKhachHang').style.display = this.value === 'Đã đăng ký' ? 'block' : 'none';">
+                                    <option value="Quan tâm" selected="@(item.TrangThai == "Quan tâm")">Quan tâm</option>
+                                    <option value="Đã đăng ký" selected="@(item.TrangThai == "Đã đăng ký")">Đã đăng ký</option>
+                                    <option value="Không đăng ký" selected="@(item.TrangThai == "Không đăng ký")">Không đăng ký</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                    <label class="label-bento">Ngày tiếp nhận <span class="text-danger">*</span></label>
+                                    <input type="date" name="NgayTiepNhan" class="form-control-date-bento" value="@(item.NgayTiepNhan?.ToString("yyyy-MM-dd"))" required />
+                                </div>
+                                <div class="col-md-6" id="editGroupNgayDangKy_@item.MaKhachHang" style="display: @(item.TrangThai == "Đã đăng ký" ? "block" : "none");">
+                                    <label class="label-bento">Ngày đăng ký</label>
+                                    <input type="date" name="NgayDangKy" class="form-control-date-bento" value="@(item.NgayDangKy?.ToString("yyyy-MM-dd"))" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn fw-medium" data-bs-dismiss="modal" style="color: var(--text-muted); background: var(--bg-body); border-radius: 10px; padding: 10px 20px;">Hủy</button>
+                            <button type="submit" class="btn-primary-custom">Cập nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal_@item.MaKhachHang" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-bento text-center p-4">
+                    <div class="text-danger mb-3"><i class="fas fa-exclamation-triangle" style="font-size: 50px;"></i></div>
+                    <h4 class="fw-bold text-dark mb-2">Xác nhận xóa?</h4>
+                    <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa khách hàng <strong class="text-danger">@item.TenKhachHang</strong> không?</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn fw-medium w-50" data-bs-dismiss="modal" style="background: var(--bg-body); color: var(--text-muted); border-radius: 10px; padding: 12px;">Hủy bỏ</button>
+                        <form asp-controller="Sale" asp-action="Delete" method="post" class="w-50 m-0">
+                            <input type="hidden" name="id" value="@item.MaKhachHang" />
+                            <button type="submit" class="btn text-white w-100 fw-medium" style="background: #ef4444; border-radius: 10px; padding: 12px;">Xóa ngay</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-bento">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" style="color: var(--text-main);">Thêm khách hàng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Sale" asp-action="Create" method="post">
+                <div class="modal-body p-3">
+
+                    <div class="mb-3">
+                        <label class="form-label-bento">Mã khách hàng <span class="text-danger">*</span></label>
+                        <input type="text" name="MaKhachHang" id="addMaKhachHang" class="form-control-bento" placeholder="Ví dụ: KH001" required maxlength="5">
+
+                        <small id="maKhachHangError" class="text-danger mt-1" style="display: none; font-weight: 500;">
+                            <i class="fas fa-exclamation-circle"></i> Mã khách hàng này đã tồn tại!
+                        </small>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" name="TenKhachHang" class="form-control-bento" placeholder="Nhập họ tên..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" name="SDT" class="form-control-bento" placeholder="Nhập số điện thoại..." required>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Nguồn tiếp nhận <span class="text-danger">*</span></label>
+                            <select name="NguonDen" class="form-select-bento" required>
+                                <option value="" selected disabled>Chọn nguồn</option>
+                                <option value="Website">Website</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Hotline">Hotline</option>
+                                <option value="Giới thiệu">Giới thiệu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Khối lớp <span class="text-danger">*</span></label>
+                            <select name="KhoiLop" class="form-select-bento" required>
+                                <option value="" selected disabled>Chọn khối lớp</option>
+                                @for (int i = 6; i <= 12; i++)
+                                {
+                                    <option value="@i">Lớp @i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-bento">Trạng thái</label>
+                        <select name="TrangThai" id="addTrangThai" class="form-select-bento">
+                            <option value="Quan tâm" selected>Quan tâm</option>
+                            <option value="Đã đăng ký">Đã đăng ký</option>
+                            <option value="Không đăng ký">Không đăng ký</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label-bento">Ngày tiếp nhận <span class="text-danger">*</span></label>
+                            <input type="date" name="NgayTiepNhan" id="addNgayTiepNhan" class="form-control-date-bento" required />
+                        </div>
+                        <div class="col-md-6" id="groupNgayDangKy" style="display: none;">
+                            <label class="form-label-bento">Ngày đăng ký</label>
+                            <input type="date" name="NgayDangKy" id="addNgayDangKy" class="form-control-date-bento" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn fw-medium" data-bs-dismiss="modal" style="color: var(--text-muted); background: var(--bg-body); border-radius: 10px; padding: 10px 20px;">Hủy</button>
+                    <button type="submit" id="btnSubmitAddCustomer" class="btn-primary-custom">Lưu khách hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // 1. XỬ LÝ TÌM KIẾM
+
+            const inputTk = document.querySelector('input[name="searchString"]');
+            const formTk = document.querySelector('.toolbar-bento');
+            if (inputTk && formTk) {
+                inputTk.addEventListener('search', function() {
+                    if (this.value === "") formTk.submit();
+                });
+            }
+
+            // 2. XỬ LÝ NGÀY THÁNG & ẨN HIỆN TRONG MODAL THÊM MỚI
+            const statusSelect = document.getElementById('addTrangThai');
+            const groupNgayDangKy = document.getElementById('groupNgayDangKy');
+            const inputNTN = document.getElementById('addNgayTiepNhan');
+            const inputNDK = document.getElementById('addNgayDangKy');
+
+            const today = new Date().toLocaleDateString('en-CA');
+            if (inputNTN) inputNTN.value = today;
+
+            function updateDateFields(value) {
+                if (value === "Đã đăng ký") {
+                    groupNgayDangKy.style.display = "block";
+                    if (inputNDK) inputNDK.value = today;
+                } else {
+                    groupNgayDangKy.style.display = "none";
+                    if (inputNDK) inputNDK.value = "";
+                }
+            }
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', function () {
+                    updateDateFields(this.value);
+                });
+                updateDateFields(statusSelect.value);
+            }
+
+        // 3. KIỂM TRA TRÙNG MÃ KHÁCH HÀNG (REAL-TIME BẰNG AJAX)
+        const inputMaKH = document.getElementById('addMaKhachHang');
+        const errorSpan = document.getElementById('maKhachHangError');
+        const btnSubmit = document.getElementById('btnSubmitAddCustomer');
+
+        if (inputMaKH) {
+            // Sự kiện 'input' sẽ kích hoạt mỗi khi bạn gõ một phím
+            inputMaKH.addEventListener('input', async function () {
+                const maKH = this.value.trim();
+
+                // Nếu ô trống thì ẩn lỗi, mở nút
+                if (maKH.length === 0) {
+                    errorSpan.style.display = 'none';
+                    btnSubmit.disabled = false;
+                    btnSubmit.style.opacity = '1';
+                    this.style.borderColor = 'var(--border-color)';
+                    return;
+                }
+
+                try {
+                    // Gửi dữ liệu ngầm lên Controller
+                    const response = await fetch(`/Sale/CheckMaKhachHang?maKhachHang=${maKH}`);
+                    const data = await response.json();
+
+                    if (data.exists) {
+                        // NẾU TRÙNG: Hiện chữ đỏ, viền đỏ ô nhập, làm mờ và khóa nút Lưu
+                        errorSpan.style.display = 'block';
+                        this.style.borderColor = '#ef4444';
+
+                        btnSubmit.disabled = true;
+                        btnSubmit.style.opacity = '0.5';
+                        btnSubmit.style.cursor = 'not-allowed';
+                    } else {
+                        // NẾU KHÔNG TRÙNG: Ẩn chữ đỏ, viền xanh ô nhập, mở khóa nút Lưu
+                        errorSpan.style.display = 'none';
+                        this.style.borderColor = '#52ab98';
+
+                        btnSubmit.disabled = false;
+                        btnSubmit.style.opacity = '1';
+                        btnSubmit.style.cursor = 'pointer';
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi kiểm tra mã:", error);
+                }
+            });
+        }
+        });
+
+    </script>
+}
+

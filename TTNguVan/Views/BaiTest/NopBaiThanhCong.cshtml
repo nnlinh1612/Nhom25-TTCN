@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null; // Không dùng layout chung để tránh dính code thừa
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nộp bài thành công</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: #eaf4f1;
+            color: #52ab98;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin: 0 auto 25px;
+        }
+
+        h2 {
+            color: #0f172a;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="icon-wrapper">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+        <h2>Nộp bài thành công!</h2>
+        <p>Hệ thống đã ghi nhận bài làm của bạn. Giáo viên sẽ tiến hành chấm và phản hồi kết quả sớm nhất!</p>
+
+    </div>
+
+    <script>
+        const toastThua = document.querySelector('.alert');
+        if(toastThua) toastThua.remove();
+    </script>
+</body>
+</html>

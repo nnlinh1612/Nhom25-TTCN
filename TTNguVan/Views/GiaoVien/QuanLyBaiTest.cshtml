@@ -1,0 +1,209 @@
+﻿@model TTNguVan.Models.QuanLyBaiTestViewModel
+@{
+    // Trỏ về Layout chung, gọt sạch râu ria HTML bên ngoài
+    ViewData["Title"] = "Quản lý bài test";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* GIỮ NGUYÊN CSS BẢNG CỦA ÔNG & ĐỔI SANG KHUNG BENTO VIỀN MỎNG */
+        .table thead th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            padding: 16px;
+            /* ĐÃ THÊM: Cố định Header khi cuộn */
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody td {
+            padding: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .card-test-bento {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        /* --- ĐÃ THÊM: CLASS TẠO THANH CUỘN CHO BẢNG --- */
+        .scrollable-table-wrap {
+            max-height: 400px; /* Bạn có thể tăng giảm số này tùy ý thích (chiều cao bảng) */
+            overflow-y: auto;
+        }
+
+            /* Custom thanh cuộn cho mượt mà, hợp phong cách Bento */
+            .scrollable-table-wrap::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .scrollable-table-wrap::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .scrollable-table-wrap::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+                .scrollable-table-wrap::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                }
+        /* ----------------------------------------------- */
+
+        .table thead th:first-child {
+            border-top-left-radius: 16px;
+        }
+
+        .table thead th:last-child {
+            border-top-right-radius: 16px;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+            transition: 0.3s;
+        }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <h2 style="color: #0f172a; font-weight: 700; font-size: 26px; margin-bottom: 6px;">Quản lý bài test</h2>
+    <p style="color: #64748b; font-size: 15px; margin: 0;">Chấm bài test đầu vào và đề xuất xếp lớp</p>
+</div>
+
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="card-test-bento p-3">
+            <div class="d-flex align-items-center">
+                <div class="p-3 bg-warning bg-opacity-10 rounded-3 me-3 text-warning">
+                    <i class="fas fa-edit fa-lg"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Chờ chấm</div>
+                    <h2 class="mb-0 fw-bold" style="color: #0f172a;">@ViewBag.CountCho</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-test-bento p-3">
+            <div class="d-flex align-items-center">
+                <div class="p-3 bg-success bg-opacity-10 rounded-3 me-3 text-success">
+                    <i class="fas fa-check-circle fa-lg"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Đã chấm</div>
+                    <h2 class="mb-0 fw-bold" style="color: #0f172a;">@ViewBag.CountDa</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-test-bento p-3">
+            <div class="d-flex align-items-center">
+                <div class="p-3 bg-primary bg-opacity-10 rounded-3 me-3 text-primary">
+                    <i class="fas fa-layer-group fa-lg"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Tổng bài test</div>
+                    <h2 class="mb-0 fw-bold" style="color: #0f172a;">@ViewBag.Tong</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="fw-bold mb-3" style="color: #0f172a;">Chờ chấm</h5>
+<div class="card-test-bento scrollable-table-wrap mb-5">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">HỌC SINH</th>
+                <th>MÃ TEST</th>
+                <th>NGÀY THI</th>
+                <th class="text-end pe-4">THAO TÁC</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.DanhSachChoCham != null && Model.DanhSachChoCham.Any())
+            {
+                foreach (var item in Model.DanhSachChoCham)
+                {
+                    <tr>
+                        <td class="ps-4 fw-medium text-dark">@item.MaHocVienNavigation?.TenHocVien</td>
+                        <td><span class="text-muted">@item.MaBaiTest</span></td>
+                        <td>@item.NgayLam.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end pe-4">
+                            <a href="/GiaoVien/ChamBai/@item.MaBaiLam" class="btn btn-sm btn-success">Chấm bài</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="4" class="text-center py-4 text-muted">Không có bài test nào đang chờ chấm.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h5 class="fw-bold mb-3" style="color: #0f172a;">Đã chấm</h5>
+<div class="card-test-bento scrollable-table-wrap">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">HỌC SINH</th>
+                <th>MÃ TEST</th>
+                <th>NGÀY THI</th>
+                <th class="text-center">ĐIỂM</th>
+                <th>LỚP ĐỀ XUẤT</th>
+                <th class="text-end pe-4">THAO TÁC</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.DanhSachDaCham != null && Model.DanhSachDaCham.Any())
+            {
+                foreach (var item in Model.DanhSachDaCham)
+                {
+                    <tr>
+                        <td class="ps-4 fw-medium text-dark">@item.MaBaiLamNavigation?.MaHocVienNavigation?.TenHocVien</td>
+                        <td><span class="text-muted">@item.MaBaiLamNavigation?.MaBaiTest</span></td>
+                        <td>@item.MaBaiLamNavigation?.NgayLam.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            <span class="badge bg-success bg-opacity-10 text-success px-3">@item.DiemTest</span>
+                        </td>
+                        <td><span class="text-muted">@item.GhiChu</span></td>
+                        <td class="text-end pe-4">
+                            <a href="/GiaoVien/ChamBai/@item.MaBaiLam" class="btn btn-sm btn-outline-primary border-0 me-1">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                            <a href="/GiaoVien/XuatPdf/@item.MaBaiLam" class="btn btn-sm btn-outline-danger border-0">
+                                <i class="fas fa-file-pdf"></i> Tải PDF
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6" class="text-center py-4 text-muted">Chưa có bài test nào được chấm.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,856 @@
+﻿@model TTNguVan.Models.HocVien
+@{
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    ViewData["Title"] = "Hồ sơ học tập: " + Model.TenHocVien;
+    ViewBag.ActiveMenu = "TheoDoiHocTap";
+    // Giả sử Controller truyền 2 ViewBag này sang
+    var lichSuTuongTac = ViewBag.LichSuTuongTac as IEnumerable<TTNguVan.Models.LichSuTuongTac>;
+    var lichSuHocTap = ViewBag.LichSuHocTap as IEnumerable<TTNguVan.Models.KqHocTap>;
+}
+
+@section Styles {
+    <style>
+        /* --- NÚT BẤM VÀ ĐIỀU HƯỚNG CHUẨN BENTO --- */
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+            .btn-back:hover {
+                color: var(--primary-hover);
+                transform: translateX(-4px);
+            }
+
+        .btn-primary-custom {
+            background: #52ab98;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+            .btn-primary-custom:hover {
+                background: #428e7d;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(82, 171, 152, 0.3);
+            }
+
+        /* --- KHUNG BENTO (CARD) --- */
+        .card-bento {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            margin-bottom: 24px;
+        }
+
+        /* --- INFO BLOCKS (THÔNG TIN CHUNG) --- */
+        .icon-tron-nho {
+            width: 44px;
+            height: 44px;
+            background-color: #eaf4f1;
+            color: #52ab98;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 16px;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        /* --- BADGES TRẠNG THÁI --- */
+        .badge-custom {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .bg-green-light {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .bg-blue-light {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .bg-gray-light {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        /* --- SỬA LỖI 2: CSS TABS CHỮ NHẬT BO GÓC, BỎ DẤU CHẤM --- */
+        .nav-tabs-bento {
+            border-bottom: none; /* Bỏ viền dưới gạch ngang */
+            gap: 12px; /* Khoảng cách giữa 2 ô */
+            list-style: none !important; /* QUAN TRỌNG: Bỏ dấu chấm tròn */
+            padding-left: 0; /* Bỏ padding mặc định */
+            margin-bottom: 25px;
+            display: flex;
+        }
+
+        /* Ô chữ nhật mặc định */
+        .nav-link-bento {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: 1px solid #e2e8f0; /* Viền mỏng */
+            background-color: #f8fafc; /* Nền xám nhạt */
+            border-radius: 10px; /* Bo góc 10px */
+            transition: 0.3s;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .nav-link-bento:hover {
+                border-color: #52ab98;
+                color: #52ab98;
+                background-color: #eaf4f1;
+            }
+
+            /* Ô chữ nhật khi được chọn (Active) */
+            .nav-link-bento.active {
+                color: white !important;
+                background-color: #52ab98 !important; /* Nền xanh */
+                border-color: #52ab98 !important;
+                box-shadow: 0 4px 10px rgba(82, 171, 152, 0.2);
+            }
+
+        /* --- CSS LỊCH SỬ TƯƠNG TÁC (TABLE BENTO) --- */
+        .table-responsive-bento {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table-custom thead th {
+                background: #f8fafc;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 16px 20px;
+                border-bottom: 1px solid #e2e8f0;
+                text-align: left;
+            }
+
+            .table-custom tbody td {
+                padding: 16px 20px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+                color: #1e293b;
+                vertical-align: middle;
+            }
+
+            .table-custom tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-custom tbody tr:hover {
+                background-color: #f8fafc;
+            }
+
+        /* --- SỬA LỖI 1: CSS MODAL & INPUT CHUẨN BENTO (HÌNH 2) --- */
+        .modal-bento {
+            border-radius: 20px; /* Bo góc modal lớn */
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-label-bento {
+            font-weight: 600;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Ô nhập liệu bo góc lớn, nền xám nhạt */
+        .form-control-bento, .form-select-bento {
+            padding: 12px 16px;
+            border-radius: 12px; /* Bo góc 12px */
+            border: 1px solid #cbd5e1; /* Viền màu đậm hơn xíu */
+            font-size: 14px;
+            background-color: #f8fafc; /* Nền xám */
+            color: #1e293b;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+            .form-control-bento:focus, .form-select-bento:focus {
+                border-color: #52ab98;
+                background-color: #fff; /* Chuyển nền trắng khi gõ */
+                box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.1);
+                outline: none;
+            }
+
+        /* --- CSS TIMELINE HỌC TẬP (GIỮ NGUYÊN) --- */
+        .timeline-container {
+            position: relative;
+            padding-left: 24px;
+            margin-top: 10px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+
+        .timeline-item {
+            position: relative;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+
+            .timeline-item:hover {
+                border-color: #52ab98;
+                background-color: #f8fafc;
+            }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -30px;
+                top: 24px;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                border: 3px solid #fff;
+                z-index: 2;
+            }
+
+            .timeline-item.success::before {
+                background-color: #10b981;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            }
+
+            .timeline-item.danger::before {
+                background-color: #ef4444;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            }
+        /* --- THAO TÁC --- */
+        .action-icon {
+            color: var(--text-muted);
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 16px;
+            transition: 0.2s;
+            display: inline-flex;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--bg-body);
+            text-decoration: none;
+        }
+
+            .action-icon.edit {
+                color: #64748b;
+            }
+
+                .action-icon.edit:hover {
+                    background-color: #64748b;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4);
+                }
+
+            .action-icon.delete {
+                color: #ef4444;
+            }
+
+                .action-icon.delete:hover {
+                    background-color: #ef4444;
+                    color: white;
+                    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+                }
+    </style>
+}
+
+<a href="@Url.Action("TheoDoiHocTap", "Sale")" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+</a>
+
+<div class="card-bento mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #1e293b; font-size: 24px;">@Model.TenHocVien</h3>
+            <p class="text-muted mb-0">Mã học viên: <span class="fw-bold text-dark">#@Model.MaHocVien</span></p>
+        </div>
+        <div>
+            @{
+                string badgeClass = "bg-gray-light";
+                if (Model.TrangThai == "Đang học") badgeClass = "bg-green-light";
+                else if (Model.TrangThai == "Học viên mới") badgeClass = "bg-blue-light";
+            }
+            <span class="badge-custom @badgeClass">@Model.TrangThai</span>
+        </div>
+    </div>
+
+    <hr style="border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-tron-nho"><i class="fas fa-phone-alt"></i></div>
+                <div>
+                    <span class="info-label">Số điện thoại liên hệ</span>
+                    <p class="info-value">@Model.Sdt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="icon-tron-nho" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-users"></i></div>
+                <div>
+                    <span class="info-label">Lớp đang học</span>
+                    <p class="info-value">@(string.IsNullOrEmpty(Model.MaLop) ? "Chờ xếp lớp" : Model.MaLopNavigation?.TenLop ?? Model.MaLop)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card-bento mb-5" style="padding-top: 20px;">
+
+    <ul class="nav nav-tabs nav-tabs-bento" id="profileTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link nav-link-bento active" id="hoctap-tab" data-bs-toggle="tab" data-bs-target="#hoctap" type="button" role="tab">
+                <i class="fas fa-history me-2"></i>Lịch sử học tập
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link nav-link-bento" id="tuongtac-tab" data-bs-toggle="tab" data-bs-target="#tuongtac" type="button" role="tab">
+                <i class="fas fa-comments me-2"></i>Lịch sử tương tác
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="profileTabContent">
+
+        <div class="tab-pane fade show active" id="hoctap" role="tabpanel">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 mt-3">
+                <div>
+                    <h5 class="fw-bold mb-1" style="color: var(--text-main);">Tiến trình các buổi học gần nhất</h5>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <select id="filterMonth" class="form-select" style="border-radius: 10px; padding: 10px 36px 10px 16px; width: auto; font-size: 14px; font-weight: 500; color: var(--text-main); border: 1px solid var(--border-color); cursor: pointer; box-shadow: none;">
+                        <option value="all">Cả năm</option>
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i">Tháng @i</option>
+                        }
+                    </select>
+
+                    <select id="filterYear" class="form-select" style="border-radius: 10px; padding: 10px 36px 10px 16px; width: auto; font-size: 14px; font-weight: 500; color: var(--text-main); border: 1px solid var(--border-color); cursor: pointer; box-shadow: none;">
+                        <option value="2026" selected>Năm 2026</option>
+                        <option value="2025">Năm 2025</option>
+                    </select>
+
+                    <button onclick="copyBaoCao()" class="btn-primary-custom" style="padding: 10px 16px;">
+                        <i class="fas fa-clipboard-check me-2"></i> Copy báo cáo
+                    </button>
+                </div>
+            </div>
+
+            <div class="timeline-container" id="timelineWrapper">
+                <div class="timeline-line"></div>
+                @if (lichSuHocTap != null && lichSuHocTap.Any())
+                {
+                    int totalBuoi = lichSuHocTap.Count();
+                    int currentIndex = 0;
+                    foreach (var kq in lichSuHocTap)
+                    {
+                        int buoiSo = totalBuoi - currentIndex;
+                        bool laBuoiTot = !kq.DiemDanh.Contains("Nghỉ") && !kq.Btvn.Contains("Chưa");
+
+                        // Khôi phục lại các biến màu sắc gốc của bạn
+                        string colorClass = laBuoiTot ? "success" : "danger";
+                        string textTheme = laBuoiTot ? "text-success" : "text-danger";
+                        string bgTheme = laBuoiTot ? "bg-gray-light" : "bg-red-light";
+
+                        <div class="timeline-item timeline-entry @colorClass" data-month="@kq.MaBuoiHocNavigation.NgayHoc.Month" data-year="@kq.MaBuoiHocNavigation.NgayHoc.Year">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h6 class="fw-bold @textTheme mb-0 fs-6">
+                                    Buổi @buoiSo: @kq.MaBuoiHocNavigation.NgayHoc.ToString("dd/MM/yyyy")
+                                </h6>
+                            </div>
+
+                            <div class="mb-2">
+                                <span class="info-label-timeline"><i class="fas fa-user-check me-2"></i>Điểm danh:</span>
+                                <span class="fw-bold text-dark">@kq.DiemDanh</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <span class="info-label-timeline"><i class="fas fa-book-open me-2"></i>BTVN:</span>
+                                <span class="fw-bold @(laBuoiTot ? "text-primary" : "text-danger")">
+                                    @kq.Btvn (Điểm: @kq.DiemSo)
+                                </span>
+                            </div>
+
+                            <div class="p-3 @bgTheme rounded-3" style="border: 1px solid var(--border-color);">
+                                <span class="text-muted fw-medium" style="font-size: 13px;">
+                                    <i class="fas fa-comment-dots me-1 text-warning"></i> Lời phê của Trợ giảng:
+                                </span>
+                                <p class="mb-0 mt-2 fst-italic" style="color: var(--text-main); font-size: 14px;">"@kq.NhanXet"</p>
+                            </div>
+                        </div>
+                        currentIndex++;
+                    }
+                    <div id="noResultMsg" class="text-muted fst-italic mt-4 ms-3" style="display: none;">
+                        <i class="fas fa-filter me-2 align-middle"></i> Học viên chưa có lịch sử học tập trong thời gian này.
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted fst-italic mt-4 ms-3">
+                        <i class="fas fa-box-open fs-4 me-2 align-middle"></i> Học viên này chưa có dữ liệu buổi học nào.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tuongtac" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+                <h5 class="fw-bold mb-0" style="color: #1e293b;">Nhật ký chăm sóc học viên</h5>
+                <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addHistoryModal">
+                    <i class="fas fa-plus me-1"></i> Thêm nhật ký
+                </button>
+            </div>
+
+            <div class="table-responsive table-responsive-bento">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;" class="ps-4">STT</th>
+                            <th style="width: 15%;">NGÀY GHI NHẬN</th>
+                            <th style="width: 25%;">LOẠI TƯƠNG TÁC</th>
+                            <th style="width: 40%;">NỘI DUNG</th>
+                            <th style="width: 15%;" class="text-end pe-4">THAO TÁC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (lichSuTuongTac != null && lichSuTuongTac.Any())
+                        {
+                            int stt = 1;
+                            foreach (var ls in lichSuTuongTac)
+                            {
+                                string badgeBg = "#f1f5f9";
+                                string badgeText = "#475569";
+                                switch (ls.LoaiTuongTac)
+                                {
+                                    case "Gọi điện hỏi thăm": badgeBg = "#e0f2fe"; badgeText = "#0369a1"; break;
+                                    case "Phản hồi phụ huynh": badgeBg = "#dcfce7"; badgeText = "#15803d"; break;
+                                    case "Nhắc nhở học tập": badgeBg = "#ffedd5"; badgeText = "#c2410c"; break;
+                                }
+
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted">@stt</td>
+                                    <td class="fw-bold text-dark">@ls.NgayTuongTac.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span style="background-color: @badgeBg; color: @badgeText; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">@ls.LoaiTuongTac</span>
+                                    </td>
+                                    <td class="text-secondary" style="white-space: normal; min-width: 300px;">@ls.NoiDung</td>
+                                    <td class="pe-4">
+                                        <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                                            <a href="#" class="action-icon edit" data-bs-toggle="modal" data-bs-target="#editHistoryModal_@ls.MaTuongTac" title="Sửa"><i class="far fa-edit"></i></a>
+                                            <a href="#" class="action-icon delete" data-bs-toggle="modal" data-bs-target="#deleteHistoryModal_@ls.MaTuongTac" title="Xóa"><i class="fas fa-trash-alt"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                stt++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-5 fst-italic">
+                                    <i class="fas fa-comments fs-2 d-block mb-3" style="color: var(--border-color);"></i>
+                                    Học viên này chưa có nhật ký chăm sóc nào.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-bento">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" style="color: #1e293b;">Thêm nhật ký chăm sóc</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Sale" asp-action="ThemLichSuTuongTacHV" method="post">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="MaHocVien" value="@Model.MaHocVien" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label form-label-bento">Loại tương tác <span class="text-danger">*</span></label>
+                            <select name="LoaiTuongTac" class="form-select form-select-bento" required>
+                                <option value="" selected disabled>Chọn loại tương tác</option>
+                                <option value="Gọi điện hỏi thăm">Gọi điện hỏi thăm</option>
+                                <option value="Phản hồi phụ huynh">Phản hồi phụ huynh</option>
+                                <option value="Nhắc nhở học tập">Nhắc nhở học tập</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label form-label-bento">Ngày ghi nhận <span class="text-danger">*</span></label>
+                            <input type="date" name="NgayTuongTac" class="form-control form-control-bento" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label form-label-bento">Nội dung chi tiết <span class="text-danger">*</span></label>
+                        <textarea name="NoiDung" class="form-control form-control-bento" rows="4" placeholder="Nhập nội dung tương tác cụ thể..." required style="resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; padding: 10px 20px;">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary-custom" style="padding: 10px 30px;">Lưu nhật ký</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (lichSuTuongTac != null && lichSuTuongTac.Any())
+{
+    foreach (var ls in lichSuTuongTac)
+    {
+        <div class="modal fade" id="editHistoryModal_@ls.MaTuongTac" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-bento">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold" style="color: #1e293b;">Chỉnh sửa nhật ký</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form asp-controller="Sale" asp-action="UpdateLichSuTuongTacHV" method="post">
+                        <div class="modal-body p-4">
+                            <input type="hidden" name="MaTuongTac" value="@ls.MaTuongTac" />
+                            <input type="hidden" name="MaKhachHang" value="@ls.MaKhachHang" />
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-bento">Loại tương tác <span class="text-danger">*</span></label>
+                                    <select name="LoaiTuongTac" class="form-select form-select-bento" required>
+                                        <option value="Gọi điện hỏi thăm" selected="@(ls.LoaiTuongTac == "Gọi điện hỏi thăm")">Gọi điện hỏi thăm</option>
+                                        <option value="Phản hồi phụ huynh" selected="@(ls.LoaiTuongTac == "Phản hồi phụ huynh")">Phản hồi phụ huynh</option>
+                                        <option value="Nhắc nhở học tập" selected="@(ls.LoaiTuongTac == "Nhắc nhở học tập")">Nhắc nhở học tập</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-bento">Ngày ghi nhận <span class="text-danger">*</span></label>
+                                    <input type="date" name="NgayTuongTac" class="form-control form-control-bento" value="@ls.NgayTuongTac.ToString("yyyy-MM-dd")" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label form-label-bento">Nội dung chi tiết <span class="text-danger">*</span></label>
+                                <textarea name="NoiDung" class="form-control form-control-bento" rows="4" required style="resize: none;">@ls.NoiDung</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 justify-content-center">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; padding: 10px 20px;">Hủy bỏ</button>
+                            <button type="submit" class="btn-primary-custom" style="padding: 10px 30px;">Cập nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteHistoryModal_@ls.MaTuongTac" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-bento text-center p-4">
+                    <div class="text-danger mb-3"><i class="fas fa-exclamation-triangle" style="font-size: 50px;"></i></div>
+                    <h4 class="fw-bold text-dark mb-2">Xác nhận xóa?</h4>
+                    <p class="text-muted mb-4">Bạn có chắc chắn muốn xóa nhật ký ngày <strong class="text-danger">@ls.NgayTuongTac.ToString("dd/MM/yyyy")</strong> không?</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-light fw-medium w-50" data-bs-dismiss="modal" style="border-radius: 10px; padding: 12px;">Hủy bỏ</button>
+                        <form asp-controller="Sale" asp-action="DeleteLichSuTuongTacHV" method="post" class="w-50 m-0">
+                            <input type="hidden" name="id" value="@ls.MaTuongTac" />
+                            <button type="submit" class="btn text-white w-100 fw-medium" style="background: #ef4444; border-radius: 10px; padding: 12px;">Xóa bỏ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script>
+         // Biến toàn cục để lưu trữ thông tin báo cáo sau khi lọc
+         let reportData = {
+             thoiGianLieu: "thời gian qua",
+             soBuoiCoMat: 0,
+             tongSoBuoiHoc: 0,
+             tongDiemBTVN: 0,
+             soBaiBTVN: 0,
+             diemTrungBinh: 0
+         };
+
+         // Hàm tính toán dữ liệu báo cáo dựa trên các block đang hiển thị
+         function updateReportData(visibleItems, timeString) {
+             reportData.tongSoBuoiHoc = visibleItems.length;
+             reportData.soBuoiCoMat = 0;
+             reportData.tongDiemBTVN = 0;
+             reportData.soBaiBTVN = 0;
+             reportData.diemTrungBinh = 0;
+             reportData.thoiGianLieu = timeString;
+
+             visibleItems.forEach(item => {
+                 let htmlContent = item.innerHTML.toLowerCase();
+
+                 if (htmlContent.includes("có mặt")) {
+                     reportData.soBuoiCoMat++;
+                 }
+
+                 // Cắt chữ "điểm: x.x" để tính trung bình
+                 let scoreMatch = item.innerHTML.match(/[đĐ]iểm:\s*(\d+(?:\.\d+)?)/);
+                 if (scoreMatch && scoreMatch[1]) {
+                     reportData.tongDiemBTVN += parseFloat(scoreMatch[1]);
+                     reportData.soBaiBTVN++;
+                 }
+             });
+
+             if (reportData.soBaiBTVN > 0) {
+                 reportData.diemTrungBinh = (reportData.tongDiemBTVN / reportData.soBaiBTVN).toFixed(1);
+             }
+         }
+
+        function copyBaoCao() {
+             //  Lấy dữ liệu từ Dropdown
+             const thangEl = document.getElementById("filterMonth");
+             const namEl = document.getElementById("filterYear");
+             const thang = thangEl.options[thangEl.selectedIndex].text;
+             const nam = namEl.options[namEl.selectedIndex].text;
+
+             //  Lấy tên Học viên
+             let tenHV = "Học viên";
+             const theTenHV = document.querySelector('h3.fw-bold');
+             if (theTenHV) {
+                 tenHV = theTenHV.innerText.trim();
+             }
+
+             //  Lấy tất cả các khối lịch sử học tập ĐANG HIỂN THỊ trên màn hình
+             const timelineEntries = document.querySelectorAll('.timeline-entry');
+             let visibleItems = Array.from(timelineEntries).filter(item => item.style.display !== 'none');
+
+             if (visibleItems.length === 0) {
+                 if (typeof showModernToast === "function") {
+                     showModernToast(`Không có dữ liệu buổi học nào trong ${thang} ${nam} để copy!`);
+                 } else {
+                     alert(`Không có dữ liệu buổi học nào trong ${thang} ${nam} để copy!`);
+                 }
+                 return;
+             }
+
+             //  Lấy số liệu thống kê từ biến reportData
+             let tyLeChuyenCan = Math.round((reportData.soBuoiCoMat / reportData.tongSoBuoiHoc) * 100) || 0;
+
+             //  Xây dựng nội dung Báo cáo
+             let textToCopy = `✨ TRUNG TÂM NGỮ VĂN MINH ANH ✨\n`;
+             textToCopy += `📊 BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
+             textToCopy += `👤 Học viên: ${tenHV}\n`;
+             textToCopy += `--------------------------\n`;
+
+             // Thêm phần TỔNG QUAN
+             textToCopy += `📌 TỔNG QUAN:\n`;
+             textToCopy += `- Chuyên cần: ${tyLeChuyenCan}% (${reportData.soBuoiCoMat}/${reportData.tongSoBuoiHoc} buổi có mặt)\n`;
+             if(reportData.soBaiBTVN > 0) {
+                 textToCopy += `- Điểm BTVN TB: ${reportData.diemTrungBinh}/10\n`;
+             } else {
+                 textToCopy += `- Điểm BTVN TB: Chưa có dữ liệu\n`;
+             }
+             textToCopy += `--------------------------\n`;
+             textToCopy += `📝 CHI TIẾT CÁC BUỔI HỌC:\n`;
+
+             // Đảo ngược mảng để in từ buổi cũ nhất -> buổi mới nhất
+             visibleItems.reverse().forEach(item => {
+                 // ĐÃ SỬA LỖI Ở ĐÂY: Khai báo lại tieuDe một cách an toàn
+                 let tieuDeEl = item.querySelector('h6');
+                 let tieuDe = tieuDeEl ? tieuDeEl.innerText.trim() : "";
+                 let ngayHoc = tieuDe.includes(':') ? tieuDe.split(':')[1].trim() : tieuDe;
+
+                 let diemDanhEl = item.querySelector('.mb-2 span.text-dark');
+                 let diemDanh = diemDanhEl ? diemDanhEl.innerText.trim() : "Không rõ";
+
+                 let btvnEl = item.querySelector('.mb-3 span.fw-bold');
+                 let btvn = btvnEl ? btvnEl.innerText.trim() : "Không rõ";
+
+                 let theNhanXet = item.querySelector('p.fst-italic');
+                 let nhanXet = theNhanXet ? theNhanXet.innerText.replace(/^"|"$/g, '').trim() : '';
+
+                 textToCopy += `\n🔹 Buổi học: ${ngayHoc}\n`;
+                 textToCopy += `- Điểm danh: ${diemDanh}\n`;
+                 textToCopy += `- BTVN/Điểm: ${btvn}\n`;
+                 if (nhanXet !== '') {
+                     textToCopy += `- Nhận xét: ${nhanXet}\n`;
+                 }
+                 textToCopy += `--------------------------`;
+             });
+
+             textToCopy += `\n\nNếu phụ huynh có thắc mắc gì về kết quả học tập, vui lòng liên hệ lại với trung tâm để được hỗ trợ. Trân trọng!`;
+
+             //  Thực hiện lệnh Copy
+             if (navigator.clipboard) {
+                 navigator.clipboard.writeText(textToCopy).then(() => {
+                     // Gọi hàm Toast xịn sò
+                     if (typeof showModernToast === "function") {
+                         showModernToast(`Đã sao chép báo cáo ${thang} - ${nam}!`);
+                     } else {
+                         alert(`Đã sao chép báo cáo ${thang} - ${nam}!`);
+                     }
+                 }).catch(err => {
+                     alert("Lỗi sao chép: " + err);
+                 });
+             } else {
+                 // Fallback cứu cánh nếu trình duyệt chặn clipboard API
+                 let textArea = document.createElement("textarea");
+                 textArea.value = textToCopy;
+                 document.body.appendChild(textArea);
+                 textArea.select();
+                 try {
+                     document.execCommand('copy');
+                     if (typeof showModernToast === "function") {
+                         showModernToast(`Đã sao chép báo cáo ${thang} - ${nam}!`);
+                     }
+                 } catch (err) {
+                     alert("Lỗi sao chép: Trình duyệt chặn quyền copy.");
+                 }
+                 document.body.removeChild(textArea);
+             }
+         }
+
+         document.addEventListener("DOMContentLoaded", function() {
+             const filterMonth = document.getElementById('filterMonth');
+             const filterYear = document.getElementById('filterYear');
+             const timelineEntries = document.querySelectorAll('.timeline-entry');
+             const noResultMsg = document.getElementById('noResultMsg');
+
+             // Khởi tạo data ban đầu (Lấy toàn bộ)
+             updateReportData(Array.from(timelineEntries), `Năm ${filterYear.value}`);
+
+             // Hàm xử lý chung khi chọn Tháng hoặc Năm
+             function handleFilterChange() {
+                 let selectedMonth = filterMonth.value;
+                 let selectedYear = filterYear.value;
+                 let visibleItems = [];
+
+                 timelineEntries.forEach(item => {
+                     let itemMonth = item.getAttribute('data-month');
+                     let itemYear = item.getAttribute('data-year');
+
+                     let matchMonth = (selectedMonth === 'all' || selectedMonth === itemMonth);
+                     let matchYear = (selectedYear === itemYear);
+
+                     if (matchMonth && matchYear) {
+                         item.style.display = '';
+                         visibleItems.push(item);
+                     } else {
+                         item.style.display = 'none';
+                     }
+                 });
+
+                 let timeStr = selectedMonth === 'all' ? `Năm ${selectedYear}` : `Tháng ${selectedMonth} Năm ${selectedYear}`;
+                 updateReportData(visibleItems, timeStr);
+
+                 if (noResultMsg) {
+                     noResultMsg.style.display = (visibleItems.length === 0) ? 'block' : 'none';
+                 }
+             }
+
+             // Gắn sự kiện thay đổi
+             if(filterMonth && filterYear) {
+                 filterMonth.addEventListener('change', handleFilterChange);
+                 filterYear.addEventListener('change', handleFilterChange);
+             }
+
+             // Kích hoạt menu "Theo dõi học tập"
+             let linkTheoDoi = document.querySelector('a[href*="TheoDoiHocTap"]');
+             if (linkTheoDoi) {
+                 document.querySelectorAll('.menu-item.active').forEach(l => l.classList.remove('active'));
+                 linkTheoDoi.classList.add('active');
+             }
+         });
+         // --- XỬ LÝ GIỮ NGUYÊN TAB SAU KHI RELOAD TRANG ---
+         document.addEventListener("DOMContentLoaded", function() {
+             // 1. Kiểm tra xem trong bộ nhớ có tab nào đang được lưu không
+             let activeTab = localStorage.getItem('activeTabHoSo');
+             if (activeTab) {
+                 let tabBtn = document.getElementById(activeTab);
+                 if (tabBtn) {
+                     // Dùng lệnh của Bootstrap 5 để kích hoạt lại Tab đó
+                     let tabInstance = new bootstrap.Tab(tabBtn);
+                     tabInstance.show();
+                 }
+             }
+
+             // 2. Mỗi khi người dùng bấm chuyển sang tab nào, thì lưu ID của tab đó lại
+             let tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
+             tabButtons.forEach(btn => {
+                 btn.addEventListener('shown.bs.tab', function(event) {
+                     localStorage.setItem('activeTabHoSo', event.target.id);
+                 });
+             });
+         });
+    </script>
+}
+

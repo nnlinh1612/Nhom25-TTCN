@@ -1,0 +1,315 @@
+﻿@model TTNguVan.Models.BaiLam
+@{
+    // Gọi Layout dùng chung
+    ViewData["Title"] = "Chấm bài: " + Model.MaHocVienNavigation?.TenHocVien;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* CHỈ GIỮ LẠI CSS ĐẶC THÙ CỦA TRANG CHẤM BÀI */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .student-name {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-back {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 22px;
+            transition: 0.3s;
+        }
+
+            .btn-back:hover {
+                color: var(--primary);
+                transform: translateX(-4px);
+            }
+
+        /* --- ÁP DỤNG STYLE BENTO CHO KHỐI CHẤM BÀI --- */
+        .card-cham-bai {
+            border: 1px solid #e2e8f0 !important; /* Viền mỏng chuẩn minimalist */
+            border-radius: 20px !important; /* Bo góc tròn 20px */
+            box-shadow: none !important; /* Tắt bóng đổ gắt */
+            background: #fff;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-cb {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0; /* Viền ngăn cách tiêu đề màu xám nhạt */
+            padding: 18px 24px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header-cb i {
+                color: var(--primary);
+            }
+
+        .diem-box {
+            background: #f8fafc; /* Đổi màu nền nhập điểm nhẹ nhàng hơn */
+            border-radius: 16px;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0; /* Thêm viền mỏng cho cục nhập điểm */
+        }
+
+        .diem-input {
+            width: 85px !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0 !important;
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 18px !important;
+            margin: 0;
+            box-shadow: none !important;
+        }
+
+            .diem-input:focus {
+                border-color: var(--primary) !important;
+            }
+
+        form.cham-bai-form {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%; /* ĐÃ FIX: Đổi từ height thành min-height để nó tự giãn khi quá dài */
+        }
+
+        .nhan-xet-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        textarea.nhan-xet-input {
+            flex: 1;
+            min-height: 250px;
+            border-radius: 15px !important;
+            border: 1px solid #e2e8f0 !important;
+            resize: none;
+            box-shadow: none !important;
+        }
+
+            textarea.nhan-xet-input:focus {
+                border-color: var(--primary) !important;
+            }
+
+        .btn-hoantat-container {
+            margin-top: auto;
+            padding-top: 10px;
+            text-align: center;
+        }
+
+        .btn-hoantat {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+            width: fit-content;
+            margin: 10px auto 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-hoantat:hover {
+                background: #428e7d; /* Thay đổi màu Hover chuẩn */
+                transform: translateY(-2px);
+            }
+
+        /* Toast thông báo riêng của trang này */
+        #edu-toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background-color: var(--primary);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 16px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 10000;
+            font-size: 15px;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}
+
+<div class="header-section">
+    <div class="header-title">
+        <a href="/GiaoVien/QuanLyBaiTest" class="btn-back"><i class="fas fa-arrow-left"></i></a>
+        <span>
+            Chấm bài: <span class="student-name">@Model.MaHocVienNavigation?.TenHocVien</span>
+            <span class="ms-2 text-muted" style="font-size: 16px; font-weight: 400; font-style: italic;">
+                (@(Model.MaBaiTestNavigation?.TenBaiTest ?? "Bài test hệ thống"))
+            </span>
+        </span>
+    </div>
+    <span class="badge" style="background: white; border: 1px solid var(--primary); color: var(--primary); padding: 8px 16px; border-radius: 10px;">
+        Mã bài: @Model.MaBaiTest
+    </span>
+</div>
+
+<div class="row g-4 flex-grow-1" style="min-height: 0;">
+    <!-- CỘT TRÁI (2/3 TRANG): CHIA 2 NỬA TRÊN/DƯỚI CHO ĐỀ BÀI VÀ BÀI LÀM -->
+    <div class="col-md-8 h-100 d-flex flex-column" style="gap: 1.5rem;">
+
+        <!-- Nửa trên: ĐỀ BÀI -->
+        <div class="card-cham-bai" style="height: auto; flex: 1; min-height: 0;">
+            <div class="card-header-cb"><i class="fas fa-book-open"></i> Nội dung đề test</div>
+            <div style="overflow-y: auto; padding: 25px; flex: 1;">
+                <div style="line-height: 1.8; color: var(--text-main); font-size: 15px;">
+                    @Html.Raw(Model.MaBaiTestNavigation?.NoiDungDe?.Replace("\n", "<br/>") ?? "<span class='text-muted fst-italic'>Không tìm thấy nội dung đề.</span>")
+                </div>
+            </div>
+        </div>
+
+        <!-- Nửa dưới: BÀI LÀM CỦA HỌC SINH -->
+        <div class="card-cham-bai" style="height: auto; flex: 1; min-height: 0;">
+            <div class="card-header-cb"><i class="fas fa-file-alt"></i> Nội dung bài làm của học sinh</div>
+            <div style="overflow-y: auto; padding: 25px; flex: 1;">
+                <div style="line-height: 1.8; color: var(--text-main); font-size: 15px;">
+                    @Html.Raw(Model.NoiDungBaiLam?.Replace("\n", "<br/>") ?? "Học sinh chưa nộp bài.")
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CỘT PHẢI (1/3 TRANG): FORM CHẤM BÀI -->
+    <div class="col-md-4 h-100">
+        <div class="card-cham-bai">
+            <div class="card-header-cb"><i class="fas fa-pen-nib"></i> Nhận xét giáo viên</div>
+            <div style="flex: 1; padding: 30px; overflow-y: auto;">
+                <form id="formChamBai" asp-action="LuuKetQua" method="post" class="cham-bai-form">
+                    <input type="hidden" name="MaBaiLam" value="@Model.MaBaiLam" />
+
+                    <div class="diem-box">
+                        <span style="font-weight: 900; color: var(--primary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">ĐIỂM SỐ BÀI TEST</span>
+                        <input type="number" step="0.1" name="DiemTest" class="form-control diem-input" required placeholder="0.0" value="@ViewBag.DiemCu">
+                    </div>
+
+                    <div class="nhan-xet-wrapper">
+                        <label class="form-label fw-semibold" style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Lời phê & Nhận xét</label>
+                        <textarea name="NhanXet" class="form-control nhan-xet-input" placeholder="Viết nhận xét chi tiết cho học sinh..." required>@ViewBag.NhanXetCu</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Lớp đề xuất</label>
+
+                        <select name="GhiChu" class="form-select" style="border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: none;" required>
+                            <option value="">-- Chưa đề xuất --</option>
+
+                            @{
+                                var cacLop = ViewBag.DanhSachLop as List<string> ?? new List<string>();
+                                string lopCu = ViewBag.GhiChuCu as string ?? "";
+                            }
+
+                            @foreach (var lop in cacLop)
+                            {
+                                // Nếu giáo viên đang sửa bài (đã chọn lớp này trước đó rồi) thì in đậm và set "selected"
+                                if (lop == lopCu)
+                                {
+                                    <option value="@lop" selected>@lop</option>
+                                }
+                                else
+                                {
+                                    <option value="@lop">@lop</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="btn-hoantat-container">
+                        <button type="submit" class="btn-hoantat w-100 justify-content-center">
+                            <i class="fas fa-check-circle me-2"></i> Lưu kết quả chấm bài
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edu-toast">
+    <i class="fas fa-check-circle"></i>
+    <span>Đã lưu kết quả thành công!</span>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('formChamBai').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+            const toast = document.getElementById('edu-toast');
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.style.display = 'flex';
+                    setTimeout(() => {
+                        window.location.href = '/GiaoVien/QuanLyBaiTest';
+                    }, 2000);
+                } else {
+                    alert("Có lỗi xảy ra khi lưu!");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+}

@@ -1,0 +1,253 @@
+﻿@model IEnumerable<TTNguVan.Models.KhachHang>
+@{
+    Layout = "~/Views/Shared/_LayoutSale.cshtml";
+    ViewData["Title"] = "Báo cáo & Thống kê";
+    ViewBag.ActiveMenu = "BaoCao";
+}
+
+@section Styles {
+    <style>
+        .kpi-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-bento {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .card-bento:hover {
+                transform: translateY(-2px);
+            }
+    </style>
+}
+
+<div class="page-title-group mb-4">
+    <div>
+        <h2 style="font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Báo cáo và Thống kê</h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Phân tích hiệu suất tư vấn và nguồn học viên thực tế</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="kpi-icon-box bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="text-muted fw-semibold" style="font-size: 16px;">Tổng tiếp nhận</span>
+            </div>
+            <h1 class="fw-bold mb-1" style="color: var(--text-main);">@(ViewBag.TongKhachHang ?? 0)</h1>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="kpi-icon-box bg-success bg-opacity-10 text-success me-3">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <span class="text-muted fw-semibold" style="font-size: 16px;">Học viên chính thức</span>
+            </div>
+            <h1 class="fw-bold mb-1" style="color: var(--text-main);">@(ViewBag.HocVienChinhThuc ?? 0)</h1>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="kpi-icon-box bg-warning bg-opacity-10 text-warning me-3">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <span class="text-muted fw-semibold" style="font-size: 16px;">Tỷ lệ chốt đơn</span>
+            </div>
+            <h1 class="fw-bold mb-1" style="color: var(--text-main);">@(ViewBag.TyLeChuyenDoi ?? 0)%</h1>
+        </div>
+    </div>
+
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card-bento p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="fw-bold mb-0" style="color: var(--text-main);">XU HƯỚNG CHUYỂN ĐỔI HỌC VIÊN</h6>
+                <div class="d-flex gap-3">
+                    <small><i class="fas fa-square me-1" style="color: #f97316;"></i> Tổng tiếp nhận</small>
+                    <small><i class="fas fa-square text-success me-1"></i> Đã đăng ký</small>
+                </div>
+            </div>
+            <div style="height: 350px; position: relative;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <h6 class="fw-bold mb-4" style="color: var(--text-main);">PHÂN BỐ THEO KHỐI</h6>
+            <div style="height: 250px; position: relative;">
+                <canvas id="khoiChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <h6 class="fw-bold mb-4" style="color: var(--text-main);">NGUỒN TIẾP NHẬN</h6>
+            <div style="height: 250px; position: relative;">
+                <canvas id="nguonChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-bento h-100 p-4">
+            <h6 class="fw-bold mb-4" style="color: var(--text-main);">TRẠNG THÁI HỌC VIÊN</h6>
+            <div style="height: 250px; position: relative;">
+                <canvas id="trangThaiChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // --- LẤY DỮ LIỆU TỪ C# TRUYỀN XUỐNG ---
+        const dataTrendLabels = @Html.Raw(ViewBag.TrendLabels ?? "[]");
+        const dataTotal = @Html.Raw(ViewBag.TrendDataTotal ?? "[]");
+        const dataSuccess = @Html.Raw(ViewBag.TrendDataSuccess ?? "[]");
+
+        const dataKhoiData = @Html.Raw(ViewBag.KhoiData ?? "[]");
+        const dataKhoiLabels = @Html.Raw(ViewBag.KhoiLabels ?? "[]");
+
+        const dataNguonData = @Html.Raw(ViewBag.NguonData ?? "[]");
+        const dataNguonLabels = @Html.Raw(ViewBag.NguonLabels ?? "[]");
+
+        const dataTrangThaiData = @Html.Raw(ViewBag.TrangThaiData ?? "[]");
+        const dataTrangThaiLabels = @Html.Raw(ViewBag.TrangThaiLabels ?? "[]");
+
+        // 1. Biểu đồ Trend Cột Kép
+        new Chart(document.getElementById('trendChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+        labels: dataTrendLabels,
+        datasets: [
+        {
+        label: 'Tổng tiếp nhận',
+        data: dataTotal,
+        backgroundColor: '#f97316',
+        borderRadius: 6,
+        barPercentage: 0.7,
+        categoryPercentage: 0.6
+        },
+        {
+        label: 'Đã đăng ký',
+        data: dataSuccess,
+        backgroundColor: '#10b981',
+        borderRadius: 6,
+        barPercentage: 0.7,
+        categoryPercentage: 0.6
+        }
+        ]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+        y: {
+        beginAtZero: true,
+        grid: { borderDash: [5, 5], color: '#f1f5f9' },
+        border: { display: false },
+        ticks: { stepSize: 1 }
+        },
+        x: {
+        grid: { display: false },
+        border: { display: false }
+        }
+        }
+        }
+        });
+
+        // Cấu hình chung cho biểu đồ Doughnut
+        const commonDoughnutOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        radius: 85,
+        cutout: '70%',
+        plugins: {
+        legend: {
+        position: 'bottom',
+        labels: { usePointStyle: true, padding: 12, font: { size: 11 } }
+        }
+        }
+        };
+
+        // 2. Biểu đồ Khối
+        new Chart(document.getElementById('khoiChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+        labels: dataKhoiLabels,
+        datasets: [{
+        data: dataKhoiData,
+        backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#0ea5e9', '#6366f1', '#d946ef'],
+        borderWidth: 0
+        }]
+        },
+        options: commonDoughnutOptions
+        });
+
+        // 3. Biểu đồ Nguồn
+        new Chart(document.getElementById('nguonChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+        labels: dataNguonLabels,
+        datasets: [{
+        data: dataNguonData,
+        backgroundColor: ['#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#f97316'],
+        borderWidth: 0
+        }]
+        },
+        options: commonDoughnutOptions
+        });
+
+        // 4. Biểu đồ Trạng thái
+        new Chart(document.getElementById('trangThaiChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+        labels: dataTrangThaiLabels,
+        datasets: [{
+        data: dataTrangThaiData,
+        // Bổ sung thêm dải màu để đủ cho 5-6 trạng thái học viên
+        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#6366f1', '#ef4444', '#8b5cf6'],
+        borderWidth: 0
+        }]
+        },
+        options: commonDoughnutOptions
+        });
+        });
+    </script>
+}
+

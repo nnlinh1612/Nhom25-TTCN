@@ -1,0 +1,295 @@
+﻿@model IEnumerable<TTNguVan.Models.HocVien>
+@{
+    ViewData["Title"] = "Cập nhật buổi học";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+
+    var lop = ViewBag.Lop as TTNguVan.Models.LopHoc;
+    string ngay = ViewBag.Ngay;
+    string ca = ViewBag.Ca;
+    // Nạp danh sách điểm cũ từ ViewBag sang biến kqCu
+    var kqCu = ViewBag.DiemCu as List<TTNguVan.Models.KqHocTap> ?? new List<TTNguVan.Models.KqHocTap>();
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .bento-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.015);
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-group-top label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .input-top {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            outline: none;
+            min-width: 180px;
+        }
+
+        .class-badge h4 {
+            color: #52ab98;
+            font-weight: 800;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .table-custom th {
+                background: #ffffff;
+                color: #64748b;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 16px;
+                border-bottom: 1px solid #e2e8f0;
+                text-transform: uppercase;
+                text-align: left;
+            }
+
+            .table-custom td {
+                padding: 16px;
+                border-bottom: 1px solid #f1f5f9;
+                vertical-align: middle;
+            }
+
+        .form-control-table {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .input-score {
+            width: 70px;
+            text-align: center;
+        }
+
+        .btn-save-all {
+            background: #52ab98;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            float: right;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+            .btn-save-all:hover {
+                background: #3d8878;
+                transform: translateY(-2px);
+            }
+
+        @@keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+}
+
+<div class="page-header">
+    <a href="/GiaoVien/TheoDoiHocTap?maLop=@lop?.MaLop&ngay=@ngay" class="text-decoration-none text-muted small fw-bold mb-2 d-inline-block">
+        <i class="fas fa-arrow-left me-1"></i> Quay lại
+    </a>
+    <h1 class="page-title">Theo dõi học tập</h1>
+    <p class="page-subtitle">Lọc lịch học và cập nhật nhận xét buổi học cho học viên</p>
+</div>
+
+<form id="formCapNhat" asp-controller="GiaoVien" asp-action="LuuNhatKy" method="post">
+    <input type="hidden" name="maLop" value="@lop?.MaLop" />
+    <input type="hidden" name="ngay" value="@ngay" />
+    <input type="hidden" name="ca" value="@ca" />
+
+    <div class="bento-card">
+        <div class="info-header mb-4 pb-4 border-bottom">
+            <div class="d-flex gap-4">
+                <div class="form-group-top">
+                    <label>NGÀY DẠY</label>
+                    <input type="date" class="input-top" value="@ngay" readonly style="color: #64748b;">
+                </div>
+                <div class="form-group-top">
+                    <label>CA HỌC</label>
+                    <input type="text" class="input-top" value="Ca @ca" readonly style="color: #64748b;">
+                </div>
+            </div>
+            <div class="class-badge">
+                <small>ĐANG CẬP NHẬT LỚP:</small>
+                <h4>@lop?.TenLop</h4>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">HỌC VIÊN</th>
+                        <th style="width: 15%;">ĐIỂM DANH</th>
+                        <th style="width: 15%;">BTVN</th>
+                        <th style="width: 10%;">ĐIỂM</th>
+                        <th style="width: 40%;">NHẬN XÉT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        int i = 0;
+                        foreach (var hocVien in Model)
+                        {
+                            // Tìm chính xác dòng điểm cũ của em học sinh này
+                            var kq = kqCu.FirstOrDefault(k => k.MaHocVien == hocVien.MaHocVien);
+
+                            <tr>
+                                <td>
+                                    <input type="hidden" name="danhSachKQ[@i].MaHocVien" value="@hocVien.MaHocVien" />
+                                    <b class="text-dark">@hocVien.TenHocVien</b>
+                                    <small class="text-muted d-block">#@hocVien.MaHocVien</small>
+                                </td>
+                                <td>
+                                    <select name="danhSachKQ[@i].DiemDanh" class="form-control-table">
+                                        <option value="Có mặt" selected="@(kq?.DiemDanh == "Có mặt")">Có mặt</option>
+                                        <option value="Vắng" selected="@(kq?.DiemDanh == "Vắng")">Vắng</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="danhSachKQ[@i].Btvn" class="form-control-table">
+                                        <option value="Có" selected="@(kq?.Btvn == "Có")">Có</option>
+                                        <option value="Không" selected="@(kq?.Btvn == "Không")">Không</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="danhSachKQ[@i].DiemSo" class="form-control-table input-score" min="0" max="10" step="0.5" value="@(kq?.DiemSo ?? 0)" />
+                                </td>
+                                <td>
+                                    <input type="text" name="danhSachKQ[@i].NhanXet" class="form-control-table" placeholder="Gõ nhận xét..." value="@kq?.NhanXet" />
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="clearfix">
+            <button type="submit" class="btn-save-all">
+                <i class="fas fa-save"></i> Lưu toàn bộ nhận xét
+            </button>
+        </div>
+    </div>
+</form>
+
+<div id="modal-overwrite" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: white; width: 400px; border-radius: 16px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: scaleIn 0.3s ease;">
+        <div style="width: 60px; height: 60px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 style="margin: 0 0 10px; font-weight: 700; color: #0f172a; font-size: 20px;">Dữ liệu đã tồn tại!</h3>
+        <p style="color: #64748b; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">
+            Buổi học ngày hôm nay đã được cập nhật trước đó.<br />
+            Bạn có chắc chắn muốn <b>ghi đè</b> kết quả mới lên dữ liệu cũ không?
+        </p>
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="dongModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s;">Hủy bỏ</button>
+            <button type="button" onclick="xacNhanLuu()" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #ef4444; font-weight: 600; color: white; cursor: pointer; transition: 0.2s;">Có, Ghi đè</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Cách lấy cờ an toàn tuyệt đối, bất chấp chữ Hoa hay chữ Thường từ C#
+        var daCapNhat = '@(ViewBag.DaCapNhat)'.toLowerCase() === 'true';
+
+        // In ra màn hình console (F12) để kiểm tra
+        console.log("Kiểm tra trạng thái cập nhật:", daCapNhat);
+
+        // Nắm lấy cái form và cái modal
+        var form = document.getElementById('formCapNhat');
+        var modal = document.getElementById('modal-overwrite');
+
+        // Bắt sự kiện khi người dùng bấm nút Submit
+        form.onsubmit = function(e) {
+            if (daCapNhat) {
+                e.preventDefault(); // Chặn đứng việc gửi dữ liệu
+                console.log("Đã chặn submit, đang hiện modal...");
+                modal.style.display = 'flex'; // Hiện cái bảng cảnh báo lên
+                return false;
+            }
+        };
+
+        // Hàm đóng Modal
+        function dongModal() {
+            modal.style.display = 'none';
+        }
+
+        // Hàm xác nhận ghi đè
+        function xacNhanLuu() {
+            daCapNhat = false; // Tắt chốt an toàn
+            console.log("Đã xác nhận ghi đè, đang gửi form...");
+            form.submit(); // Cho phép gửi form đi thật sự
+        }
+    </script>
+}
+
+
+

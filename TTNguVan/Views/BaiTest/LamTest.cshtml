@@ -1,0 +1,409 @@
+﻿@model TTNguVan.Models.BaiTest
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đang làm bài: @Model.TenBaiTest</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header-test {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .ten-bai-test {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 18px;
+        }
+
+        .timer-box {
+            background: #10b981;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        /* Hiệu ứng nhấp nháy khi sắp hết giờ */
+        .timer-low {
+            background: #ef4444 !important;
+            animation: blink 1s infinite;
+        }
+
+        @@keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .student-info {
+            color: #64748b;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        /* BODY */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .de-bai {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            line-height: 1.8;
+            color: #334155;
+            font-size: 16px;
+        }
+
+            .de-bai h3 {
+                margin-bottom: 20px;
+                color: #1e293b;
+                border-left: 5px solid #52ab98;
+                padding-left: 15px;
+            }
+
+        .bai-lam {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+
+        .title-phieu {
+            font-weight: 700;
+            color: #52ab98;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .text-bai-lam {
+            flex: 1;
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 17px;
+            line-height: 1.6;
+            outline: none;
+            resize: none;
+            transition: 0.3s;
+            background: #fafafa;
+        }
+
+            .text-bai-lam:focus {
+                border-color: #52ab98;
+                background: white;
+                box-shadow: 0 0 0 4px rgba(82, 171, 152, 0.1);
+            }
+
+        /* FOOTER */
+        .footer-test {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-nop-bai {
+            background: #52ab98;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+            .btn-nop-bai:hover {
+                background: #428e7d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(82, 171, 152, 0.3);
+            }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast-red {
+            background: #ef4444 !important;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+            .toast-red.show {
+                transform: translateX(0);
+            }
+
+
+        .toast-green {
+            background: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+            .toast-green.show {
+                transform: translateX(0);
+            }
+
+        #modal-confirm {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"><div id="toast" class="toast-green"><i class="fas fa-exclamation-circle"></i> <span id="toast-msg"></span></div></div>
+
+    <div id="modal-confirm">
+        <div class="modal-box">
+            <i class="fas fa-question-circle" style="font-size: 50px; color: #52ab98; margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px;">Xác nhận nộp bài?</h3>
+            <p style="color: #64748b; margin-bottom: 25px;">Hệ thống sẽ ghi nhận và bạn không thể sửa sau khi nộp.</p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="document.getElementById('modal-confirm').style.display='none'" style="flex:1; padding:12px; border-radius:10px; border:none; background:#f1f5f9; cursor:pointer; font-weight:600;">Xem lại</button>
+                <button onclick="finalSubmit()" style="flex:1; padding:12px; border-radius:10px; border:none; background:#52ab98; color:white; cursor:pointer; font-weight:600;">Nộp ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-test">
+        <div class="ten-bai-test">
+            <i class="fas fa-file-signature" style="color: #52ab98; margin-right: 8px;"></i> @Model.TenBaiTest
+        </div>
+
+        <div class="timer-box" id="timerContainer">
+            <i class="far fa-clock"></i> <span id="clock">120:00</span>
+        </div>
+
+        <div class="student-info">
+            <p style="margin-bottom: 2px;">Hệ thống thi trực tuyến</p>
+            <span style="color: #1e293b; font-weight: 600;">
+                HV: @ViewBag.TenHocVien (@ViewBag.MaHocVien)
+            </span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="de-bai">
+            @Html.Raw(Model.NoiDungDe)
+        </div>
+
+        <div class="bai-lam">
+            <div class="title-phieu">
+                <i class="fas fa-pen-nib"></i> PHIẾU LÀM BÀI 
+            </div>
+
+            <form id="formThi" action="/BaiTest/NopBai" method="post" style="display:flex; flex:1; flex-direction:column;">
+                <input type="hidden" name="MaBaiTest" value="@Model.MaBaiTest" />
+                <input type="hidden" name="MaHocVien" value="@ViewBag.MaHocVien" />
+
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> Trình bày phần trắc nghiệm trước (VD: 1.A, 2.B...), sau đó đến phần tự luận.
+                </p>
+
+                <textarea id="NoiDungBaiLam" name="NoiDungBaiLam" class="text-bai-lam" autofocus
+                          placeholder="Bắt đầu viết bài tại đây..."></textarea>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-test">
+        <button type="button" class="btn-nop-bai" onclick="kiemTraNopBai()">
+            Hoàn thành & Nộp bài
+        </button>
+    </div>
+
+    <script>
+        var isSubmitting = false;
+
+        // ĐÃ NÂNG CẤP: Hàm hiện Toast thông báo góc phải (Xanh / Đỏ)
+            function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+
+            // Đổi nội dung chữ
+            document.getElementById('toast-msg').innerText = msg;
+
+            // Xóa sạch class cũ trước khi thêm class mới
+            toast.classList.remove('toast-green', 'toast-red', 'show');
+
+            if (isError) {
+                // NẾU LỖI: Gắn class đỏ và icon tam giác
+                toast.classList.add('toast-red');
+                if (icon) icon.className = 'fas fa-exclamation-triangle';
+            } else {
+                // NẾU THÀNH CÔNG: Gắn class xanh và icon check tròn
+                toast.classList.add('toast-green');
+                if (icon) icon.className = 'fas fa-check-circle';
+            }
+
+            // Hiện Toast lên
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+
+            // 3 giây sau tự cất đi
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // ĐÃ NÂNG CẤP: Kiểm tra xem textarea có trống không
+        function kiemTraNopBai() {
+            const noiDung = document.getElementById('NoiDungBaiLam').value.trim();
+
+            if (noiDung === "") {
+                // Truyền chữ "true" vào cuối để hệ thống biết đây là lỗi -> Bật màu đỏ
+                showToast("Cảnh báo: Bạn chưa nhập nội dung bài làm!", true);
+                return;
+            }
+
+            // Nếu đã có chữ -> Mở cái Modal xác nhận xịn sò lên
+            document.getElementById('modal-confirm').style.display = 'flex';
+        }
+
+        // Hàm này chạy khi bấm nút "Nộp ngay" trên Modal
+        function finalSubmit() {
+            isSubmitting = true;
+            document.getElementById("formThi").submit();
+        }
+
+        // Chặn tắt web nhầm
+        window.onbeforeunload = function() {
+            if (!isSubmitting) {
+                return "Dữ liệu bài làm sẽ bị mất nếu bạn rời khỏi trang. Bạn có chắc chắn muốn thoát không?";
+            }
+        };
+
+        // Đếm ngược thời gian
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            var timerContainer = document.getElementById('timerContainer');
+
+            var countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                // Cảnh báo khi còn dưới 5 phút
+                if (timer <= 300) {
+                    timerContainer.classList.add('timer-low');
+                }
+
+                // Khi hết giờ
+                if (--timer < 0) {
+                    clearInterval(countdown);
+                    isSubmitting = true;
+                    alert("Đã hết thời gian làm bài! Hệ thống sẽ tự động nộp bài.");
+                    document.getElementById("formThi").submit();
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            var timeLimit = 120 * 60; // 120 phút
+            var display = document.querySelector('#clock');
+            startTimer(timeLimit, display);
+        };
+    </script>
+</body>
+</html>

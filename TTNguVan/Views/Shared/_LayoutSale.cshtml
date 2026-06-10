@@ -1,0 +1,618 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Accessor
+
+@{
+    // Lấy thông tin từ Session của Sale
+    var hoTen = Accessor.HttpContext?.Session.GetString("HoTen") ?? "Nhân viên Sale";
+    var Email = Accessor.HttpContext?.Session.GetString("Email") ?? "admin@gmail.com";
+
+    // Lấy chữ cái đầu tiên làm Avatar
+    var avatarChar = !string.IsNullOrEmpty(hoTen) ? hoTen.Substring(0, 1).ToUpper() : "S";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ngữ Văn Minh Anh</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+    <style>
+        :root {
+            --primary: #52ab98;
+            --primary-hover: #428e7d;
+            --bg-body: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #f1f5f9;
+            --sidebar-width: 320px;
+            --radius-card: 20px;
+            --radius-btn: 12px;
+        }
+
+        * {
+            box-sizing: border-box !important;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- SỬA LỖI CUỘN TRANG --- */
+        body {
+            display: flex !important;
+            min-height: 100vh !important; /* Cho phép chiều cao tự động giãn ra */
+            background-color: var(--bg-body) !important;
+            overflow-x: hidden; /* Chống cuộn ngang */
+            overflow-y: auto; /* CHO PHÉP CUỘN DỌC */
+        }
+
+        /* --- SIDEBAR CỐ ĐỊNH --- */
+        .thanh-sidebar {
+            width: var(--sidebar-width) !important;
+            min-width: var(--sidebar-width) !important;
+            height: 100vh !important;
+            background-color: #ffffff !important;
+            border-right: 1px solid var(--border-color) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: sticky; /* Giữ menu đứng yên khi cuộn trang */
+            top: 0;
+        }
+
+        .logo-header {
+            padding: 32px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .menu-list {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            text-decoration: none !important;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 400;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            transition: 0.2s;
+        }
+
+            .menu-item i {
+                font-size: 18px;
+                width: 20px;
+                text-align: center;
+            }
+
+            .menu-item.active {
+                background-color: #eaf4f1;
+                color: var(--primary);
+                font-weight: 500;
+            }
+
+            .menu-item:hover:not(.active) {
+                background-color: #f8fafc;
+                color: var(--text-main);
+            }
+
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .profile-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .avatar-circle {
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            display: block;
+        }
+
+        .profile-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #1e293b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* --- VÙNG NỘI DUNG (GIÃN THEO DỮ LIỆU) --- */
+        .main-content {
+            flex: 1 !important;
+            padding: 35px 40px !important;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- TÙY CHỈNH THANH CUỘN CHO ĐẸP --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--primary);
+            }
+
+        /* --- CÁC COMPONENT DÙNG CHUNG --- */
+        .page-title-group {
+            margin-bottom: 25px;
+        }
+
+            .page-title-group h2 {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--text-main);
+                margin-bottom: 5px;
+            }
+
+            .page-title-group p {
+                color: var(--text-muted);
+                font-size: 14px;
+                margin: 0;
+            }
+
+        .card-custom {
+            background: white;
+            border-radius: var(--radius-card);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .card-bento {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+            .card-bento:hover {
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+                transform: translateY(-2px);
+                border-color: #cbd5e1;
+            }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-btn);
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .btn-primary-custom:hover {
+                background: var(--primary-hover);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+        .table-custom thead th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 16px;
+            border: none;
+            text-transform: uppercase;
+        }
+
+        .table-custom tbody td {
+            padding: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        /* --- PHÂN TRANG DÙNG CHUNG --- */
+        .pagination-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 24px;
+            gap: 8px;
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .page-link-custom {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+            .page-link-custom:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+            .page-link-custom.active {
+                background: var(--primary);
+                color: #fff;
+                border-color: var(--primary);
+            }
+
+            .page-link-custom.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+                   STYLE DÙNG CHUNG CHO THANH CÔNG CỤ TÌM KIẾM & LỌC
+
+        .toolbar-bento {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0; /* Viền khung ngoài rõ nét hơn */
+            padding: 16px 20px;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); /* Đổ bóng nhẹ cho cả khối trắng */
+            overflow-x: auto;
+        }
+
+        /* --- KHỐI 1: Ô TÌM KIẾM --- */
+        .search-box {
+            position: relative;
+            flex: 1 1 auto !important;
+            min-width: 250px;
+            margin: 0;
+        }
+
+            .search-box input {
+                width: 100%;
+                padding: 12px 16px 12px 42px;
+                border-radius: 10px;
+                border: 1px solid #cbd5e1 !important;
+                background-color: #f8fafc !important;
+                outline: none;
+                font-family: Arial, Helvetica, sans-serif !important;
+                font-size: 14px;
+                color: #0f172a;
+            }
+
+                /* Hiệu ứng khi click vào ô tìm kiếm */
+                .search-box input:focus {
+                    border-color: var(--primary) !important;
+                    background-color: #ffffff !important;
+                    box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.15);
+                }
+
+        /* --- KHỐI 2: CÁC Ô LỌC DROPDOWN --- */
+        .filter-select {
+            padding: 12px 36px 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1 !important;
+            background-color: #f8fafc !important;
+            outline: none;
+            font-size: 14px;
+            color: #0f172a;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            min-width: 160px;
+            /* Icon mũi tên */
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+            /* Hiệu ứng khi rê chuột vào Dropdown */
+            .filter-select:hover {
+                border-color: #94a3b8 !important;
+                background-color: #f1f5f9 !important;
+            }
+
+            /* Hiệu ứng khi click chọn Dropdown */
+            .filter-select:focus {
+                border-color: var(--primary) !important;
+                background-color: #ffffff !important;
+                box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.15);
+            }
+        /* --- ẨN DẤU X MẶC ĐỊNH CỦA TRÌNH DUYỆT (EDGE, CHROME...) --- */
+        .search-box input::-ms-clear,
+        .search-box input::-ms-reveal {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .search-box input::-webkit-search-decoration,
+        .search-box input::-webkit-search-cancel-button,
+        .search-box input::-webkit-search-results-button,
+        .search-box input::-webkit-search-results-decoration {
+            display: none !important;
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <div class="thanh-sidebar">
+        <div class="logo-header">
+            <div class="logo-box"><i class="fas fa-graduation-cap"></i></div>
+            <span class="logo-text">Ngữ Văn Minh Anh</span>
+        </div>
+
+        <div class="menu-list">
+            <a href="/Sale/QuanLyKhachHang" class="menu-item @(Context.Request.Path.Value.Contains("QuanLyKhachHang") || Context.Request.Path.Value.Contains("ChiTietKhachHang") ? "active" : "")">
+                <i class="fas fa-users"></i><span>Quản lý khách hàng</span>
+            </a>
+
+            <a href="/Sale/TheoDoiHocTap" class="menu-item @(Context.Request.Path.Value.Contains("TheoDoiHocTap") ? "active" : "")">
+                <i class="fas fa-chart-bar"></i><span>Theo dõi học tập</span>
+            </a>
+
+            <a href="/Sale/DanhSachBaiTest" class="menu-item @(Context.Request.Path.Value.Contains("DanhSachBaiTest") ? "active" : "")">
+                <i class="fas fa-file-signature"></i><span>Danh sách bài test</span>
+            </a>
+
+            <a href="/Sale/BaoCao" class="menu-item @(Context.Request.Path.Value.Contains("BaoCao") ? "active" : "")">
+                <i class="fas fa-file-alt"></i><span>Báo cáo</span>
+            </a>
+
+            <a href="/Sale/LoiNhac" class="menu-item @(Context.Request.Path.Value.Contains("LoiNhac") ? "active" : "")">
+                <div style="position: relative; display: inline-block;">
+                    <i class="far fa-bell"></i>
+                    @if (ViewBag.SoLoiNhac != null && ViewBag.SoLoiNhac > 0)
+                    {
+                        <span style="position: absolute; top: -10px; right: -12px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; font-weight: bold; border: 2px solid white; line-height: 1;">
+                            @ViewBag.SoLoiNhac
+                        </span>
+                    }
+                </div>
+                <span>Lời nhắc</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="profile-box">
+                <div class="avatar-circle">@avatarChar</div>
+                <div class="profile-info">
+                    <span class="profile-name">@hoTen</span>
+                    <span class="profile-email">@Email</span>
+                </div>
+            </div>
+            <a href="/TaiKhoan/DangXuat" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var toast = document.getElementById("toast-msg");
+            if (toast) {
+                setTimeout(function() { toast.style.display = 'none'; }, 3000);
+            }
+        });
+    </script>
+    <script>
+        // --- HÀM TẠO TOAST THÔNG BÁO ---
+         function showModernToast(message) {
+             let container = document.getElementById('modern-toast-container');
+             if (!container) {
+                 container = document.createElement('div');
+                 container.id = 'modern-toast-container';
+                 // Cố định ở góc trên bên phải, cách lề 30px giống hệt trang Giáo viên
+                 container.style.cssText = 'position: fixed; top: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none;';
+                 document.body.appendChild(container);
+             }
+
+             const toast = document.createElement('div');
+             // Nền xanh lá, viền bo tròn 16px, chữ trắng, đổ bóng nhẹ y hệt thẻ #edu-toast
+             toast.style.cssText = 'background-color: #52ab98; color: white; padding: 14px 28px; border-radius: 16px; font-weight: 500; font-size: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; transform: translateY(-20px); opacity: 0; transition: all 0.4s ease-out; pointer-events: auto;';
+
+             // Icon check-circle chuẩn
+             toast.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+
+             container.appendChild(toast);
+
+             // Hiệu ứng trượt xuống nhẹ (slideIn)
+             requestAnimationFrame(() => {
+                 toast.style.transform = 'translateY(0)';
+                 toast.style.opacity = '1';
+             });
+
+             // Tự động biến mất sau 3 giây
+             setTimeout(() => {
+                 toast.style.transform = 'translateY(-20px)';
+                 toast.style.opacity = '0';
+                 setTimeout(() => toast.remove(), 400); // Xóa khỏi DOM sau khi mờ hẳn
+             }, 3000);
+         }
+         // --- THÊM ĐOẠN NÀY ĐỂ TỰ ĐỘNG BẮT THÔNG BÁO TỪ CONTROLLER ---
+             document.addEventListener("DOMContentLoaded", function () {
+                 @if (TempData["SuccessMessage"] != null)
+                 {
+                         <text>
+                         showModernToast('@Html.Raw(TempData["SuccessMessage"])');
+                         </text>
+                 }
+
+                 @if (TempData["Success"] != null)
+                 {
+                         <text>
+                         showModernToast('@Html.Raw(TempData["Success"])');
+                         </text>
+                 }
+             });
+             function initBentoPagination(rowsPerPage = 10) {
+             const table = document.querySelector(".table-custom tbody");
+             if (!table) return;
+
+             const rows = Array.from(table.querySelectorAll("tr:not(.no-data)"));
+             if (rows.length <= rowsPerPage) return; // Nếu ít dữ liệu thì không hiện phân trang
+
+             // Tự động chèn HTML phân trang vào cuối thẻ .card-bento-table
+             const container = document.querySelector(".card-bento-table");
+             const paginationHTML = `
+             <div class="pagination-container">
+             <a class="page-link-custom" id="prevPage"><i class="fas fa-chevron-left"></i></a>
+             <div id="pageNumbers" class="d-flex gap-2"></div>
+             <a class="page-link-custom" id="nextPage"><i class="fas fa-chevron-right"></i></a>
+             </div>`;
+             container.insertAdjacentHTML('beforeend', paginationHTML);
+
+             let currentPage = 1;
+             const totalPages = Math.ceil(rows.length / rowsPerPage);
+             const pageNumbersContainer = document.getElementById("pageNumbers");
+             const prevBtn = document.getElementById("prevPage");
+             const nextBtn = document.getElementById("nextPage");
+
+             function displayPage(page) {
+             currentPage = page;
+             const start = (page - 1) * rowsPerPage;
+             const end = start + rowsPerPage;
+             rows.forEach((row, index) => {
+             row.style.display = (index >= start && index < end) ? "" : "none";
+             });
+             updateButtons();
+             }
+
+             function updateButtons() {
+             pageNumbersContainer.innerHTML = "";
+             for (let i = 1; i <= totalPages; i++) {
+             const btn = document.createElement("a");
+             btn.className = `page-link-custom ${i === currentPage ? 'active' : ''}`;
+             btn.innerText = i;
+             btn.onclick = () => displayPage(i);
+             pageNumbersContainer.appendChild(btn);
+             }
+             prevBtn.className = `page-link-custom ${currentPage === 1 ? 'disabled' : ''}`;
+             nextBtn.className = `page-link-custom ${currentPage === totalPages ? 'disabled' : ''}`;
+             }
+
+             prevBtn.onclick = () => { if (currentPage > 1) displayPage(currentPage - 1); };
+             nextBtn.onclick = () => { if (currentPage < totalPages) displayPage(currentPage + 1); };
+
+             displayPage(1);
+             }
+
+             // Gọi hàm chạy khi trang tải xong
+             document.addEventListener("DOMContentLoaded", () => initBentoPagination(10));
+
+             document.addEventListener("DOMContentLoaded", function () {
+                 // Tìm ô input và nút X trong thanh tìm kiếm
+                 const searchInput = document.querySelector(".search-box input");
+                 const clearBtn = document.querySelector(".search-box .clear-search");
+
+                 if (searchInput && clearBtn) {
+                     // 1. Khi vừa load trang: Nếu ô tìm kiếm đang có sẵn chữ thì hiện nút X
+                     if (searchInput.value.trim() !== "") {
+                         clearBtn.style.display = "block";
+                     }
+
+                     // 2. Theo dõi khi bạn gõ chữ: Cứ có chữ là hiện X, xóa hết chữ thì ẩn X
+                     searchInput.addEventListener("input", function () {
+                         clearBtn.style.display = this.value.length > 0 ? "block" : "none";
+                     });
+
+                     // 3. Khi bạn click vào nút X: Xóa sạch chữ và tự động tìm kiếm (để load lại danh sách)
+                     clearBtn.addEventListener("click", function () {
+                         searchInput.value = "";
+                         searchInput.form.submit();
+                     });
+                 }
+             });
+
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+

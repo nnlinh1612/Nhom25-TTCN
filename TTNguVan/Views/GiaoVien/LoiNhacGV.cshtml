@@ -1,0 +1,573 @@
+﻿@model IEnumerable<TTNguVan.Models.ThongBaoViewModel>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Lời nhắc công việc";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* GIỮ NGUYÊN CSS BENTO CỦA ÔNG */
+        .main-container-bento {
+            margin-left: 280px;
+            padding: 30px;
+            background-color: #f4f6f9;
+            min-height: 100vh;
+            width: calc(100% - 280px);
+            transition: all 0.3s;
+        }
+
+        @@media (max-width: 992px) {
+            .main-container-bento {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Thẻ thống kê */
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .stat-info h3 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .stat-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Màu sắc icon */
+        .icon-blue {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .icon-green {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .icon-orange {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        /* Bảng dữ liệu */
+        .content-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #edf2f7;
+            width: 100%;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
+            padding: 15px;
+        }
+
+        .table td {
+            font-size: 14px;
+            vertical-align: middle;
+            color: #334155;
+            padding: 15px;
+        }
+
+        .btn-add-new {
+            background-color: #3ba786;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-add-new:hover {
+                background-color: #2f8f71;
+                box-shadow: 0 4px 12px rgba(59, 167, 134, 0.3);
+                color: #fff;
+            }
+
+        /* GIỮ NGUYÊN CSS TAB PHÂN LOẠI NGOÀI CONTENT-CARD */
+        .tab-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #e2e8f0;
+            padding: 6px;
+            border-radius: 14px;
+            width: fit-content;
+        }
+
+        .tab-item {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none !important;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .tab-item.inactive {
+                color: #64748b;
+            }
+
+                .tab-item.inactive:hover {
+                    background: rgba(255,255,255,0.5);
+                }
+
+            .tab-item.active-blue {
+                background: #fff;
+                color: #0ea5e9;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            }
+
+            .tab-item.active-red {
+                background: #ef4444;
+                color: #fff;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            }
+
+        .badge-num {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        /* --- SỬA CSS BADGE: BO GÓC NHẸ Y HỆT MẪU SALE --- */
+        .badge-style {
+            padding: 6px 14px;
+            border-radius: 6px; /* Đã sửa: Chỉ bo nhẹ như mẫu Sale, không tròn như viên thuốc */
+            font-weight: 700;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Màu Mức độ (Dạng Đặc) */
+        .level-urgent {
+            background-color: #ef4444 !important; /* Đỏ rực */
+            color: #ffffff !important;
+        }
+
+        .level-important {
+            background-color: #ffc107 !important; /* Vàng */
+            color: #1e293b !important;
+        }
+
+        .level-normal {
+            background-color: #0ea5e9 !important; /* Xanh */
+            color: #ffffff !important;
+        }
+
+        .level-done {
+            background-color: #f1f5f9 !important;
+            color: #94a3b8 !important;
+        }
+
+        /* Màu Trạng thái (Dạng Viền + Nền Nhạt) */
+        .status-style {
+            background-color: transparent;
+            border: 1.5px solid;
+        }
+
+        .status-done {
+            border-color: #10b981;
+            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1) !important; /* Nền xanh lá nhạt */
+        }
+
+        .status-pending {
+            border-color: #ffc107;
+            color: #f59e0b; /* Chữ cam đậm cho dễ đọc */
+            background-color: rgba(255, 193, 7, 0.12) !important; /* Nền vàng nhạt */
+        }
+
+        .status-overdue {
+            background-color: #ef4444 !important;
+            color: #fff !important;
+            animation: pulse-red 2s infinite;
+        }
+
+        @@keyframes pulse-red {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* GIỮ NGUYÊN MODAL XÓA VÀ OVERLAY */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-delete {
+            background: #fff;
+            width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px 24px;
+            position: relative;
+            text-align: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @@keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .icon-warning {
+            font-size: 56px;
+            color: #ef4444;
+            margin-bottom: 15px;
+        }
+
+        .delete-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .delete-desc {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+            .delete-desc strong {
+                color: #ef4444;
+                font-weight: 700;
+            }
+
+        .delete-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #1e293b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+            .btn-cancel:hover {
+                background: #f8fafc;
+            }
+
+        .btn-danger {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: #ef4444;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+            .btn-danger:hover {
+                background: #dc2626;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            }
+    </style>
+}
+
+<div class="page-title-group mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 style="font-size: 26px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Lời nhắc công việc</h2>
+        <p style="color: #64748b; font-size: 15px; margin: 0;">Quản lý và theo dõi tiến độ các nhiệm vụ cá nhân</p>
+    </div>
+    <button class="btn-add-new" data-bs-toggle="modal" data-bs-target="#modalThemLoiNhac">
+        <i class="fas fa-plus me-1"></i> Thêm lời nhắc
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fas fa-list-ul"></i></div>
+            <div class="stat-info"><h3>@ViewBag.TongCongViec</h3><p>Tổng lời nhắc</p></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info"><h3>@ViewBag.DaHoanThanh</h3><p>Đã hoàn thành</p></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-orange"><i class="fas fa-history"></i></div>
+            <div class="stat-info"><h3>@ViewBag.ChuaHoanThanh</h3><p>Chưa hoàn thành</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="tab-wrapper">
+        <a href="/GiaoVien/LoiNhacGV?loai=binhthuong"
+           class="tab-item @(ViewBag.TabActive == "binhthuong" ? "active-blue" : "inactive")">
+            <i class="far fa-calendar-check"></i> Lời nhắc <span class="badge-num">@ViewBag.CountBinhThuong</span>
+        </a>
+        <a href="/GiaoVien/LoiNhacGV?loai=quahan"
+           class="tab-item @(ViewBag.TabActive == "quahan" ? "active-red" : "inactive")">
+            <i class="fas fa-exclamation-circle"></i> Quá hạn <span class="badge-num">@ViewBag.CountQuaHan</span>
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th width="5%" class="text-center">STT</th>
+                    <th width="20%">Tiêu đề</th>
+                    <th width="25%">Nội dung</th>
+                    <th width="15%">Hạn chót</th>
+                    <th width="10%" class="text-center">Mức độ</th>
+                    <th width="12%" class="text-center">Trạng thái</th>
+                    <th width="13%" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int stt = 1;
+                    foreach (var item in Model)
+                    {
+                        bool isDone = item.TrangThai;
+                        bool isOverdue = !isDone && item.HanChot < DateTime.Now;
+
+                        string label = item.MucDo;
+
+                        if (!isDone && item.HanChot.HasValue)
+                        {
+                            var daysDifference = (item.HanChot.Value.Date - DateTime.Now.Date).TotalDays;
+                            if (daysDifference >= 0 && daysDifference <= 2)
+                            {
+                                label = "Gấp";
+                            }
+                        }
+
+                        <tr>
+                            <td class="text-center fw-bold text-muted">@stt</td>
+                            <td class="@(isDone ? "text-muted text-decoration-line-through" : "fw-bold text-dark")">@item.TieuDe</td>
+                            <td class="text-muted" style="white-space: normal;">@item.NoiDung</td>
+                            <td class="text-muted">@item.HanChot?.ToString("dd/MM/yyyy HH:mm")</td>
+
+                            <td class="text-center">
+                                @if (isDone)
+                                {
+                                    <span class="badge-style level-done">@item.MucDo</span>
+                                }
+                                else if (label == "Gấp")
+                                {
+                                    <span class="badge-style level-urgent">Gấp</span>
+                                }
+                                else if (item.MucDo == "Quan trọng")
+                                {
+                                    <span class="badge-style level-important">Quan trọng</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-style level-normal">Bình thường</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (isDone)
+                                {
+                                    <span class="badge-style status-style status-done">Đã xong</span>
+                                }
+                                else if (isOverdue)
+                                {
+                                    <span class="badge-style status-overdue">ĐÃ QUÁ HẠN</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-style status-style status-pending">Chưa xong</span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (!isDone)
+                                    {
+                                        <form asp-controller="GiaoVien" asp-action="DanhDauXong" method="post" class="m-0">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn text-success p-0"><i class="fas fa-check-circle fs-5"></i></button>
+                                        </form>
+                                    }
+                                    <button type="button" class="btn text-danger p-0" onclick="openDeleteModal('@item.Id', '@item.TieuDe')"><i class="fas fa-trash-alt fs-5"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        stt++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted fst-italic">
+                            <i class="fas fa-inbox fs-2 d-block mb-2" style="opacity: 0.2;"></i>
+                            Chưa có lời nhắc nào trong danh sách.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalThemLoiNhac" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <form asp-controller="GiaoVien" asp-action="ThemLoiNhac" method="post">
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold">Thêm lời nhắc mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Tiêu đề</label>
+                        <input type="text" class="form-control" name="TieuDe" required style="border-radius: 10px;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Nội dung</label>
+                        <textarea class="form-control" name="NoiDung" rows="3" style="border-radius: 10px;"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Hạn chót</label>
+                            <input type="datetime-local" class="form-control" name="HanChot" required style="border-radius: 10px;" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Mức độ</label>
+                            <select class="form-select" name="MucDo" style="border-radius: 10px;">
+                                <option value="Quan trọng">Quan trọng</option>
+                                <option value="Bình thường" selected>Bình thường</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="submit" class="btn-add-new w-100">Lưu dữ liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-delete">
+        <i class="fas fa-exclamation-triangle icon-warning"></i>
+        <h3 class="delete-title">Xác nhận xóa?</h3>
+        <p class="delete-desc">Bạn có chắc chắn muốn xóa lời nhắc <br /><strong id="delete-title-display"></strong> không?</p>
+        <form asp-controller="GiaoVien" asp-action="XoaLoiNhac" method="post" class="delete-actions m-0">
+            <input type="hidden" id="delete-id" name="id" />
+            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Hủy bỏ</button>
+            <button type="submit" class="btn-danger">Xóa ngay</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openDeleteModal(id, title) {
+            document.getElementById('delete-id').value = id;
+            document.getElementById('delete-title-display').innerText = title;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+        function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+
+        // Click ra ngoài modal để đóng
+        window.addEventListener('click', function(event) {
+            var deleteModal = document.getElementById('deleteModal');
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        });
+    </script>
+}

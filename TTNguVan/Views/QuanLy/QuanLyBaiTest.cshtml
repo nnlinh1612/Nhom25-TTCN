@@ -1,0 +1,356 @@
+﻿@model IEnumerable<TTNguVan.Models.BaiTest>
+@{
+    // Trỏ về Layout của Quản lý (với style y hệt Giáo viên)
+    ViewData["Title"] = "Quản lý kho bài test";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@section Styles {
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <style>
+        /* --- CSS ĐẶC THÙ --- */
+        .link-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-body);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            max-width: 280px;
+        }
+
+            .link-wrapper input {
+                border: none;
+                background: transparent;
+                font-size: 13px;
+                color: var(--text-muted);
+                flex: 1;
+                outline: none;
+            }
+
+        .copy-icon {
+            color: var(--primary);
+            cursor: pointer;
+            margin-left: 10px;
+            transition: 0.2s;
+        }
+
+            .copy-icon:hover {
+                transform: scale(1.1);
+            }
+
+        /* --- ĐỒNG BỘ NÚT THAO TÁC XỊN SÒ --- */
+        .action-icon {
+            cursor: pointer; margin: 0 4px; font-size: 16px; transition: all 0.2s ease-in-out;
+            display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
+            border-radius: 8px; background: transparent; text-decoration: none; border: none;
+        }
+        .action-icon.edit { color: #64748b; }
+        .action-icon.edit:hover { background-color: #64748b; color: white; box-shadow: 0 2px 5px rgba(100, 116, 139, 0.4); }
+        .action-icon.delete { color: #ef4444; }
+        .action-icon.delete:hover { background-color: #ef4444; color: white; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
+
+        /* Modal Form chuẩn Bento */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            padding: 40px;
+            border-radius: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: block;
+        }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 10px;
+                font-weight: 700;
+                color: var(--text-main);
+                font-size: 14px;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 14px 16px;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                outline: none;
+                transition: 0.2s;
+                font-size: 14px;
+            }
+
+                .input-group input:focus {
+                    border-color: var(--primary);
+                }
+
+        /* Kế thừa CKEditor bo góc */
+        .ck-editor__editable_inline {
+            min-height: 300px;
+            border-bottom-left-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+        }
+
+        .ck-toolbar {
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+
+        /* Modal Xác nhận xóa */
+        .modal-confirm-content {
+            background: white;
+            width: 400px;
+            padding: 32px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .icon-warning {
+            font-size: 50px;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+
+        /* Toast Thông báo */
+        #toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transform: translateX(150%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+            #toast.show {
+                transform: translateX(0);
+            }
+            
+        .btn-primary-custom { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
+        .btn-primary-custom:hover { background: var(--primary-hover); }
+        
+        .card-bento-table {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden; 
+        }
+        
+        .table-custom { width: 100%; border-collapse: collapse; }
+        .table-custom thead th { background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 16px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        .table-custom tbody td { padding: 16px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: var(--text-main); }
+        .table-custom tbody tr:hover { background-color: var(--bg-body); transition: 0.2s; }
+    </style>
+}
+
+<div id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Thông báo!</span>
+</div>
+
+<div class="modal" id="modalConfirm">
+    <div class="modal-confirm-content">
+        <i class="fas fa-exclamation-triangle icon-warning"></i>
+        <h3 style="margin-bottom:10px; color:#ef4444; font-weight: 700;">Xác nhận xóa?</h3>
+        <p style="color:var(--text-muted); margin-bottom:25px;">Bạn có chắc muốn xóa bài test này?</p>
+        <div style="display:flex; gap:10px;">
+            <button onclick="closeConfirm()" style="flex:1; padding:12px; background:#f1f5f9; color:var(--text-main); border:none; border-radius:10px; font-weight:600; cursor:pointer; transition: 0.2s;">Hủy bỏ</button>
+            <form id="formDelete" action="/QuanLy/XoaBaiTest" method="post" style="flex:1;">
+                <input type="hidden" name="id" id="idXoa" />
+                <button type="submit" style="width:100%; padding:12px; background:#ef4444; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; transition: 0.2s;">Xóa ngay</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="page-title-group mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 style="color: var(--text-main); font-weight: 700; font-size: 26px; margin-bottom: 6px;">Quản lý kho bài test</h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Tạo và chỉnh sửa nội dung các bài kiểm tra</p>
+    </div>
+    <button class="btn-primary-custom" onclick="openAddModal()">
+        <i class="fas fa-plus me-2"></i> Thêm bài mới
+    </button>
+</div>
+
+<div class="card-bento-table mb-5">
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th class="ps-4" style="width: 100px;">Mã đề</th>
+                    <th>Tên bài test</th>
+                    <th>Link công khai</th>
+                    <th>Nội dung</th>
+                    <th class="text-end pe-4">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var publicLink = "https://localhost:7149/BaiTest/XacThucDauVao?maDe=" + item.MaBaiTest;
+                        <tr>
+                            <td class="ps-4" style="font-weight: 600; color: var(--text-muted); font-family: monospace;">
+                                @item.MaBaiTest
+                            </td>
+                            <td style="font-weight:600; color: var(--text-main);">@item.TenBaiTest</td>
+                            <td>
+                                <div class="link-wrapper">
+                                    <input type="text" readonly value="@publicLink">
+                                    <i class="far fa-copy copy-icon" onclick="copyToClipboard('@publicLink')"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--text-muted);">
+                                    @Html.Raw(System.Text.RegularExpressions.Regex.Replace(item.NoiDungDe ?? "", "<.*?>", string.Empty))
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button type="button" class="action-icon edit" title="Sửa" onclick="openEditModal('@item.MaBaiTest', '@item.TenBaiTest', '@Uri.EscapeDataString(item.NoiDungDe ?? "")')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="action-icon delete" title="Xóa" onclick="openConfirm('@item.MaBaiTest')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted fst-italic">Chưa có bài test nào trong kho.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal" id="modalTest">
+    <div class="modal-content">
+        <h2 id="modalTitle" style="margin-bottom:25px; font-weight: 700; color: var(--text-main);">Soạn thảo bài test</h2>
+        <form id="formTest" action="/QuanLy/ThemBaiTest" method="post">
+            <input type="hidden" name="MaBaiTest" id="inputMa" />
+
+            <div class="input-group">
+                <label>Tiêu đề bài kiểm tra</label>
+                <input type="text" name="TenBaiTest" id="inputTen" placeholder="Ví dụ: Đề kiểm tra đầu vào lớp 6" required />
+            </div>
+
+            <div class="input-group">
+                <label>Nội dung đề thi</label>
+                <textarea id="editor" name="NoiDungDe"></textarea>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn-primary-custom w-100 justify-content-center" style="font-size: 15px; padding: 14px;">Lưu bài test</button>
+                <button type="button" onclick="closeModal()" class="btn w-100" style="background:#f1f5f9; border:none; border-radius:12px; color:var(--text-muted); font-weight:600; cursor:pointer; transition: 0.2s;">Hủy bỏ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // --- KHỞI TẠO CKEDITOR ---
+        let myEditor;
+        ClassicEditor.create(document.querySelector('#editor')).then(editor => { myEditor = editor; });
+
+        // --- HÀM TOAST ---
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // Bắt thông báo từ Controller
+        window.onload = function() {
+            var msg = "@Html.Raw(TempData["SuccessMessage"])";
+            if (msg && msg !== "") { showToast(msg); }
+        };
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => { showToast("Đã copy link bài test thành công!"); });
+        }
+
+        // --- XỬ LÝ MODAL ---
+        function openConfirm(id) {
+            document.getElementById('idXoa').value = id;
+            document.getElementById('modalConfirm').style.display = 'flex';
+        }
+        function closeConfirm() {
+            document.getElementById('modalConfirm').style.display = 'none';
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Tạo bài test mới";
+            document.getElementById('formTest').action = "/QuanLy/ThemBaiTest";
+            document.getElementById('inputMa').value = "";
+            document.getElementById('inputTen').value = "";
+            if (myEditor) myEditor.setData("");
+            document.getElementById('modalTest').style.display = 'flex';
+        }
+
+        function openEditModal(ma, ten, noiDungEncoded) {
+            document.getElementById('modalTitle').innerText = "Chỉnh sửa bài test";
+            document.getElementById('formTest').action = "/QuanLy/SuaBaiTest";
+            document.getElementById('inputMa').value = ma;
+            document.getElementById('inputTen').value = ten;
+            if (myEditor) myEditor.setData(decodeURIComponent(noiDungEncoded));
+            document.getElementById('modalTest').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalTest').style.display = 'none';
+        }
+        
+        // Đóng modal khi click ra ngoài vùng mờ
+        window.onclick = function(event) {
+            let modalTest = document.getElementById('modalTest');
+            let modalConfirm = document.getElementById('modalConfirm');
+            
+            if (event.target == modalTest) {
+                closeModal();
+            }
+            if (event.target == modalConfirm) {
+                closeConfirm();
+            }
+        }
+    </script>
+}

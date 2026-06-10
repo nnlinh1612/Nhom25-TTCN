@@ -1,0 +1,140 @@
+﻿@model TTNguVan.Models.KqBaiTest
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            padding: 40px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #52ab98;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .school-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #52ab98;
+            text-transform: uppercase;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 150px;
+            display: inline-block;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            border-left: 4px solid #52ab98;
+            padding-left: 10px;
+            margin: 25px 0 15px 0;
+            background: #f9f9f9;
+            padding: 5px 10px;
+        }
+
+        .content-box {
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fff;
+            min-height: 150px;
+        }
+
+        .score-big {
+            text-align: center;
+            font-size: 48px;
+            color: #52ab98;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .sig-box {
+            width: 200px;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    @* Tự động mở hộp thoại in/lưu PDF *@
+    <div class="no-print" style="background: #fff3cd; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 8px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background: #52ab98; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Bấm vào đây để Tải file PDF (Chọn "Save as PDF")
+        </button>
+    </div>
+
+    <div class="header">
+        <div class="school-name">Hệ thống Ngữ Văn Minh Anh</div>
+        <div style="font-style: italic;">Đồng hành cùng sĩ tử chinh phục tri thức</div>
+    </div>
+
+    <div class="title">PHIẾU KẾT QUẢ KIỂM TRA ĐẦU VÀO</div>
+
+    <div class="info-grid">
+        @* Thay vì viết .MaBaiLamNavigation.MaHocVienNavigation *@
+        <div><span class="label">Học sinh:</span> @Model.MaBaiLamNavigation?.MaHocVienNavigation?.TenHocVien</div>
+        <div><span class="label">Mã bài test:</span> @Model.MaBaiLamNavigation?.MaBaiTest</div>
+        <div><span class="label">Ngày thi:</span> @Model.MaBaiLamNavigation?.NgayLam.ToString("dd/MM/yyyy")</div>
+    </div>
+
+    <div class="section-title">NỘI DUNG BÀI LÀM</div>
+    <div class="content-box">
+        @Html.Raw(Model.MaBaiLamNavigation.NoiDungBaiLam?.Replace("\n", "<br/>"))
+    </div>
+
+    <div class="section-title">ĐÁNH GIÁ CỦA GIÁO VIÊN</div>
+    <div class="score-big">@Model.DiemTest / 10</div>
+
+    <div><span class="label">Nhận xét:</span></div>
+    <div style="margin-bottom: 20px;">@Model.NhanXet</div>
+
+    <div class="footer">
+        <div class="sig-box">
+            <p>Học sinh/Phụ huynh</p>
+            <div style="height: 80px;"></div>
+            <p>(Ký và ghi rõ họ tên)</p>
+        </div>
+        <div class="sig-box">
+            <p>Giáo viên chấm bài</p>
+            <div style="height: 80px;"></div>
+            <p><strong>@Model.MaTkNavigation?.HoTen</strong></p>
+        </div>
+    </div>
+</body>
+</html>
