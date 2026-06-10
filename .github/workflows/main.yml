@@ -21,8 +21,9 @@ jobs:
     - name: 3. Biên dịch và Đóng gói (Publish)
       run: dotnet publish TTNguVan/TTNguVan.csproj -c Release -o ./publish_output
 
-    - name: 4. Đẩy file lên MonsterASP bằng WebDeploy (Đã bọc bảo mật)
+    - name: 4. Đẩy file lên MonsterASP bằng WebDeploy chính chủ
+      shell: cmd
       env:
         BIEU_DIEN_MAT_KHAU: ${{ secrets.WEBDEPLOY_PASSWORD }}
       run: |
-        & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" -source:contentPath="${{ github.workspace }}\publish_output" -dest:contentPath="${{ secrets.WEBDEPLOY_SITENAME }}",computerName="${{ secrets.WEBDEPLOY_SERVER }}",userName="${{ secrets.WEBDEPLOY_USERNAME }}",password="$env:BIEU_DIEN_MAT_KHAU",authType="Basic" -verb:sync -enableRule:AppOffline
+        "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" -source:contentPath="${{ github.workspace }}\publish_output" -dest:contentPath="${{ secrets.WEBDEPLOY_SITENAME }}",computerName="${{ secrets.WEBDEPLOY_SERVER }}",userName="${{ secrets.WEBDEPLOY_USERNAME }}",password="%BIEU_DIEN_MAT_KHAU%",authType="Basic" -verb:sync -enableRule:AppOffline
