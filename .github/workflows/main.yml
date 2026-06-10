@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+      - main # Chạy kịch bản khi có thay đổi ở nhánh main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Tải code từ GitHub về máy chủ trung gian
+      uses: actions/checkout@v4
+
+    - name: 2. Cài đặt .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # LƯU Ý: Sửa thành 6.0.x hoặc 7.0.x nếu dự án của bạn dùng bản cũ hơn
+
+    - name: 3. Cài đặt thư viện (Restore)
+      run: dotnet restore
+
+    - name: 4. Biên dịch và Đóng gói (Publish)
+      run: dotnet publish -c Release -o ./publish_output
+
+    - name: 5. Đẩy file lên MonsterASP qua FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./publish_output/
+        server-dir: /wwwroot/
