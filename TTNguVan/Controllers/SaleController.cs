@@ -82,63 +82,81 @@ namespace TTNguVan.Controllers
             return View(danhSachLop);
         }
         // 2. HÀM THÊM MỚI KHÁCH HÀNG 
+        // 2. HÀM THÊM MỚI KHÁCH HÀNG 
         [HttpPost]
-        public async Task<IActionResult> Create(string MaKhachHang, string TenKhachHang, string SDT, string NguonDen, int KhoiLop, string TrangThai, DateTime? NgayTiepNhan, DateTime? NgayDangKy)
+        // Chú ý: Đã xóa biến MaKhachHang ở tham số đầu vào
+        public async Task<IActionResult> Create(string TenKhachHang, string SDT, string NguonDen, int KhoiLop, string TrangThai, DateTime? NgayTiepNhan, DateTime? NgayDangKy)
         {
             LayThongTinProfile();
             try
             {
-                // 1. Kiểm tra trùng mã
-                var exists = await _context.KhachHangs.AnyAsync(k => k.MaKhachHang == MaKhachHang);
-                if (exists)
+                // LOGIC 1: TỰ ĐỘNG SINH MÃ VÀ CHỐNG TRÙNG BẰNG VÒNG LẶP (WHILE)
+                var lastKh = await _context.KhachHangs
+                    .OrderByDescending(k => k.MaKhachHang)
+                    .FirstOrDefaultAsync();
+
+                string newMaKh = "KH001";
+                if (lastKh != null && !string.IsNullOrEmpty(lastKh.MaKhachHang))
                 {
-                    TempData["ErrorMessage"] = "Mã khách hàng này đã tồn tại, vui lòng nhập mã khác!";
-                    return RedirectToAction("QuanLyKhachHang");
+                    // Cắt lấy phần số sau chữ "KH" và cộng 1
+                    if (int.TryParse(lastKh.MaKhachHang.Substring(2), out int num))
+                    {
+                        newMaKh = "KH" + (num + 1).ToString("D3");
+                    }
                 }
 
-                // 2. Khởi tạo đối tượng khách hàng mới
+                // ĐÂY LÀ CHỐT CHẶN RACE CONDITION:
+                // Cứ lặp liên tục để kiểm tra. Nếu mã KH011 bị thằng khác nhanh tay cướp mất rồi, 
+                // nó sẽ tự động nhảy lên kiểm tra KH012, KH013... cho đến khi tìm được lỗ hổng thì thôi.
+                while (await _context.KhachHangs.AnyAsync(k => k.MaKhachHang == newMaKh))
+                {
+                    int num = int.Parse(newMaKh.Substring(2));
+                    newMaKh = "KH" + (num + 1).ToString("D3");
+                }
+
+                // LOGIC 2: LƯU KHÁCH HÀNG MỚI
                 var khMoi = new KhachHang
                 {
-                    MaKhachHang = MaKhachHang,
+                    MaKhachHang = newMaKh, // Dùng cái mã hệ thống vừa sinh ra
                     TenKhachHang = TenKhachHang,
                     Sdt = SDT,
                     NguonDen = NguonDen,
                     KhoiLop = KhoiLop,
                     TrangThai = TrangThai,
-
-                    // Ép kiểu từ DateTime sang DateOnly
-                    NgayTiepNhan = NgayTiepNhan.HasValue ? DateOnly.FromDateTime(NgayTiepNhan.Value)
-        : DateOnly.FromDateTime(DateTime.Now),
-
+                    NgayTiepNhan = NgayTiepNhan.HasValue ? DateOnly.FromDateTime(NgayTiepNhan.Value) : DateOnly.FromDateTime(DateTime.Now),
                     NgayDangKy = (TrangThai == "Đã đăng ký" && NgayDangKy.HasValue) ? DateOnly.FromDateTime(NgayDangKy.Value) : null
                 };
 
-                // 3. Xử lý logic nếu khách "Đã đăng ký" (tương đương Thành công)
+                // LOGIC 3: NẾU TRẠNG THÁI LÀ "ĐÃ ĐĂNG KÝ", SINH LUÔN MÃ HỌC VIÊN
                 if (TrangThai == "Đã đăng ký")
                 {
-                    // Tìm mã học viên lớn nhất
                     var lastStudent = await _context.HocViens
                         .Where(h => h.MaHocVien.StartsWith("HV"))
                         .OrderByDescending(h => h.MaHocVien)
                         .FirstOrDefaultAsync();
 
-                    if (lastStudent == null)
+                    string newMaHv = "HV001";
+                    if (lastStudent != null)
                     {
-                        khMoi.MaHocVien = "HV001";
-                    }
-                    else
-                    {
-                        string lastId = lastStudent.MaHocVien;
-                        if (int.TryParse(lastId.Substring(2), out int number))
+                        if (int.TryParse(lastStudent.MaHocVien.Substring(2), out int number))
                         {
-                            khMoi.MaHocVien = "HV" + (number + 1).ToString("D3");
+                            newMaHv = "HV" + (number + 1).ToString("D3");
                         }
                     }
 
-                    // Tự động tạo hồ sơ bên bảng Học Viên
+                    // Chốt chặn Race Condition cho bảng Học Viên
+                    while (await _context.HocViens.AnyAsync(h => h.MaHocVien == newMaHv))
+                    {
+                        int number = int.Parse(newMaHv.Substring(2));
+                        newMaHv = "HV" + (number + 1).ToString("D3");
+                    }
+
+                    // Liên kết khóa ngoại
+                    khMoi.MaHocVien = newMaHv;
+
                     var hocVienMoi = new HocVien
                     {
-                        MaHocVien = khMoi.MaHocVien,
+                        MaHocVien = newMaHv,
                         TenHocVien = khMoi.TenKhachHang,
                         Sdt = khMoi.Sdt,
                         KhoiLop = khMoi.KhoiLop,
@@ -148,10 +166,11 @@ namespace TTNguVan.Controllers
                     _context.HocViens.Add(hocVienMoi);
                 }
 
+                // Lưu vào DB
                 _context.KhachHangs.Add(khMoi);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Thêm khách hàng mới thành công!";
+                TempData["SuccessMessage"] = $"Thêm thành công! Mã khách hàng: {newMaKh}";
             }
             catch (Exception ex)
             {
@@ -160,6 +179,7 @@ namespace TTNguVan.Controllers
 
             return RedirectToAction("QuanLyKhachHang");
         }
+
         [HttpGet]
         public async Task<IActionResult> CheckMaKhachHang(string maKhachHang)
         {
@@ -176,6 +196,7 @@ namespace TTNguVan.Controllers
         }
 
         // 3. HÀM CẬP NHẬT CHỈNH SỬA KHÁCH HÀNG 
+        // 3. HÀM CẬP NHẬT CHỈNH SỬA KHÁCH HÀNG 
         [HttpPost]
         public async Task<IActionResult> UpdateKhachHang(string MaKhachHang, string TenKhachHang, string Sdt, string NguonDen, int KhoiLop, string TrangThai, DateTime? NgayTiepNhan, DateTime? NgayDangKy)
         {
@@ -189,26 +210,34 @@ namespace TTNguVan.Controllers
                     return RedirectToAction("QuanLyKhachHang");
                 }
 
-                // Cập nhật thông tin cơ bản
+                // 1. Cập nhật thông tin cơ bản cho bảng KHÁCH HÀNG
                 khachHangCu.TenKhachHang = TenKhachHang;
                 khachHangCu.Sdt = Sdt;
                 khachHangCu.NguonDen = NguonDen;
                 khachHangCu.KhoiLop = KhoiLop;
                 khachHangCu.TrangThai = TrangThai;
 
-                // --- CẬP NHẬT NGÀY THÁNG ---
-                khachHangCu.NgayTiepNhan = NgayTiepNhan.HasValue
-                    ? DateOnly.FromDateTime(NgayTiepNhan.Value)
-                    : khachHangCu.NgayTiepNhan;
+                khachHangCu.NgayTiepNhan = NgayTiepNhan.HasValue ? DateOnly.FromDateTime(NgayTiepNhan.Value) : khachHangCu.NgayTiepNhan;
+                khachHangCu.NgayDangKy = (TrangThai == "Đã đăng ký" && NgayDangKy.HasValue) ? DateOnly.FromDateTime(NgayDangKy.Value) : null;
 
-                khachHangCu.NgayDangKy = (TrangThai == "Đã đăng ký" && NgayDangKy.HasValue)
-                    ? DateOnly.FromDateTime(NgayDangKy.Value)
-                    : null;
-
-                // Nếu chốt Sale thành công (Đổi từ "Thành công" sang "Đã đăng ký")
-                if (TrangThai == "Đã đăng ký" && string.IsNullOrEmpty(khachHangCu.MaHocVien))
+                // 2. LOGIC ĐỒNG BỘ SANG BẢNG HỌC VIÊN (NẾU ĐÃ LÀ HỌC VIÊN)
+                if (!string.IsNullOrEmpty(khachHangCu.MaHocVien))
                 {
-                    // Tìm mã học viên lớn nhất TRONG BẢNG HỌC VIÊN
+                    // Tìm hồ sơ học viên tương ứng
+                    var hocVienLienQuan = await _context.HocViens.FindAsync(khachHangCu.MaHocVien);
+                    if (hocVienLienQuan != null)
+                    {
+                        // Đồng bộ đè thông tin mới sang
+                        hocVienLienQuan.TenHocVien = TenKhachHang;
+                        hocVienLienQuan.Sdt = Sdt;
+                        hocVienLienQuan.KhoiLop = KhoiLop;
+
+                        _context.HocViens.Update(hocVienLienQuan);
+                    }
+                }
+                // 3. LOGIC SINH MÃ HỌC VIÊN LẦN ĐẦU (Nếu chốt Sale thành công)
+                else if (TrangThai == "Đã đăng ký" && string.IsNullOrEmpty(khachHangCu.MaHocVien))
+                {
                     var lastStudent = await _context.HocViens
                         .Where(h => h.MaHocVien.StartsWith("HV"))
                         .OrderByDescending(h => h.MaHocVien)
@@ -227,7 +256,6 @@ namespace TTNguVan.Controllers
                         }
                     }
 
-                    // Tự động sinh hồ sơ bên bảng Học Viên
                     var hocVienMoi = new HocVien
                     {
                         MaHocVien = khachHangCu.MaHocVien,
@@ -239,14 +267,13 @@ namespace TTNguVan.Controllers
                     };
                     _context.HocViens.Add(hocVienMoi);
 
-                    // Mẹo nhỏ: Nếu khách vừa chuyển sang Đã đăng ký mà ô Ngày đăng ký bị trống, tự điền hôm nay
                     if (khachHangCu.NgayDangKy == null) khachHangCu.NgayDangKy = DateOnly.FromDateTime(DateTime.Now);
                 }
 
                 _context.KhachHangs.Update(khachHangCu);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Lưu 1 phát ăn ngay cả 2 bảng
 
-                TempData["SuccessMessage"] = "Đã cập nhật thông tin khách hàng thành công!";
+                TempData["SuccessMessage"] = "Đã cập nhật và đồng bộ dữ liệu thành công!";
             }
             catch (Exception ex)
             {
@@ -285,7 +312,7 @@ namespace TTNguVan.Controllers
 
                 _context.KhachHangs.Remove(khachHang);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Đã xóa sạch hồ sơ khách hàng {khachHang.TenKhachHang}!";
+                TempData["SuccessMessage"] = $"Đã xóa hồ sơ khách hàng {khachHang.TenKhachHang}!";
             }
             catch (Exception ex)
             {

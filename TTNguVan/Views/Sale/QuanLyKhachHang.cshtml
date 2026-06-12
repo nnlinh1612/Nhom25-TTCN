@@ -404,11 +404,14 @@
                     </div>
                     <form action="@Url.Action("UpdateKhachHang", "Sale")" method="post">
                         <div class="modal-body p-3">
-                            <div class="mb-3">
-                                <label class="label-bento">Mã khách hàng <span class="text-danger">*</span></label>
-                                <input type="text" name="MaKhachHang" class="form-control-bento" placeholder="Ví dụ: KH001" value="@item.MaKhachHang" required maxlength="5" readonly style="background-color: var(--border-color); cursor: not-allowed;">
-                            </div>
                             <div class="row g-3 mb-3">
+                                <div class="mb-3">
+                                    <label class="label-bento">Mã khách hàng <span class="text-danger">*</span></label>
+
+                                    <input type="hidden" name="MaKhachHang" value="@item.MaKhachHang" />
+
+                                    <input type="text" class="form-control-bento" value="@item.MaKhachHang" disabled style="background-color: var(--border-color); cursor: not-allowed;">
+                                </div>
                                 <div class="col-md-6">
                                     <label class="label-bento">Họ tên <span class="text-danger">*</span></label>
                                     <input type="text" name="TenKhachHang" class="form-control-bento" value="@item.TenKhachHang" placeholder="Nhập họ tên..." required>
@@ -498,15 +501,6 @@
             </div>
             <form asp-controller="Sale" asp-action="Create" method="post">
                 <div class="modal-body p-3">
-
-                    <div class="mb-3">
-                        <label class="form-label-bento">Mã khách hàng <span class="text-danger">*</span></label>
-                        <input type="text" name="MaKhachHang" id="addMaKhachHang" class="form-control-bento" placeholder="Ví dụ: KH001" required maxlength="5">
-
-                        <small id="maKhachHangError" class="text-danger mt-1" style="display: none; font-weight: 500;">
-                            <i class="fas fa-exclamation-circle"></i> Mã khách hàng này đã tồn tại!
-                        </small>
-                    </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label-bento">Họ tên <span class="text-danger">*</span></label>
@@ -607,54 +601,6 @@
                 });
                 updateDateFields(statusSelect.value);
             }
-
-        // 3. KIỂM TRA TRÙNG MÃ KHÁCH HÀNG (REAL-TIME BẰNG AJAX)
-        const inputMaKH = document.getElementById('addMaKhachHang');
-        const errorSpan = document.getElementById('maKhachHangError');
-        const btnSubmit = document.getElementById('btnSubmitAddCustomer');
-
-        if (inputMaKH) {
-            // Sự kiện 'input' sẽ kích hoạt mỗi khi bạn gõ một phím
-            inputMaKH.addEventListener('input', async function () {
-                const maKH = this.value.trim();
-
-                // Nếu ô trống thì ẩn lỗi, mở nút
-                if (maKH.length === 0) {
-                    errorSpan.style.display = 'none';
-                    btnSubmit.disabled = false;
-                    btnSubmit.style.opacity = '1';
-                    this.style.borderColor = 'var(--border-color)';
-                    return;
-                }
-
-                try {
-                    // Gửi dữ liệu ngầm lên Controller
-                    const response = await fetch(`/Sale/CheckMaKhachHang?maKhachHang=${maKH}`);
-                    const data = await response.json();
-
-                    if (data.exists) {
-                        // NẾU TRÙNG: Hiện chữ đỏ, viền đỏ ô nhập, làm mờ và khóa nút Lưu
-                        errorSpan.style.display = 'block';
-                        this.style.borderColor = '#ef4444';
-
-                        btnSubmit.disabled = true;
-                        btnSubmit.style.opacity = '0.5';
-                        btnSubmit.style.cursor = 'not-allowed';
-                    } else {
-                        // NẾU KHÔNG TRÙNG: Ẩn chữ đỏ, viền xanh ô nhập, mở khóa nút Lưu
-                        errorSpan.style.display = 'none';
-                        this.style.borderColor = '#52ab98';
-
-                        btnSubmit.disabled = false;
-                        btnSubmit.style.opacity = '1';
-                        btnSubmit.style.cursor = 'pointer';
-                    }
-                } catch (error) {
-                    console.error("Lỗi khi kiểm tra mã:", error);
-                }
-            });
-        }
-        });
 
     </script>
 }
