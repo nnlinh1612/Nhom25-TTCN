@@ -19,7 +19,5 @@ public partial class CanhBao
 
     public bool? TrangThai { get; set; }
 
-    public virtual ICollection<CtXuLy> CtXuLies { get; set; } = new List<CtXuLy>();
-
     public virtual KqHocTap MaKqhtNavigation { get; set; } = null!;
 }
