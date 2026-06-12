@@ -5,8 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? builder.Configuration["ConnectionStrings:DefaultConnection"];
+
 builder.Services.AddDbContext<TrungTamNguVanContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 builder.Services.AddDistributedMemoryCache(); 
 builder.Services.AddSession(options =>
 {
