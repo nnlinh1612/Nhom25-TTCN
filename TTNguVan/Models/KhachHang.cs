@@ -23,8 +23,6 @@ public partial class KhachHang
 
     public DateOnly? NgayDangKy { get; set; }
 
-    public string? FacebookId { get; set; }
-
     public virtual ICollection<LichSuTuongTac> LichSuTuongTacs { get; set; } = new List<LichSuTuongTac>();
 
     public virtual HocVien? MaHocVienNavigation { get; set; }

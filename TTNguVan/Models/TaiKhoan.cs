@@ -19,6 +19,8 @@ public partial class TaiKhoan
 
     public virtual ICollection<CtPhuTrach> CtPhuTraches { get; set; } = new List<CtPhuTrach>();
 
+    public virtual ICollection<CtXuLy> CtXuLies { get; set; } = new List<CtXuLy>();
+
     public virtual ICollection<KqBaiTest> KqBaiTests { get; set; } = new List<KqBaiTest>();
 
     public virtual ICollection<LichSuTuongTac> LichSuTuongTacs { get; set; } = new List<LichSuTuongTac>();

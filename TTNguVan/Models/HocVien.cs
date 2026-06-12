@@ -19,8 +19,6 @@ public partial class HocVien
 
     public string TrangThai { get; set; } = null!;
 
-    public string? FacebookId { get; set; }
-
     public virtual ICollection<BaiLam> BaiLams { get; set; } = new List<BaiLam>();
 
     public virtual ICollection<KhachHang> KhachHangs { get; set; } = new List<KhachHang>();
