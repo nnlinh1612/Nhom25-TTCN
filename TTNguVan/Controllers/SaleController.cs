@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TTNguVan.Models;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace TTNguVan.Controllers
 {
