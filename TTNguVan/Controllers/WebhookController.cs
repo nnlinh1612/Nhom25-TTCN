@@ -23,11 +23,19 @@ namespace TTNguVan.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public IActionResult Verify([FromQuery(Name = "hub.mode")] string mode,
-                                    [FromQuery(Name = "hub.verify_token")] string token,
-                                    [FromQuery(Name = "hub.challenge")] string challenge)
+                            [FromQuery(Name = "hub.verify_token")] string token,
+                            [FromQuery(Name = "hub.challenge")] string challenge)
         {
-            if (mode == "subscribe" && token == VERIFY_TOKEN) return Ok(challenge);
+            // Kiểm tra xem Facebook có gửi đúng token không
+            if (mode == "subscribe" && token == "NGU_VAN_MINH_ANH")
+            {
+                // Trả về số challenge ngay lập tức dưới dạng plain text
+                return Ok(challenge);
+            }
+
+            // Nếu sai token thì trả về lỗi 403 (Forbidden)
             return Forbid();
         }
 
