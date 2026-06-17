@@ -1,163 +1,256 @@
 ﻿@* Views/Shared/_AIChatbot.cshtml *@
 
 <style>
+    @@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
+
     #ai-chatbot-button {
         position: fixed;
         right: 28px;
         bottom: 28px;
-        width: 62px;
-        height: 62px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #4DB6A3, #2F9C8A);
+        background: linear-gradient(135deg, #58C7B3, #2F9C8A);
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        font-family: 'Lexend', sans-serif;
         font-weight: 800;
         font-size: 18px;
         z-index: 99999;
-        box-shadow: 0 12px 28px rgba(47, 156, 138, 0.38);
+        box-shadow: 0 14px 32px rgba(47, 156, 138, 0.38);
         border: 4px solid #ffffff;
+        transition: all 0.2s ease;
     }
+
+        #ai-chatbot-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 38px rgba(47, 156, 138, 0.45);
+        }
 
     #ai-chatbot-box {
         position: fixed;
         right: 28px;
-        bottom: 102px;
-        width: 390px;
+        bottom: 104px;
+        width: 410px;
         max-width: calc(100vw - 32px);
-        height: 570px;
+        height: 640px;
         max-height: calc(100vh - 120px);
         background: #ffffff;
-        border-radius: 22px;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+        border-radius: 26px;
+        box-shadow: 0 22px 55px rgba(15, 23, 42, 0.22);
         overflow: hidden;
         display: none;
         z-index: 99999;
         border: 1px solid #D7EEE9;
+        font-family: 'Lexend', sans-serif;
     }
 
     .ai-chatbot-header {
-        height: 72px;
-        padding: 14px 18px;
-        background: linear-gradient(135deg, #4DB6A3, #2F9C8A);
+        height: 78px;
+        padding: 15px 18px;
+        background: linear-gradient(135deg, #58C7B3, #2F9C8A);
         color: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-        .ai-chatbot-header strong {
-            font-size: 18px;
-            font-weight: 800;
-        }
+    .ai-chatbot-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .ai-chatbot-header button {
-            width: 34px;
-            height: 34px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.18);
-            color: white;
-            font-size: 24px;
-            line-height: 1;
-            cursor: pointer;
-        }
+    .ai-chatbot-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .ai-chatbot-header strong {
+        font-size: 18px;
+        font-weight: 800;
+        display: block;
+        line-height: 1.2;
+    }
 
     .ai-chatbot-subtitle {
         font-size: 12px;
         opacity: 0.95;
         margin-top: 3px;
+        font-weight: 400;
     }
+
+    .ai-chatbot-close {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        color: white;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .ai-chatbot-close:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
 
     .ai-chatbot-body {
         padding: 14px;
-        height: calc(100% - 72px);
+        height: calc(100% - 78px);
         display: flex;
         flex-direction: column;
         gap: 10px;
         background: #F8FCFB;
     }
 
-        .ai-chatbot-body label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #334155;
-            margin-bottom: 5px;
-            display: block;
-        }
+    .ai-field label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .ai-chatbot-select,
+    .ai-chatbot-small-input,
+    .ai-chatbot-input {
+        width: 100%;
+        border: 1px solid #CDE8E2;
+        border-radius: 14px;
+        color: #1f2937;
+        background: #ffffff;
+        outline: none;
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
 
     .ai-chatbot-select {
-        width: 100%;
         height: 40px;
-        border: 1px solid #CDE8E2;
-        border-radius: 12px;
         padding: 0 12px;
-        color: #1f2937;
-        background: white;
-        outline: none;
+    }
+
+    .ai-chatbot-small-input {
+        height: 40px;
+        padding: 0 12px;
+    }
+
+    .ai-chatbot-input {
+        resize: none;
+        min-height: 88px;
+        max-height: 130px;
+        padding: 12px;
+        line-height: 1.45;
     }
 
         .ai-chatbot-select:focus,
+        .ai-chatbot-small-input:focus,
         .ai-chatbot-input:focus {
             border-color: #4DB6A3;
             box-shadow: 0 0 0 3px rgba(77, 182, 163, 0.16);
+        }
+
+    .ai-grade-options {
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 16px;
+        background: #FFFFFF;
+        border: 1px solid #DCEFEB;
+    }
+
+        .ai-grade-options.active {
+            display: grid;
         }
 
     .ai-chatbot-messages {
         flex: 1;
         overflow-y: auto;
         border: 1px solid #DCEFEB;
-        border-radius: 16px;
+        border-radius: 18px;
         padding: 12px;
         background: #ffffff;
+        scroll-behavior: smooth;
     }
+
+        .ai-chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ai-chatbot-messages::-webkit-scrollbar-thumb {
+            background: #B9DDD6;
+            border-radius: 999px;
+        }
 
     .ai-message {
         padding: 10px 12px;
-        border-radius: 14px;
+        border-radius: 16px;
         margin-bottom: 10px;
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.55;
         white-space: pre-wrap;
-        max-width: 86%;
+        max-width: 88%;
+        word-break: break-word;
     }
 
     .ai-message-user {
-        background: #DDF4EF;
+        background: linear-gradient(135deg, #DDF4EF, #CFF0E9);
         color: #134E44;
         margin-left: auto;
         border-bottom-right-radius: 5px;
     }
 
     .ai-message-bot {
-        background: #F7FAF9;
+        background: #F8FCFB;
         color: #1f2937;
         border: 1px solid #E1F0EC;
         margin-right: auto;
         border-bottom-left-radius: 5px;
     }
 
-    .ai-chatbot-input {
-        resize: none;
-        border: 1px solid #CDE8E2;
-        border-radius: 16px;
-        padding: 12px;
-        font-size: 14px;
-        outline: none;
-        background: white;
+    .ai-message-loading {
+        color: #64748b;
+        font-style: italic;
+    }
+
+    .ai-chatbot-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .ai-chatbot-hint {
+        font-size: 11px;
+        color: #64748b;
+        text-align: center;
+        margin-top: -3px;
     }
 
     .ai-chatbot-send {
-        height: 42px;
+        height: 43px;
         border: none;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #4DB6A3, #2F9C8A);
+        border-radius: 15px;
+        background: linear-gradient(135deg, #58C7B3, #2F9C8A);
         color: white;
+        font-family: 'Lexend', sans-serif;
         font-weight: 800;
         cursor: pointer;
-        box-shadow: 0 8px 18px rgba(47, 156, 138, 0.24);
+        box-shadow: 0 9px 20px rgba(47, 156, 138, 0.24);
+        transition: all 0.2s ease;
     }
 
         .ai-chatbot-send:hover {
@@ -166,7 +259,7 @@
         }
 
         .ai-chatbot-send:disabled {
-            opacity: 0.6;
+            opacity: 0.65;
             cursor: not-allowed;
             transform: none;
         }
@@ -175,14 +268,18 @@
         #ai-chatbot-box {
             right: 12px;
             left: 12px;
-            bottom: 90px;
+            bottom: 92px;
             width: auto;
-            height: 540px;
+            height: 600px;
         }
 
         #ai-chatbot-button {
             right: 18px;
             bottom: 18px;
+        }
+
+        .ai-grade-options {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -193,17 +290,21 @@
 
 <div id="ai-chatbot-box">
     <div class="ai-chatbot-header">
-        <div>
-            <strong>Trợ lý AI</strong>
-            <div class="ai-chatbot-subtitle">Tư vấn · Chấm bài · Tóm tắt</div>
+        <div class="ai-chatbot-title">
+            <div class="ai-chatbot-avatar">✦</div>
+            <div>
+                <strong>Trợ lý AI</strong>
+                <div class="ai-chatbot-subtitle">Tư vấn · Chấm bài · Tóm tắt</div>
+            </div>
         </div>
-        <button type="button" onclick="toggleAiChatbot()">×</button>
+
+        <button type="button" class="ai-chatbot-close" onclick="toggleAiChatbot()">×</button>
     </div>
 
     <div class="ai-chatbot-body">
-        <div>
-            <label style="font-size: 13px; font-weight: 600;">Chế độ</label>
-            <select id="aiMode" class="ai-chatbot-select">
+        <div class="ai-field">
+            <label>Chế độ hỗ trợ</label>
+            <select id="aiMode" class="ai-chatbot-select" onchange="toggleGradeOptions()">
                 <option value="reply">Hỗ trợ trả lời tin nhắn</option>
                 <option value="grade">Chấm bài / góp ý bài văn</option>
                 <option value="summary">Tóm tắt lịch sử tư vấn</option>
@@ -211,22 +312,58 @@
             </select>
         </div>
 
+        <div id="aiGradeOptions" class="ai-grade-options">
+            <div class="ai-field">
+                <label>Khối lớp</label>
+                <select id="aiKhoiLop" class="ai-chatbot-select">
+                    <option value="">Chọn lớp</option>
+                    <option value="6">Lớp 6</option>
+                    <option value="7">Lớp 7</option>
+                    <option value="8">Lớp 8</option>
+                    <option value="9">Lớp 9</option>
+                    <option value="10">Lớp 10</option>
+                    <option value="11">Lớp 11</option>
+                    <option value="12">Lớp 12</option>
+                </select>
+            </div>
+
+            <div class="ai-field">
+                <label>Mã bài test</label>
+                <select id="aiMaBaiTest" class="ai-chatbot-select">
+                    <option value="">Chọn bài test</option>
+                    <option value="BT001">BT001</option>
+                    <option value="BT002">BT002</option>
+                    <option value="BT003">BT003</option>
+                    <option value="BT004">BT004</option>
+                    <option value="BT005">BT005</option>
+                    <option value="BT006">BT006</option>
+                    <option value="BT007">BT007</option>
+                </select>
+            </div>
+        </div>
+
         <input type="hidden" id="aiMaKhachHang" value="@ViewBag.MaKhachHang" />
 
         <div id="aiMessages" class="ai-chatbot-messages">
             <div class="ai-message ai-message-bot">
-                Xin chào, mình có thể hỗ trợ tư vấn, chấm bài hoặc tóm tắt lịch sử khách hàng.
+                Xin chào, mình có thể hỗ trợ soạn tin nhắn tư vấn, chấm bài văn hoặc tóm tắt lịch sử khách hàng.
             </div>
         </div>
 
-        <textarea id="aiInput"
-                  class="ai-chatbot-input"
-                  rows="4"
-                  placeholder="Nhập nội dung cần AI hỗ trợ..."></textarea>
+        <div class="ai-chatbot-footer">
+            <textarea id="aiInput"
+                      class="ai-chatbot-input"
+                      rows="4"
+                      placeholder="Nhập nội dung cần AI hỗ trợ..."></textarea>
 
-        <button type="button" class="ai-chatbot-send" onclick="sendAiMessage()">
-            Gửi
-        </button>
+            <button type="button" class="ai-chatbot-send" onclick="sendAiMessage()">
+                Gửi cho AI
+            </button>
+
+            <div class="ai-chatbot-hint">
+                Nhấn Ctrl + Enter để gửi nhanh
+            </div>
+        </div>
     </div>
 </div>
 
@@ -239,10 +376,23 @@
         box.style.display = box.style.display === "block" ? "none" : "block";
     }
 
-    function appendAiMessage(text, type) {
+    function toggleGradeOptions() {
+        const mode = document.getElementById("aiMode");
+        const gradeOptions = document.getElementById("aiGradeOptions");
+
+        if (!mode || !gradeOptions) return;
+
+        if (mode.value === "grade") {
+            gradeOptions.classList.add("active");
+        } else {
+            gradeOptions.classList.remove("active");
+        }
+    }
+
+    function appendAiMessage(text, type, extraClass) {
         const messages = document.getElementById("aiMessages");
 
-        if (!messages) return;
+        if (!messages) return null;
 
         const div = document.createElement("div");
 
@@ -250,16 +400,24 @@
             ? "ai-message ai-message-user"
             : "ai-message ai-message-bot";
 
+        if (extraClass) {
+            div.classList.add(extraClass);
+        }
+
         div.innerText = text;
 
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
+
+        return div;
     }
 
     async function sendAiMessage() {
         const input = document.getElementById("aiInput");
         const mode = document.getElementById("aiMode");
         const maKhachHang = document.getElementById("aiMaKhachHang");
+        const khoiLop = document.getElementById("aiKhoiLop");
+        const maBaiTest = document.getElementById("aiMaBaiTest");
         const sendButton = document.querySelector(".ai-chatbot-send");
 
         if (!input || !mode) return;
@@ -271,10 +429,41 @@
             return;
         }
 
+        let khoiLopValue = "";
+        let maBaiTestValue = "";
+
+        if (khoiLop) {
+            khoiLopValue = khoiLop.value ? khoiLop.value.trim() : "";
+        }
+
+        if (maBaiTest) {
+            maBaiTestValue = maBaiTest.value ? maBaiTest.value.trim() : "";
+
+            if (!maBaiTestValue && maBaiTest.tagName === "SELECT") {
+                const selectedOption = maBaiTest.options[maBaiTest.selectedIndex];
+
+                if (selectedOption) {
+                    maBaiTestValue = selectedOption.text.trim();
+                }
+            }
+        }
+
+        if (mode.value === "grade") {
+            if (!khoiLopValue) {
+                appendAiMessage("Vui lòng chọn khối lớp trước khi chấm bài.", "bot");
+                return;
+            }
+
+            if (!maBaiTestValue) {
+                appendAiMessage("Vui lòng chọn mã bài test để AI lấy đề bài trong hệ thống.", "bot");
+                return;
+            }
+        }
+
         appendAiMessage(message, "user");
         input.value = "";
 
-        appendAiMessage("Đang xử lý...", "bot");
+        const loadingMessage = appendAiMessage("Đang xử lý...", "bot", "ai-message-loading");
 
         if (sendButton) {
             sendButton.disabled = true;
@@ -288,17 +477,36 @@
             formData.append("maKhachHang", maKhachHang.value);
         }
 
+        if (khoiLopValue) {
+            formData.append("khoiLop", khoiLopValue);
+        }
+
+        if (maBaiTestValue) {
+            formData.append("maBaiTest", maBaiTestValue);
+        }
+
         try {
-            const response = await fetch("/Ai/Chat", {
+            const response = await fetch("/api/ai/chat", {
                 method: "POST",
                 body: formData
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
 
-            const messages = document.getElementById("aiMessages");
-            if (messages && messages.lastElementChild) {
-                messages.removeChild(messages.lastElementChild);
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status + ": " + rawText);
+            }
+
+            let data;
+
+            try {
+                data = JSON.parse(rawText);
+            } catch {
+                throw new Error("API không trả về JSON: " + rawText);
+            }
+
+            if (loadingMessage) {
+                loadingMessage.remove();
             }
 
             if (data.success) {
@@ -307,18 +515,21 @@
                 appendAiMessage(data.reply || "Có lỗi xảy ra.", "bot");
             }
         } catch (error) {
-            const messages = document.getElementById("aiMessages");
-            if (messages && messages.lastElementChild) {
-                messages.removeChild(messages.lastElementChild);
+            if (loadingMessage) {
+                loadingMessage.remove();
             }
 
-            appendAiMessage("Không thể kết nối tới AI. Vui lòng thử lại.", "bot");
+            appendAiMessage("Lỗi AI: " + error.message, "bot");
         }
 
         if (sendButton) {
             sendButton.disabled = false;
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleGradeOptions();
+    });
 
     document.addEventListener("keydown", function (event) {
         const box = document.getElementById("ai-chatbot-box");
@@ -328,6 +539,7 @@
 
         if (box.style.display === "block" && document.activeElement === input) {
             if (event.key === "Enter" && event.ctrlKey) {
+                event.preventDefault();
                 sendAiMessage();
             }
         }
