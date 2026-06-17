@@ -92,7 +92,7 @@
     </style>
 </head>
 <body onload="window.print()">
-    @* Tự động mở hộp thoại in/lưu PDF *@
+    @*  *@
     <div class="no-print" style="background: #fff3cd; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 8px;">
         <button onclick="window.print()" style="padding: 10px 20px; background: #52ab98; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Bấm vào đây để Tải file PDF (Chọn "Save as PDF")
@@ -107,7 +107,7 @@
     <div class="title">PHIẾU KẾT QUẢ KIỂM TRA ĐẦU VÀO</div>
 
     <div class="info-grid">
-        @* Thay vì viết .MaBaiLamNavigation.MaHocVienNavigation *@
+        @* *@
         <div><span class="label">Học sinh:</span> @Model.MaBaiLamNavigation?.MaHocVienNavigation?.TenHocVien</div>
         <div><span class="label">Mã bài test:</span> @Model.MaBaiLamNavigation?.MaBaiTest</div>
         <div><span class="label">Ngày thi:</span> @Model.MaBaiLamNavigation?.NgayLam.ToString("dd/MM/yyyy")</div>

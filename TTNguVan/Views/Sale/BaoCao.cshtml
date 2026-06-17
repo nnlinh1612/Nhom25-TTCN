@@ -131,7 +131,6 @@
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
 
-        // --- LẤY DỮ LIỆU TỪ C# TRUYỀN XUỐNG ---
         const dataTrendLabels = @Html.Raw(ViewBag.TrendLabels ?? "[]");
         const dataTotal = @Html.Raw(ViewBag.TrendDataTotal ?? "[]");
         const dataSuccess = @Html.Raw(ViewBag.TrendDataSuccess ?? "[]");
@@ -145,7 +144,7 @@
         const dataTrangThaiData = @Html.Raw(ViewBag.TrangThaiData ?? "[]");
         const dataTrangThaiLabels = @Html.Raw(ViewBag.TrangThaiLabels ?? "[]");
 
-        // 1. Biểu đồ Trend Cột Kép
+        // Biểu đồ Trend Cột Kép
         new Chart(document.getElementById('trendChart').getContext('2d'), {
         type: 'bar',
         data: {
@@ -205,7 +204,7 @@
         }
         };
 
-        // 2. Biểu đồ Khối
+        // Biểu đồ Khối
         new Chart(document.getElementById('khoiChart').getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -219,7 +218,7 @@
         options: commonDoughnutOptions
         });
 
-        // 3. Biểu đồ Nguồn
+        // Biểu đồ Nguồn
         new Chart(document.getElementById('nguonChart').getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -233,14 +232,13 @@
         options: commonDoughnutOptions
         });
 
-        // 4. Biểu đồ Trạng thái
+        // Biểu đồ Trạng thái
         new Chart(document.getElementById('trangThaiChart').getContext('2d'), {
         type: 'doughnut',
         data: {
         labels: dataTrangThaiLabels,
         datasets: [{
         data: dataTrangThaiData,
-        // Bổ sung thêm dải màu để đủ cho 5-6 trạng thái học viên
         backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#6366f1', '#ef4444', '#8b5cf6'],
         borderWidth: 0
         }]

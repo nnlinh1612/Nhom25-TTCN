@@ -16,8 +16,6 @@ namespace TTNguVan.Controllers
         {
             _context = context;
         }
-
-        // Hàm hỗ trợ nạp thông tin Sidebar và dữ liệu dùng chung
         private void LayThongTinProfile()
         {
             var maTk = HttpContext.Session.GetString("MaTK");
@@ -41,26 +39,26 @@ namespace TTNguVan.Controllers
 
         public IActionResult Index() => RedirectToAction("LichDay");
 
-        // 1. TRANG QUẢN LÝ LỚP (HIỆN CARD)
+        // Trang Lịch dạy
         public IActionResult LichDay(int? thang, int? nam)
         {
             LayThongTinProfile();
             var maTk = HttpContext.Session.GetString("MaTK");
             if (string.IsNullOrEmpty(maTk)) return RedirectToAction("DangNhap", "TaiKhoan");
 
-            // 1. Xử lý thời gian (mặc định là tháng hiện tại)
+            // Hàm xử lý thời gian, mặc định là tháng hiện tại
             int month = thang ?? DateTime.Now.Month;
             int year = nam ?? DateTime.Now.Year;
             ViewBag.Thang = month;
             ViewBag.Nam = year;
 
-            // 2. Lấy danh sách lớp giáo viên phụ trách
+            // Lấy danh sách lớp giáo viên/trợ giảng đó phụ trách
             var dsMaLop = _context.CtPhuTraches
                                   .Where(p => p.MaTk == maTk)
                                   .Select(p => p.MaLop)
                                   .ToList();
 
-            // 4. Lấy Lời nhắc & Cảnh báo trong tháng này
+            // Lấy Lời nhắc và cảnh báo trong tháng này
             var loiNhacs = _context.LoiNhacs
                            .Where(l => l.MaTk == maTk && l.HanChot.HasValue && l.HanChot.Value.Month == month && l.HanChot.Value.Year == year)
                            .ToList();
@@ -80,22 +78,20 @@ namespace TTNguVan.Controllers
             return View("LichDay");
         }
 
-        // 3. TRANG THEO DÕI HỌC TẬP 
+        // Trang theo dõi học tập 
         public IActionResult TheoDoiHocTap(string ngay, string searchString, string maLop)
         {
             LayThongTinProfile();
             var maTk = HttpContext.Session.GetString("MaTK");
             if (string.IsNullOrEmpty(maTk)) return RedirectToAction("DangNhap", "TaiKhoan");
 
-            // ==========================================
-            // 1. NỬA BÊN TRÁI: DANH SÁCH LỚP 
-            // ==========================================
+            // Nửa bên trái: Danh sách lớp
             var queryLop = (from pt in _context.CtPhuTraches
                             join lh in _context.LopHocs on pt.MaLop equals lh.MaLop
                             where pt.MaTk == maTk
                             select lh).Distinct().AsQueryable();
 
-            ViewBag.CaHoc = ""; // Biến lưu ca học nếu có chọn ngày
+            ViewBag.CaHoc = ""; 
             if (!string.IsNullOrEmpty(ngay))
             {
                 if (DateTime.TryParse(ngay, out DateTime dt))
@@ -115,9 +111,7 @@ namespace TTNguVan.Controllers
             }
             ViewBag.DanhSachLop = queryLop.ToList();
 
-            // ==========================================
-            // 2. NỬA BÊN PHẢI: BẢNG HỌC VIÊN
-            // ==========================================
+            // Nửa bên trái: Bảng học viên
             var queryHocVien = _context.HocViens
                 .Include(h => h.MaLopNavigation)
                 .Include(h => h.KqHocTaps)
@@ -142,7 +136,7 @@ namespace TTNguVan.Controllers
             return View(queryHocVien.ToList());
         }
 
-        // HIỂN THỊ GIAO DIỆN CẬP NHẬT BUỔI HỌC CHO CẢ MỘT LỚP 
+        // Hiển thị giao diện cập nhật buổi học cho cả 1 lớp
         [HttpGet]
         public IActionResult CapNhatBuoiHoc(string maLop, string ngay, string ca)
         {
@@ -159,7 +153,6 @@ namespace TTNguVan.Controllers
 
             var dsHocVien = _context.HocViens.Where(h => h.MaLop == maLop).ToList();
 
-            // SỬA CHỖ NÀY: Dùng DateTime.Parse để nhận diện nhiều định dạng ngày từ URL
             DateTime dt;
             if (DateTime.TryParse(ngay, out dt))
             {
@@ -168,9 +161,10 @@ namespace TTNguVan.Controllers
                 // Tìm Buổi học cũ
                 var buoiHocCu = _context.BuoiHocs.FirstOrDefault(b => b.MaLop == maLop && b.NgayHoc == ngayHocDate);
 
+                // Nếu đã có dữ liệu buổi học đó, hiển thị lại dữ liệu đó lên màn hình
                 if (buoiHocCu != null)
                 {
-                    ViewBag.DaCapNhat = true; // Cờ báo hiệu ĐÃ CÓ dữ liệu
+                    ViewBag.DaCapNhat = true; 
                     ViewBag.DiemCu = _context.KqHocTaps.Where(k => k.MaBuoiHoc == buoiHocCu.MaBuoiHoc).ToList();
                 }
                 else
@@ -181,13 +175,13 @@ namespace TTNguVan.Controllers
             }
             else
             {
-                return BadRequest("Định dạng ngày tháng từ trình duyệt gửi về không hợp lệ.");
+                return BadRequest("Định dạng ngày tháng không hợp lệ.");
             }
 
             return View(dsHocVien);
         }
 
-        // 4. HÀM LƯU NHẬT KÝ 
+        // Lưu nhật ký buổi học 
         [HttpPost]
         public IActionResult LuuNhatKy(DateTime ngay, string ca, string maLop, List<KqHocTap> danhSachKQ)
         {
@@ -232,11 +226,11 @@ namespace TTNguVan.Controllers
                 }
                 _context.SaveChanges();
 
-                // RỒI MỚI QUÉT ĐỂ TẠO LỜI NHẮC
+                // Quét kết quả học tập để tạo lời nhắc
                 var maTk = HttpContext.Session.GetString("MaTK");
                 TaoLoiNhacTuDong(maLop, maTk);
 
-                // Nạp lại số thông báo cho Sidebar ngay lập tức
+                // Số thông báo hiển thị trên sidebar
                 LayThongTinProfile();
 
                 TempData["Success"] = "Cập nhật thành công!";
@@ -246,7 +240,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("TheoDoiHocTap", new { ngay = ngay.ToString("yyyy-MM-dd"), maLop = maLop });
         }
 
-        // 5. TRANG NHẬT KÝ CHI TIẾT (Timeline)
+        // Trang nhật ký chi tiết 
         public IActionResult NhatKyHocVien(string maHV, int? thang, int? nam)
         {
             LayThongTinProfile();
@@ -269,7 +263,7 @@ namespace TTNguVan.Controllers
                 .Where(k => k.MaHocVien == maHV)
                 .AsQueryable();
 
-            // LỌC THEO THÁNG & NĂM (Dùng thuộc tính của DateOnly)
+            // Lọc theo tháng và năm
             if (thang.HasValue)
             {
                 query = query.Where(k => k.MaBuoiHocNavigation.NgayHoc.Month == thang.Value);
@@ -285,7 +279,7 @@ namespace TTNguVan.Controllers
             return View(nhatKy);
         }
 
-        // Dò lịch tự động từ DB
+        // Dò lịch từ CSDL
         private string TimLopTheoLich(DateTime ngay, string ca)
         {
             int thu = ((int)ngay.DayOfWeek == 0) ? 8 : (int)ngay.DayOfWeek + 1;
@@ -294,44 +288,49 @@ namespace TTNguVan.Controllers
                 .FirstOrDefault(l => _context.CtPhuTraches.Any(p => p.MaLop == l.MaLop && p.MaTk == maTk));
             return lich?.MaLop;
         }
+
+        // Trang quản lý bài test
         public IActionResult QuanLyBaiTest()
         {
             LayThongTinProfile();
-            // 1. Phải check đăng nhập đầu tiên
+            // check đăng nhập đầu tiên
             var maTk = HttpContext.Session.GetString("MaTK");
             if (string.IsNullOrEmpty(maTk)) return RedirectToAction("DangNhap", "TaiKhoan");
 
             LayThongTinProfile();
-            // 1. Lấy bài CHỜ CHẤM: Có trong BaiLam nhưng chưa có trong KqBaiTest
+            // Lấy ds bài chờ chấm: Có trong BaiLam nhưng chưa có trong KqBaiTest
             var choCham = _context.BaiLams
-                .Include(b => b.MaHocVienNavigation) // Để lấy tên học sinh
+                .Include(b => b.MaHocVienNavigation) 
                 .Where(b => !_context.KqBaiTests.Any(k => k.MaBaiLam == b.MaBaiLam))
                 .ToList();
 
-            // 2. Lấy bài ĐÃ CHẤM: Lấy từ bảng KqBaiTest, nối ngược về BaiLam để lấy thông tin
+            // Lấy ds bài đã chấm: Lấy từ bảng KqBaiTest, nối ngược về BaiLam để lấy thông tin
             var daCham = _context.KqBaiTests
                 .Include(k => k.MaBaiLamNavigation)
                     .ThenInclude(b => b.MaHocVienNavigation)
                 .ToList();
 
+            // Danh sách quản lý bài test
             var viewModel = new QuanLyBaiTestViewModel
             {
                 DanhSachChoCham = choCham,
                 DanhSachDaCham = daCham
             };
 
-            // Số liệu cho các thẻ Card ở trên đầu
+            // Số liệu cho các thẻ thống kê ở trên đầu
             ViewBag.CountCho = choCham.Count;
             ViewBag.CountDa = daCham.Count;
             ViewBag.Tong = choCham.Count + daCham.Count;
 
             return View(viewModel);
         }
+
+        // Trang chấm bài
         public IActionResult ChamBai(string id)
         {
             LayThongTinProfile();
 
-            // 1. Lấy thông tin bài làm của học sinh
+            // Lấy thông tin bài làm của học sinh
             var baiLam = _context.BaiLams
                 .Include(b => b.MaHocVienNavigation)
                 .Include(b => b.MaBaiTestNavigation)
@@ -339,13 +338,13 @@ namespace TTNguVan.Controllers
 
             if (baiLam == null) return NotFound();
 
-            // 2. Tìm kết quả cũ (Nếu có)
+            // Tìm kết quả cũ (Nếu có)
             var kqCu = _context.KqBaiTests.FirstOrDefault(k => k.MaBaiLam == id);
             if (kqCu != null)
             {
                 ViewBag.DiemCu = kqCu.DiemTest;
                 ViewBag.NhanXetCu = kqCu.NhanXet;
-                ViewBag.GhiChuCu = kqCu.GhiChu; // Chứa cái tên lớp cũ đã chọn
+                ViewBag.GhiChuCu = kqCu.GhiChu; 
             }
             else
             {
@@ -354,13 +353,13 @@ namespace TTNguVan.Controllers
                 ViewBag.GhiChuCu = "";
             }
 
-            // --- BƯỚC MỚI THÊM: LẤY DANH SÁCH LỚP THEO KHỐI ---
+            // Lấy danh sách lớp theo khối để hiện lên dropdown đề xuất lớp
             int? khoiCuaHocSinh = null;
 
-            // Dò xem bài test này dùng để kiểm tra đầu vào cho khối mấy
+            // Dò xem bài test cho khối mấy
             if (baiLam.MaBaiTestNavigation != null && !string.IsNullOrEmpty(baiLam.MaBaiTestNavigation.TenBaiTest))
             {
-                // Ví dụ TenBaiTest là "Đề kiểm tra đầu vào lớp 7" -> Lấy ra số 7
+                // VD: TenBaiTest là "Đề kiểm tra đầu vào lớp 7" -> Lấy ra số 7
                 string tenBai = baiLam.MaBaiTestNavigation.TenBaiTest;
                 var match = System.Text.RegularExpressions.Regex.Match(tenBai, @"\d+");
                 if (match.Success)
@@ -369,7 +368,7 @@ namespace TTNguVan.Controllers
                 }
             }
 
-            // Truy vấn tất cả các lớp của khối đó từ CSDL 
+            // Lấy ra tất cả các lớp của khối đó từ CSDL 
             var danhSachLopDeXuat = _context.LopHocs
                 .Where(l => khoiCuaHocSinh == null || l.TenLop.Contains(khoiCuaHocSinh.ToString()))
                 .Select(l => l.TenLop)
@@ -380,7 +379,7 @@ namespace TTNguVan.Controllers
             return View(baiLam);
         }
 
-        // Hàm nhận dữ liệu từ Form và lưu vào bảng KQ_BAI_TEST
+        // Sau khi chấm bài và lưu vào bảng KQ_BAI_TEST
         [HttpPost]
         public IActionResult LuuKetQua(KqBaiTest kq)
         {
@@ -390,9 +389,7 @@ namespace TTNguVan.Controllers
 
             try
             {
-                // ==========================================
-                // 1. LƯU ĐIỂM VÀ NHẬN XÉT CỦA GIÁO VIÊN
-                // ==========================================
+                // Lưu điểm và nhận xét của giáo viên
                 var ketQuaCu = _context.KqBaiTests
                     .FirstOrDefault(k => k.MaBaiLam == kq.MaBaiLam && k.MaTk == maTk);
 
@@ -416,9 +413,7 @@ namespace TTNguVan.Controllers
                 }
                 _context.SaveChanges();
 
-                // ==========================================
-                // 2. TẠO LỜI NHẮC GỬI CHO BỘ PHẬN SALE VÀ CSKH
-                // ==========================================
+                // Lời nhắc xếp lớp cho CSKH
                 try
                 {
                     var baiLam = _context.BaiLams
@@ -428,7 +423,7 @@ namespace TTNguVan.Controllers
                     string tenHocVien = baiLam?.MaHocVienNavigation?.TenHocVien ?? "Một học viên";
                     string maHV = baiLam?.MaHocVien ?? "";
 
-                    // ĐÃ SỬA CHỖ NÀY: Khai báo danh sách các chức vụ cần nhận thông báo
+                    // Danh sách các chức vụ cần nhận thông báo
                     var rolesCacBoPhan = new List<string> { "Sale", "CSKH" };
 
                     // Tìm tất cả tài khoản thuộc nhóm Sale hoặc CSKH
@@ -457,10 +452,6 @@ namespace TTNguVan.Controllers
                 {
                     Console.WriteLine("Lỗi tạo lời nhắc: " + ex.Message);
                 }
-
-                // ==========================================
-                // 3. TRẢ VỀ THÀNH CÔNG CHO JAVASCRIPT BÊN VIEW
-                // ==========================================
                 return Ok();
             }
             catch (Exception ex)
@@ -468,20 +459,23 @@ namespace TTNguVan.Controllers
                 return BadRequest("Lỗi Database: " + (ex.InnerException?.Message ?? ex.Message));
             }
         }
+
+        // Hàm xuất phiếu kết quả bài test ra PDF
         public IActionResult XuatPdf(string id)
         {
             var kq = _context.KqBaiTests
                 .Include(k => k.MaBaiLamNavigation)
-                    .ThenInclude(b => b.MaHocVienNavigation) // Lấy tên học sinh
+                    .ThenInclude(b => b.MaHocVienNavigation) 
                 .Include(k => k.MaBaiLamNavigation)
-                    .ThenInclude(b => b.MaBaiTestNavigation) // Lấy tên bài test
-                .Include(k => k.MaTkNavigation) // Lấy tên giáo viên
+                    .ThenInclude(b => b.MaBaiTestNavigation) 
+                .Include(k => k.MaTkNavigation) 
                 .FirstOrDefault(k => k.MaBaiLam == id);
 
             if (kq == null) return NotFound();
             return View("PhieuKetQuaPdf", kq);
         }
-        // TRONG GiaoVienController.cs
+
+        // Trang lời nhắc của GV
         [HttpGet]
         public async Task<IActionResult> LoiNhacGV(string loai = "binhthuong")
         {
@@ -489,7 +483,7 @@ namespace TTNguVan.Controllers
             string currentMaTk = HttpContext.Session.GetString("MaTK");
             if (string.IsNullOrEmpty(currentMaTk)) return RedirectToAction("DangNhap", "TaiKhoan");
 
-            // 1. Lấy dữ liệu Union từ 2 bảng
+            // 1. Lấy dữ liệu từ 2 bảng
             var queryLoiNhac = _context.LoiNhacs
                 .Where(ln => ln.MaTk == currentMaTk)
                 .Select(ln => new ThongBaoViewModel
@@ -515,12 +509,12 @@ namespace TTNguVan.Controllers
 
             var allData = await queryLoiNhac.Union(queryCanhBao).ToListAsync();
 
-            // 2. Tính toán thống kê cho 3 ô đầu trang
+            // Thống kê cho 3 thẻ đầu trang
             ViewBag.TongCongViec = allData.Count;
             ViewBag.DaHoanThanh = allData.Count(x => x.TrangThai);
             ViewBag.ChuaHoanThanh = allData.Count(x => !x.TrangThai);
 
-            // 3. Phân loại Tab
+            // Phân tab lời nhắc thành Lời nhắc và Quá hạn
             DateTime bayGio = DateTime.Now;
             var dsBinhThuong = allData.Where(x => x.TrangThai || (x.HanChot >= bayGio)).OrderBy(x => x.TrangThai).ThenBy(x => x.HanChot).ToList();
             var dsQuaHan = allData.Where(x => !x.TrangThai && x.HanChot < bayGio).OrderByDescending(x => x.HanChot).ToList();
@@ -534,7 +528,7 @@ namespace TTNguVan.Controllers
         }
 
 
-        // 2. HÀM THÊM MỚI LỜI NHẮC
+        // 2Hàm thêm lời nhắc mới
         [HttpPost]
         public async Task<IActionResult> ThemLoiNhac(string TieuDe, string NoiDung, DateTime HanChot, string MucDo)
         {
@@ -558,7 +552,7 @@ namespace TTNguVan.Controllers
             }
             catch (Exception ex)
             {
-                // Hiện lỗi thật sự để debug cho nhanh
+                // Hiện lỗi 
                 var innerError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                 TempData["ErrorMessage"] = "Lỗi hệ thống: " + innerError;
             }
@@ -566,7 +560,7 @@ namespace TTNguVan.Controllers
         }
 
 
-        // 3. HÀM ĐÁNH DẤU ĐÃ XONG
+        // Hàm đánh dấu đã xong cho lời nhắc
         [HttpPost]
         public async Task<IActionResult> DanhDauXong(string id)
         {
@@ -585,7 +579,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("LoiNhacGV");
         }
 
-        // 4. HÀM XÓA LỜI NHẮC
+        // Hàm xóa lời nhắc
         [HttpPost]
         public async Task<IActionResult> XoaLoiNhac(string id)
         {
@@ -615,7 +609,7 @@ namespace TTNguVan.Controllers
                         if (loiNhac != null)
                         {
                             _context.LoiNhacs.Remove(loiNhac);
-                            TempData["SuccessMessage"] = "Đã xóa lời nhắc cá nhân.";
+                            TempData["SuccessMessage"] = "Đã xóa lời nhắc.";
                         }
                     }
                 }
@@ -629,6 +623,8 @@ namespace TTNguVan.Controllers
 
             return RedirectToAction("LoiNhacGV");
         }
+
+        // Cảnh báo tự động của hệ thống
         private void TaoLoiNhacTuDong(string maLop, string maTk)
         {
             var dsHocVien = _context.HocViens.Where(h => h.MaLop == maLop).ToList();
@@ -643,7 +639,6 @@ namespace TTNguVan.Controllers
 
                 if (lichSu.Count < 2) continue;
 
-                // CẬP NHẬT HÀM LOCAL: Nhận thêm tiêu đề và mức độ
                 void LuuCanhBaoHeThong(string tieuDe, string noiDung, string mucDo)
                 {
                     string maKQHT = lichSu.First().MaKqht;
@@ -657,10 +652,10 @@ namespace TTNguVan.Controllers
                         {
                             MaCanhBao = "CB" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper(),
                             MaKqht = maKQHT,
-                            TieuDe = tieuDe,       // Cột mới
-                            NoiDungCb = noiDung,   // Lưu ý: Tên cột trong DB của bạn là NoiDungCB
-                            HanChot = DateTime.Now.AddDays(2), // Mặc định xử lý trong 2 ngày
-                            MucDo = mucDo,         // Cột mới
+                            TieuDe = tieuDe,       
+                            NoiDungCb = noiDung,   
+                            HanChot = DateTime.Now.AddDays(2), 
+                            MucDo = mucDo,         
                             TrangThai = false
                         };
                         _context.CanhBaos.Add(cbMoi);

@@ -18,7 +18,7 @@ namespace TTNguVan.Controllers
             _context = context;
         }
 
-        // --- 1. DASHBOARD CHO QUẢN LÝ  ---
+        // Dashboard giao diện quản lý
         [HttpGet]
         public IActionResult Dashboard(DateTime? ngayXemLich)
         {
@@ -32,7 +32,7 @@ namespace TTNguVan.Controllers
                 return RedirectToAction("DangNhap", "TaiKhoan");
             }
 
-            // --- 1. DỮ LIỆU KPI TRÊN CÙNG ---
+            // Dữ liệu KPI trên cùng
             double tongKhach = _context.KhachHangs.Count();
             double tongHocVien = _context.HocViens.Count(k => k.MaHocVien != null);
             double tyLe = tongKhach > 0 ? (tongHocVien / tongKhach) * 100 : 0;
@@ -45,7 +45,7 @@ namespace TTNguVan.Controllers
 
             var allKhachHang = _context.KhachHangs.ToList();
 
-            // --- 2. BIỂU ĐỒ THU HÚT & CHUYỂN ĐỔI (6 tháng gần nhất) ---
+            // Biểu đồ thu hút và chuyển đổi (6 tháng gần nhất)
             var labelsTrend = new List<string>();
             var dataLeads = new List<int>();
             var dataSuccess = new List<int>();
@@ -60,11 +60,11 @@ namespace TTNguVan.Controllers
             ViewBag.DataLeads = string.Join(",", dataLeads);
             ViewBag.DataSuccess = string.Join(",", dataSuccess);
 
-            // --- 3. BIỂU ĐỒ ĐIỂM SỐ TRUNG BÌNH LỚP THEO THÁNG (DỮ LIỆU THỰC - 6 THÁNG - TOÀN BỘ LỚP) ---
+            // Biểu đồ điểm số trung bình của lớp theo tháng (6 tháng)
             var monthLabelsScore = new List<string>();
             var targetMonths = new List<(int Year, int Month)>();
 
-            // Lùi 6 tháng (từ tháng hiện tại lùi về 5 tháng trước)
+            // Lùi 6 tháng 
             for (int i = 5; i >= 0; i--)
             {
                 var targetDate = DateTime.Now.AddMonths(-i);
@@ -73,21 +73,21 @@ namespace TTNguVan.Controllers
             }
             ViewBag.LabelsScore = string.Join(",", monthLabelsScore.Select(x => "'" + x + "'"));
 
-            // Mốc thời gian 6 tháng trước (Dùng DateOnly vì NgayHoc trong DB của bạn là DateOnly)
+            // Mốc thời gian 6 tháng trước 
             var sixMonthsAgoDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-6));
 
-            // Kéo toàn bộ điểm số trong 6 tháng qua từ SQL lên RAM để xử lý
+            // Kéo toàn bộ điểm số trong 6 tháng qua từ SQL để xử lý
             var allKetQua = _context.KqHocTaps
                 .Include(k => k.MaBuoiHocNavigation)
                 .Where(k => k.DiemSo != null && k.MaBuoiHocNavigation.NgayHoc >= sixMonthsAgoDate)
                 .ToList();
 
             var lineDatasets = new List<object>();
-            // Khai báo một dải màu phong phú để đủ "cân" 21 lớp không bị trùng màu liên tục
+            // Dải màu cho 21 lớp
             var colors = new[] { "#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", "#14b8a6", "#06b6d4", "#0ea5e9", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e" };
             int colorIdx = 0;
 
-            // Lấy toàn bộ 21 lớp đang có trong hệ thống
+            // Lấy toàn bộ lớp đang có trong hệ thống
             var allLopHocs = _context.LopHocs.OrderBy(l => l.TenLop).ToList();
 
             foreach (var lop in allLopHocs)
@@ -96,7 +96,7 @@ namespace TTNguVan.Controllers
 
                 foreach (var tm in targetMonths)
                 {
-                    // Lọc ra điểm của lớp này trong tháng cụ thể đang xét
+                    // Lọc ra điểm của lớp này trong tháng đang xét
                     var diemTrongThang = allKetQua
                         .Where(k => k.MaBuoiHocNavigation.MaLop == lop.MaLop
                                  && k.MaBuoiHocNavigation.NgayHoc.Month == tm.Month
@@ -114,7 +114,7 @@ namespace TTNguVan.Controllers
                     }
                 }
 
-                // BỘ LỌC THÔNG MINH: Chỉ vẽ những lớp có ít nhất 1 bài test/chấm điểm trong 6 tháng qua
+                // Bộ lọc: Chỉ vẽ những lớp có ít nhất 1 bài test/chấm điểm trong 6 tháng qua
                 if (dataPoints.Any(d => d != null))
                 {
                     lineDatasets.Add(new
@@ -122,10 +122,10 @@ namespace TTNguVan.Controllers
                         label = lop.TenLop,
                         data = dataPoints,
                         borderColor = colors[colorIdx % colors.Length],
-                        backgroundColor = "transparent", // Xóa màu nền để 21 lớp không đè nhau thành 1 cục màu
+                        backgroundColor = "transparent", 
                         borderWidth = 2,
                         tension = 0.4,
-                        spanGaps = true // Nếu có 1 tháng trống không học, đường kẻ sẽ tự nối xuyên qua
+                        spanGaps = true 
                     });
                     colorIdx++;
                 }
@@ -134,7 +134,7 @@ namespace TTNguVan.Controllers
             // Đóng gói mảng 21 lớp thành JSON đẩy xuống View
             ViewBag.LineDatasets = JsonSerializer.Serialize(lineDatasets);
 
-            // --- 4. BIỂU ĐỒ KHỐI LỚP ---
+            // Biểu đồ khối lớp
             var thongKeKhoi = _context.HocViens
                 .Where(h => h.KhoiLop != null)
                 .GroupBy(h => h.KhoiLop)
@@ -147,7 +147,8 @@ namespace TTNguVan.Controllers
 
             ViewBag.LabelsKhoi = string.Join(",", thongKeKhoi.Select(x => "'" + x.Khoi + "'"));
             ViewBag.DataKhoi = string.Join(",", thongKeKhoi.Select(x => x.SoLuong));
-            // --- 5. BIỂU ĐỒ NGUỒN ---
+            
+            // Biểu đồ nguồn
             var thongKeNguon = allKhachHang
                 .GroupBy(k => k.NguonDen)
                 .Select(g => new { TenNguon = g.Key ?? "Khác", SoLuong = g.Count() }).ToList();
@@ -158,7 +159,7 @@ namespace TTNguVan.Controllers
             ViewBag.TenQL = qlCheck.HoTen;
             ViewBag.EmailQL = qlCheck.Email;
 
-            // 6.-- BIỂU ĐỒ GỘP 2 TẦNG: KHỐI & HỌC LỰC (6 TUẦN GẦN NHẤT) ---
+            // Biểu đồ khối và học lực (6 tuần gần nhất)
 
             var kqHocTapData = _context.KqHocTaps
                 .Include(k => k.MaBuoiHocNavigation)
@@ -188,7 +189,7 @@ namespace TTNguVan.Controllers
             {
                 foreach (var muc in mucHocLuc)
                 {
-                    // ĐÃ SỬA: Nếu mục là "ALL" thì bỏ qua điều kiện lọc tên lớp
+                    // Nếu mục là "All" thì bỏ qua điều kiện lọc tên lớp
                     var dataPhanKhuc = kqHocTapData
                         .Where(k => k.MaHocVienNavigation.KhoiLop == khoi
                                  && (muc.K == "ALL" || k.MaBuoiHocNavigation.MaLopNavigation.TenLop.Contains(muc.V)))
@@ -234,11 +235,9 @@ namespace TTNguVan.Controllers
             }
             ViewBag.MixedChartData = System.Text.Json.JsonSerializer.Serialize(mixedChartData);
 
-            // Đổi tên biến từ 'targetDate' thành 'ngayMucTieu' để tránh trùng lặp phạm vi khai báo
             DateTime ngayMucTieu = ngayXemLich ?? DateTime.Now;
             ViewBag.NgayXemLich = ngayMucTieu;
 
-            // Chuyển đổi sang định dạng Thứ của Việt Nam
             int targetDayOfWeek = (int)ngayMucTieu.DayOfWeek == 0 ? 8 : (int)ngayMucTieu.DayOfWeek + 1;
 
             var listLichHoc = (from lh in _context.LichHocs
@@ -257,48 +256,47 @@ namespace TTNguVan.Controllers
                                    TenGiaoVien = tk.HoTen
                                }).Take(6).ToList();
 
-            // Đóng gói dữ liệu sang chuỗi JSON an toàn cho tầng View
             ViewBag.LichHocHomNayJson = System.Text.Json.JsonSerializer.Serialize(listLichHoc);
 
             return View();
         }
 
-        // --- 2. QUẢN LÝ LỚP HỌC (CV006) ---
+        // Trang Quản lý lớp học
         [HttpGet]
         public IActionResult QuanLyLop()
         {
-            // 1. Kiểm tra quyền (như cũ)
+            // Kiểm tra quyền 
             if (HttpContext.Session.GetString("Role") != "CV006")
                 return RedirectToAction("DangNhap", "TaiKhoan");
 
-            // 2. TÍNH TOÁN THỐNG KÊ
+            // Thống kê 3 thẻ trên đầu
             ViewBag.TongSoLop = _context.LopHocs.Count();
             ViewBag.SoGiaoVien = _context.TaiKhoans.Count(t => t.MaChucVu == "CV004");
             ViewBag.SoTroGiang = _context.TaiKhoans.Count(t => t.MaChucVu == "CV005");
 
-            // 3. Lấy danh sách đổ vào Dropdown 
+            // Lấy danh sách giáo viên + trợ giảng đổ vào Dropdown 
             var gvList = _context.TaiKhoans.Where(t => t.MaChucVu == "CV004").ToList();
             ViewBag.DsGiaoVien = new SelectList(gvList, "MaTk", "HoTen");
 
             var TGList = _context.TaiKhoans.Where(t => t.MaChucVu == "CV005").ToList();
             ViewBag.DsTroGiang = new SelectList(TGList, "MaTk", "HoTen");
 
-            // 4. Lấy dữ liệu tra cứu 
+            // Lấy dữ liệu tra cứu 
             ViewBag.AllPhuTrach = _context.CtPhuTraches.ToList();
             ViewBag.AllUsers = _context.TaiKhoans.ToList();
 
-            // 5. Thông tin Profile chân sidebar 
+            // Thông tin Profile chân sidebar 
             var maTK = HttpContext.Session.GetString("MaTK");
             var ql = _context.TaiKhoans.Find(maTK);
             ViewBag.TenQL = ql?.HoTen;
             ViewBag.EmailQL = ql?.Email;
 
-            // KÉO THÊM DỮ LIỆU HỌC VIÊN ĐỂ ĐẾM SĨ SỐ LỚP
+            //Đếm sĩ số lớp
             var dsLop = _context.LopHocs.Include(l => l.HocViens).ToList();
             return View(dsLop);
         }
 
-        // --- 3. THÊM LỚP ---
+        // Thêm lớp
         [HttpPost]
         public IActionResult ThemLop(LopHoc lop, string MaGV, string MaTG, DateOnly NgayBD, DateOnly NgayKT)
         {
@@ -327,7 +325,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyLop");
         }
 
-        // --- 5. XÓA LỚP ---
+        // Xóa lớp
         [HttpPost]
         public IActionResult XoaLop(string id)
         {
@@ -348,7 +346,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyLop");
         }
 
-        // --- 4. SỬA LỚP ---
+        // Sửa lớp
         [HttpPost]
         public IActionResult SuaLop(LopHoc lop, string MaGV, string MaTG, DateOnly NgayBD, DateOnly NgayKT)
         {
@@ -365,7 +363,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyLop");
         }
 
-        // --- QUẢN LÝ BÀI TEST ---
+        // Trang Quản lý bài test
         [HttpGet]
         public IActionResult QuanLyBaiTest()
         {
@@ -377,14 +375,15 @@ namespace TTNguVan.Controllers
 
             if (ql != null)
             {
-                ViewBag.TenQL = ql.HoTen;   // Lấy tên
-                ViewBag.EmailQL = ql.Email; // Lấy Email từ Database
+                ViewBag.TenQL = ql.HoTen;   
+                ViewBag.EmailQL = ql.Email; 
             }
 
             var dsBaiTest = _context.BaiTests.ToList();
             return View(dsBaiTest);
         }
 
+        // Hàm thêm bài test
         [HttpPost]
         public IActionResult ThemBaiTest(BaiTest bt)
         {
@@ -398,6 +397,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyBaiTest");
         }
 
+        // Hàm sửa bài test
         [HttpPost]
         public IActionResult SuaBaiTest(BaiTest bt)
         {
@@ -412,6 +412,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyBaiTest");
         }
 
+        // Hàm xóa bài test
         [HttpPost]
         public IActionResult XoaBaiTest(string id)
         {

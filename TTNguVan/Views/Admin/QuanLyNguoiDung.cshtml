@@ -519,7 +519,7 @@
                 background: var(--primary-hover);
             }
 
-        /* --- CSS CHO MODAL XÓA (MOCKUP XÁC NHẬN) --- */
+        /*CSS cho modal xóa*/
         .modal-delete {
             background: #fff;
             width: 400px;
@@ -812,7 +812,7 @@
     </div>
 
     <script>
-        // --- TOAST THÔNG BÁO ---
+        // Toast thông báo
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
@@ -825,7 +825,7 @@
             if (msg && msg !== "") { showToast(msg); }
         };
 
-        // --- XỬ LÝ MODAL SỬA ---
+        // Xử lý modal sửa
         async function openModal(maTk) {
             try {
                 const response = await fetch(`/Admin/LayThongTinNguoiDung?id=${maTk}`);
@@ -855,7 +855,7 @@
             document.getElementById('editModal').style.display = 'none';
         }
 
-        // --- XỬ LÝ MODAL XÓA (MOCKUP XỊN) ---
+        // Xử lý modal xóa
         function openDeleteModal(id, name) {
             document.getElementById('delete-id').value = id;
             document.getElementById('delete-name-display').innerText = name; // In đậm tên nhân sự lên bảng xóa

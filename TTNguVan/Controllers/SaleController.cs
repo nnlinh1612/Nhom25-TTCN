@@ -15,7 +15,7 @@ namespace TTNguVan.Controllers
         {
             _context = context;
         }
-        // Hàm hỗ trợ nạp thông tin Sidebar và dữ liệu dùng chung
+        // Lấy thông tin để đổ vào chân sidebar
         private void LayThongTinProfile()
         {
             var maTk = HttpContext.Session.GetString("MaTK");
@@ -34,8 +34,8 @@ namespace TTNguVan.Controllers
             }
         }
 
-        // TRANG QUẢN LÝ KHÁCH HÀNG
-        // 1. HÀM HIỂN THỊ DANH SÁCH & TÌM KIẾM
+        // Trang quản lý khách hàng
+        // Hàm hiển thị dánh sách khách hàng + bộ lọc + tìm kiếm
         public async Task<IActionResult> QuanLyKhachHang(string searchString, string trangThai, string khoiLop)
         {
             LayThongTinProfile();
@@ -83,16 +83,14 @@ namespace TTNguVan.Controllers
 
             return View(danhSachLop);
         }
-        // 2. HÀM THÊM MỚI KHÁCH HÀNG 
-        // 2. HÀM THÊM MỚI KHÁCH HÀNG 
+        // Hàm thêm mới khách hàng
         [HttpPost]
-        // Chú ý: Đã xóa biến MaKhachHang ở tham số đầu vào
         public async Task<IActionResult> Create(string TenKhachHang, string SDT, string NguonDen, int KhoiLop, string TrangThai, DateTime? NgayTiepNhan, DateTime? NgayDangKy)
         {
             LayThongTinProfile();
             try
             {
-                // LOGIC 1: TỰ ĐỘNG SINH MÃ VÀ CHỐNG TRÙNG BẰNG VÒNG LẶP (WHILE)
+                // Tự sinh mã và chống trùng mã
                 var lastKh = await _context.KhachHangs
                     .OrderByDescending(k => k.MaKhachHang)
                     .FirstOrDefaultAsync();
@@ -107,19 +105,17 @@ namespace TTNguVan.Controllers
                     }
                 }
 
-                // ĐÂY LÀ CHỐT CHẶN RACE CONDITION:
-                // Cứ lặp liên tục để kiểm tra. Nếu mã KH011 bị thằng khác nhanh tay cướp mất rồi, 
-                // nó sẽ tự động nhảy lên kiểm tra KH012, KH013... cho đến khi tìm được lỗ hổng thì thôi.
+                // Vòng lặp kiểm tra mã khách hàng hiện tại, nếu trùng thì cứ cộng 1 lên để tìm mã không trùng
                 while (await _context.KhachHangs.AnyAsync(k => k.MaKhachHang == newMaKh))
                 {
                     int num = int.Parse(newMaKh.Substring(2));
                     newMaKh = "KH" + (num + 1).ToString("D3");
                 }
 
-                // LOGIC 2: LƯU KHÁCH HÀNG MỚI
+                // Lưu khách hàng mới
                 var khMoi = new KhachHang
                 {
-                    MaKhachHang = newMaKh, // Dùng cái mã hệ thống vừa sinh ra
+                    MaKhachHang = newMaKh, 
                     TenKhachHang = TenKhachHang,
                     Sdt = SDT,
                     NguonDen = NguonDen,
@@ -129,7 +125,7 @@ namespace TTNguVan.Controllers
                     NgayDangKy = (TrangThai == "Đã đăng ký" && NgayDangKy.HasValue) ? DateOnly.FromDateTime(NgayDangKy.Value) : null
                 };
 
-                // LOGIC 3: NẾU TRẠNG THÁI LÀ "ĐÃ ĐĂNG KÝ", SINH LUÔN MÃ HỌC VIÊN
+                // Nếu trạng thái là đã đăng ký => Tạo luôn mã học viên
                 if (TrangThai == "Đã đăng ký")
                 {
                     var lastStudent = await _context.HocViens
@@ -146,14 +142,13 @@ namespace TTNguVan.Controllers
                         }
                     }
 
-                    // Chốt chặn Race Condition cho bảng Học Viên
+                    // Chống trùng lặp mã học viên
                     while (await _context.HocViens.AnyAsync(h => h.MaHocVien == newMaHv))
                     {
                         int number = int.Parse(newMaHv.Substring(2));
                         newMaHv = "HV" + (number + 1).ToString("D3");
                     }
 
-                    // Liên kết khóa ngoại
                     khMoi.MaHocVien = newMaHv;
 
                     var hocVienMoi = new HocVien
@@ -168,7 +163,7 @@ namespace TTNguVan.Controllers
                     _context.HocViens.Add(hocVienMoi);
                 }
 
-                // Lưu vào DB
+                // Lưu vào CSDL
                 _context.KhachHangs.Add(khMoi);
                 await _context.SaveChangesAsync();
 
@@ -193,12 +188,11 @@ namespace TTNguVan.Controllers
             // Kiểm tra xem mã này đã có trong bảng KhachHangs chưa
             bool exists = await _context.KhachHangs.AnyAsync(k => k.MaKhachHang == maKhachHang);
 
-            // Trả kết quả về cho giao diện (dạng JSON)
+            // Trả kết quả về cho giao diện
             return Json(new { exists = exists });
         }
 
-        // 3. HÀM CẬP NHẬT CHỈNH SỬA KHÁCH HÀNG 
-        // 3. HÀM CẬP NHẬT CHỈNH SỬA KHÁCH HÀNG 
+        // Hàm cập nhật khách hàng
         [HttpPost]
         public async Task<IActionResult> UpdateKhachHang(string MaKhachHang, string TenKhachHang, string Sdt, string NguonDen, int KhoiLop, string TrangThai, DateTime? NgayTiepNhan, DateTime? NgayDangKy)
         {
@@ -212,7 +206,7 @@ namespace TTNguVan.Controllers
                     return RedirectToAction("QuanLyKhachHang");
                 }
 
-                // 1. Cập nhật thông tin cơ bản cho bảng KHÁCH HÀNG
+                // Cập nhật thông tin cơ bản cho bảng khách hàng
                 khachHangCu.TenKhachHang = TenKhachHang;
                 khachHangCu.Sdt = Sdt;
                 khachHangCu.NguonDen = NguonDen;
@@ -222,14 +216,14 @@ namespace TTNguVan.Controllers
                 khachHangCu.NgayTiepNhan = NgayTiepNhan.HasValue ? DateOnly.FromDateTime(NgayTiepNhan.Value) : khachHangCu.NgayTiepNhan;
                 khachHangCu.NgayDangKy = (TrangThai == "Đã đăng ký" && NgayDangKy.HasValue) ? DateOnly.FromDateTime(NgayDangKy.Value) : null;
 
-                // 2. LOGIC ĐỒNG BỘ SANG BẢNG HỌC VIÊN (NẾU ĐÃ LÀ HỌC VIÊN)
+                // Cập nhật bảng khách hàng => Cập nhật cả bảng học viên
                 if (!string.IsNullOrEmpty(khachHangCu.MaHocVien))
                 {
                     // Tìm hồ sơ học viên tương ứng
                     var hocVienLienQuan = await _context.HocViens.FindAsync(khachHangCu.MaHocVien);
                     if (hocVienLienQuan != null)
                     {
-                        // Đồng bộ đè thông tin mới sang
+                        // Ghi đè thông tin mới sang
                         hocVienLienQuan.TenHocVien = TenKhachHang;
                         hocVienLienQuan.Sdt = Sdt;
                         hocVienLienQuan.KhoiLop = KhoiLop;
@@ -237,7 +231,7 @@ namespace TTNguVan.Controllers
                         _context.HocViens.Update(hocVienLienQuan);
                     }
                 }
-                // 3. LOGIC SINH MÃ HỌC VIÊN LẦN ĐẦU (Nếu chốt Sale thành công)
+                // Tạo mã học viên khi trạng thái là Đã đăng ký
                 else if (TrangThai == "Đã đăng ký" && string.IsNullOrEmpty(khachHangCu.MaHocVien))
                 {
                     var lastStudent = await _context.HocViens
@@ -273,9 +267,9 @@ namespace TTNguVan.Controllers
                 }
 
                 _context.KhachHangs.Update(khachHangCu);
-                await _context.SaveChangesAsync(); // Lưu 1 phát ăn ngay cả 2 bảng
+                await _context.SaveChangesAsync(); 
 
-                TempData["SuccessMessage"] = "Đã cập nhật và đồng bộ dữ liệu thành công!";
+                TempData["SuccessMessage"] = "Cập nhật dữ liệu thành công!";
             }
             catch (Exception ex)
             {
@@ -285,7 +279,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyKhachHang");
         }
 
-        // 4. HÀM XÓA KHÁCH HÀNG 
+        // Hàm xóa khách hàng 
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
@@ -322,8 +316,9 @@ namespace TTNguVan.Controllers
             }
             return RedirectToAction("QuanLyKhachHang");
         }
-        // TRANG CHI TIẾT KHÁCH HÀNG
-        // 1. HÀM XEM CHI TIẾT KHÁCH HÀNG
+
+        // Trang chi tiết khách hàng
+        // Hàm xem chi tiết khách hàng
         [HttpGet]
         public async Task<IActionResult> ChiTietKhachHang(string id)
         {
@@ -342,11 +337,11 @@ namespace TTNguVan.Controllers
 
             if (string.IsNullOrEmpty(id)) return NotFound();
 
-            // --- ĐÃ THÊM LẠI DÒNG NÀY: Truy vấn thông tin Khách hàng ---
+            // Truy vấn thông tin khách hàng
             var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaKhachHang == id);
             if (khachHang == null) return NotFound();
 
-            // LẤY LỊCH SỬ TƯ VẤN (Chỉ lấy các nghiệp vụ của Sale)
+            //Lấy lịch sử tư vấn
             var cacLoaiTuVan = new List<string> { "Tư vấn qua điện thoại", "Gặp trực tiếp", "Nhắn tin (Zalo/Mess)", "Nhắn tin" };
 
             var lichSuList = await _context.LichSuTuongTacs
@@ -360,7 +355,7 @@ namespace TTNguVan.Controllers
             return View(khachHang);
         }
 
-        // --- 1. HÀM THÊM LỊCH SỬ TƯ VẤN (KHÁCH HÀNG) ---
+        // Hàm thêm lịch sử tư vấn
         [HttpPost]
         public async Task<IActionResult> ThemLichSu(string MaKhachHang, string LoaiTuongTac, DateTime NgayTuongTac, string NoiDung)
         {
@@ -372,7 +367,7 @@ namespace TTNguVan.Controllers
                 var kh = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaKhachHang == MaKhachHang);
                 string maHocVienCheck = kh?.MaHocVien;
 
-                // LOGIC TỰ ĐỘNG TĂNG MÃ (TT001, TT002...)
+                // Tự động tăng mã tương tác
                 var lastLS = await _context.LichSuTuongTacs
                     .OrderByDescending(x => x.MaTuongTac)
                     .FirstOrDefaultAsync();
@@ -380,10 +375,10 @@ namespace TTNguVan.Controllers
                 string newMaTT = "TT001";
                 if (lastLS != null && !string.IsNullOrEmpty(lastLS.MaTuongTac))
                 {
-                    string numberPart = lastLS.MaTuongTac.Substring(2); // Cắt lấy phần số sau chữ "TT"
+                    string numberPart = lastLS.MaTuongTac.Substring(2); 
                     if (int.TryParse(numberPart, out int num))
                     {
-                        newMaTT = "TT" + (num + 1).ToString("D3"); // D3 để format thành 3 số (001, 002...)
+                        newMaTT = "TT" + (num + 1).ToString("D3"); 
                     }
                 }
 
@@ -411,7 +406,7 @@ namespace TTNguVan.Controllers
             }
         }
 
-        // --- 2. HÀM CẬP NHẬT LỊCH SỬ TƯ VẤN (KHÁCH HÀNG) ---
+        // Hàm cập nhật lịch sử tư vấn
         [HttpPost]
         public async Task<IActionResult> UpdateLichSu(string MaTuongTac, string MaKhachHang, DateTime NgayTuongTac, string LoaiTuongTac, string NoiDung)
         {
@@ -423,7 +418,7 @@ namespace TTNguVan.Controllers
                 lichSu.NgayTuongTac = DateOnly.FromDateTime(NgayTuongTac);
                 lichSu.LoaiTuongTac = LoaiTuongTac;
                 lichSu.NoiDung = NoiDung;
-                lichSu.MaHocVien = kh?.MaHocVien; // Cập nhật luôn mã học viên nếu có
+                lichSu.MaHocVien = kh?.MaHocVien; 
 
                 _context.LichSuTuongTacs.Update(lichSu);
                 await _context.SaveChangesAsync();
@@ -432,7 +427,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("ChiTietKhachHang", new { id = MaKhachHang });
         }
 
-        // --- 3. HÀM XÓA LỊCH SỬ TƯ VẤN (KHÁCH HÀNG) ---
+        // Hàm xóa lịch sử tư vấn
         [HttpPost]
         public async Task<IActionResult> DeleteLichSu(string id, string maKhachHang) // ĐÃ SỬA LỖI: Đổi int id thành string id
         {
@@ -445,13 +440,13 @@ namespace TTNguVan.Controllers
             }
             return RedirectToAction("ChiTietKhachHang", new { id = maKhachHang });
         }
-        // TRANG THEO DÕI HỌC TẬP
-        // 1. HÀM THEO DÕI HỌC TẬP
+        // Trang theo dõi học tập
+        // Hàm theo dõi học tập
         [HttpGet]
         public async Task<IActionResult> TheoDoiHocTap(string searchString, string trangThai, string khoiLop, string maLop)
         {
             LayThongTinProfile();
-            // 1. Kiểm tra đăng nhập
+            // Kiểm tra đăng nhập
             string maTK = HttpContext.Session.GetString("MaTK");
             if (!string.IsNullOrEmpty(maTK))
             {
@@ -467,13 +462,13 @@ namespace TTNguVan.Controllers
                 return RedirectToAction("DangNhap", "TaiKhoan");
             }
 
-            // 2. Tạo truy vấn cơ bản dưới Database (Chưa lấy dữ liệu về RAM vội)
+            // 
             var query = _context.HocViens
                                 .Include(h => h.MaLopNavigation)
                                 .Include(h => h.KqHocTaps).ThenInclude(k => k.MaBuoiHocNavigation)
                                 .AsQueryable();
 
-            // 3. Xử lý các bộ lọc (Thực thi trên SQL Server giúp tăng tốc độ)
+            // Xử lý các bộ lọc 
             if (!string.IsNullOrEmpty(trangThai))
             {
                 query = query.Where(h => h.TrangThai == trangThai);
@@ -489,36 +484,36 @@ namespace TTNguVan.Controllers
                 query = query.Where(h => h.MaLop == maLop);
             }
 
-            // 4. Lấy dữ liệu đã lọc cơ bản từ Database lên RAM
+            // Lấy dữ liệu đã lọc
             var allHocVien = await query.OrderBy(k => k.MaHocVien).ToListAsync();
             var filteredList = allHocVien.AsEnumerable();
 
-            // 5. Lọc tìm kiếm chuỗi văn bản (Thực thi trên RAM do dùng hàm RemoveSign tự viết)
+            // Lọc tìm kiếm chuỗi văn bản 
             if (!string.IsNullOrEmpty(searchString))
             {
                 // Biến chuỗi tìm kiếm thành không dấu
                 string searchNoSign = RemoveSign4VietnameseString(searchString);
 
                 filteredList = filteredList.Where(k =>
-                    RemoveSign4VietnameseString(k.TenHocVien).Contains(searchNoSign) || // Tìm tên không dấu
-                    k.MaHocVien.ToLower().Contains(searchString.ToLower()) ||          // Tìm mã
-                    k.KhoiLop.ToString() == searchString                               // Tìm khối lớp
+                    RemoveSign4VietnameseString(k.TenHocVien).Contains(searchNoSign) || 
+                    k.MaHocVien.ToLower().Contains(searchString.ToLower()) ||          
+                    k.KhoiLop.ToString() == searchString                               
                 );
             }
 
-            // 6. Trả lại các giá trị để giữ trạng thái bộ lọc trên giao diện (ViewBag)
+            // Trả lại các giá trị để giữ trạng thái bộ lọc trên giao diện
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentStatus = trangThai;
             ViewBag.CurrentKhoiLop = khoiLop;
             ViewBag.CurrentMaLop = maLop;
 
-            // Nạp danh sách lớp cho ô SelectBox "Tất cả các lớp"
+            // Lấy danh sách lớp cho ô lọc lớp
             ViewBag.DanhSachLop = await _context.LopHocs.ToListAsync();
 
             return View(filteredList.ToList());
         }
 
-        // 2. HÀM LẤY THÔNG TIN HỌC VIÊN POPUP
+        // Lấy thông tin học viên
         [HttpGet]
         public async Task<IActionResult> LayThongTinHocVien(string maHocVien)
         {
@@ -541,7 +536,7 @@ namespace TTNguVan.Controllers
             });
         }
 
-        // 3. HÀM CẬP NHẬT TRẠNG THÁI VÀ MÃ LỚP 
+        // Hàm cập nhật học tập
         [HttpPost]
         public async Task<IActionResult> CapNhatHocTapSale(string maHocVien, string trangThaiHocVien, string maLopMoi)
         {
@@ -569,7 +564,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("TheoDoiHocTap");
         }
 
-        // 4. HÀM XÓA HỌC VIÊN KHỎI TRANG THEO DÕI
+        // Hàm xóa học viên khỏi bảng theo dõi
         [HttpPost]
         public async Task<IActionResult> XoaHocTapSale(string maHocVien)
         {
@@ -579,11 +574,11 @@ namespace TTNguVan.Controllers
                 var hocVien = await _context.HocViens.FindAsync(maHocVien);
                 if (hocVien != null)
                 {
-                    // 1. Xóa kết quả học tập liên quan (để không bị lỗi khóa ngoại)
+                    // Xóa kết quả học tập liên quan 
                     var kqht = _context.KqHocTaps.Where(k => k.MaHocVien == maHocVien);
                     _context.KqHocTaps.RemoveRange(kqht);
 
-                    // 2. Trả khách hàng về trạng thái trước đó (Tùy chọn)
+                    // Trả khách hàng về trạng thái trước đó 
                     var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaHocVien == maHocVien);
                     if (khachHang != null)
                     {
@@ -592,7 +587,7 @@ namespace TTNguVan.Controllers
                         _context.KhachHangs.Update(khachHang);
                     }
 
-                    // 3. Xóa học viên
+                    // Xóa học viên
                     _context.HocViens.Remove(hocVien);
                     await _context.SaveChangesAsync();
 
@@ -600,7 +595,7 @@ namespace TTNguVan.Controllers
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Không tìm thấy học viên để xóa!";
+                    TempData["ErrorMessage"] = "Không tìm thấy học viên!";
                 }
             }
             catch (Exception ex)
@@ -610,8 +605,8 @@ namespace TTNguVan.Controllers
             return RedirectToAction("TheoDoiHocTap");
         }
 
-        //  TRANG HỒ SƠ HỌC TẬP 
-        // 1. HÀM HỒ SƠ HỌC TẬP HỌC VIÊN (GET)
+        //  Trang hồ sơ học tập 
+        // Hàm hồ sơ học tập học viên
         [HttpGet]
         public async Task<IActionResult> HoSoHocTap(string id)
         {
@@ -630,14 +625,14 @@ namespace TTNguVan.Controllers
 
             if (string.IsNullOrEmpty(id)) return NotFound();
 
-            // BƯỚC 1: Lấy thông tin học viên (Kèm theo thông tin Lớp)
+            // Lấy thông tin học viên (Kèm theo thông tin Lớp)
             var hocVien = await _context.HocViens
                                         .Include(h => h.MaLopNavigation)
                                         .FirstOrDefaultAsync(h => h.MaHocVien == id);
 
             if (hocVien == null) return NotFound();
 
-            // BƯỚC 2: Lấy danh sách kết quả học tập (Hiển thị ở TAB 1)
+            // Lấy danh sách kết quả học tập 
             var lichSuHoc = await _context.KqHocTaps
                                        .Include(k => k.MaBuoiHocNavigation)
                                        .Where(k => k.MaHocVien == id)
@@ -646,7 +641,7 @@ namespace TTNguVan.Controllers
 
             ViewBag.LichSuHocTap = lichSuHoc;
 
-            // BƯỚC 3: LẤY LỊCH SỬ TƯƠNG TÁC (Chỉ lấy các nghiệp vụ chăm sóc học viên)
+            // Lấy lịch sử tương tác
             var cacLoaiChamSoc = new List<string> { "Gọi điện hỏi thăm", "Phản hồi phụ huynh", "Nhắc nhở học tập", "Nghiệp vụ khác" };
 
             var lichSuTT = await _context.LichSuTuongTacs
@@ -657,7 +652,7 @@ namespace TTNguVan.Controllers
             ViewBag.LichSuTuongTac = lichSuTT;
             return View(hocVien);
         }
-        // --- 2. HÀM THÊM NHẬT KÝ CHĂM SÓC (HỌC VIÊN) ---
+        // Hàm thêm lịch sử tương tác
         [HttpPost]
         public async Task<IActionResult> ThemLichSuTuongTacHV(string MaHocVien, string LoaiTuongTac, DateTime NgayTuongTac, string NoiDung)
         {
@@ -665,10 +660,10 @@ namespace TTNguVan.Controllers
             {
                 string maTK = HttpContext.Session.GetString("MaTK") ?? "TK001";
 
-                // TÌM NGƯỢC LẠI: Lấy thông tin Khách Hàng dựa vào Mã Học Viên
+                // Lấy thông tin Khách Hàng dựa vào Mã Học Viên
                 var kh = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaHocVien == MaHocVien);
 
-                // Sinh mã TT001, TT002... tự động
+                // Tạo mã tương tác tự động
                 var lastLS = await _context.LichSuTuongTacs
                     .OrderByDescending(x => x.MaTuongTac)
                     .FirstOrDefaultAsync();
@@ -686,7 +681,7 @@ namespace TTNguVan.Controllers
                 var lichSuMoi = new LichSuTuongTac
                 {
                     MaTuongTac = newMaTT,
-                    MaKhachHang = kh?.MaKhachHang, // Dò ra được mã KH thì lưu vào
+                    MaKhachHang = kh?.MaKhachHang, 
                     MaHocVien = MaHocVien,         // Lưu mã Học viên được gửi lên
                     MaTk = maTK,
                     LoaiTuongTac = LoaiTuongTac,
@@ -707,7 +702,7 @@ namespace TTNguVan.Controllers
             }
         }
 
-        // 3. HÀM CẬP NHẬT NHẬT KÝ CHĂM SÓC (HỌC VIÊN) ---
+        // Hàm cập nhật lịch sử tương tác học viên
         [HttpPost]
         public async Task<IActionResult> UpdateLichSuTuongTacHV(string MaTuongTac, string MaKhachHang, DateTime NgayTuongTac, string LoaiTuongTac, string NoiDung)
         {
@@ -729,7 +724,7 @@ namespace TTNguVan.Controllers
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
-        // 4. HÀM XÓA NHẬT KÝ CHĂM SÓC (HỌC VIÊN) ---
+        // Hàm xóa nhật ký chăm sóc học viên
         [HttpPost]
         public async Task<IActionResult> DeleteLichSuTuongTacHV(string id)
         {
@@ -743,19 +738,19 @@ namespace TTNguVan.Controllers
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
-        // TRANG DANH SÁCH BÀI TEST
+        // Trang danh sách bài test
         [HttpGet]
         public async Task<IActionResult> DanhSachBaiTest()
         {
             LayThongTinProfile();
-            // 1. Lấy danh sách các đề test (để lấy link gửi học viên)
+            // Lấy danh sách các đề test (để lấy link gửi học viên)
             var deTests = await _context.BaiTests.ToListAsync();
 
-            // 2. Lấy danh sách các bài ĐÃ CHẤM (để Sale xem kết quả)
+            // Lấy danh sách các bài đã chấm (để Sale xem kết quả và gửi phụ huynh)
             var ketQuas = await _context.KqBaiTests
                 .Include(k => k.MaBaiLamNavigation)
                     .ThenInclude(b => b.MaHocVienNavigation)
-                .Include(k => k.MaTkNavigation) // Giáo viên chấm
+                .Include(k => k.MaTkNavigation) 
                 .OrderByDescending(k => k.NgayCham)
                 .ToListAsync();
 
@@ -767,6 +762,8 @@ namespace TTNguVan.Controllers
 
             return View(viewModel);
         }
+
+        // Hàm xuất file pdf
         public IActionResult XuatPdf(string id)
         {
             var kq = _context.KqBaiTests
@@ -781,12 +778,12 @@ namespace TTNguVan.Controllers
             return View("~/Views/GiaoVien/PhieuKetQuaPdf.cshtml", kq);
         }
 
-        // TRANG BÁO CÁO
+        // Trang báo cáo
         public async Task<IActionResult> BaoCao()
         {
             LayThongTinProfile();
 
-            // 1. Kiểm tra đăng nhập
+            // Kiểm tra đăng nhập
             string maTK = HttpContext.Session.GetString("MaTK");
             if (string.IsNullOrEmpty(maTK))
             {
@@ -800,12 +797,12 @@ namespace TTNguVan.Controllers
                 ViewBag.EmailSale = user.Email;
             }
 
-            // 2. LẤY DỮ LIỆU SỐNG TỪ CSDL
+            // Lấy dữ liệu từ CSDL
             var allKhachHang = await _context.KhachHangs.ToListAsync();
 
-            // --- KPI CARDS (Thẻ thông số tổng quát) ---
+            // Thẻ KPI
             int tongKhachHang = allKhachHang.Count;
-            // Thống kê dựa trên trạng thái chuẩn
+            // Thống kê dựa trên trạng thái 
             int hocVienChinhThuc = allKhachHang.Count(x => x.TrangThai == "Đã đăng ký");
 
             double tyLeChuyenDoi = 0;
@@ -817,9 +814,9 @@ namespace TTNguVan.Controllers
             ViewBag.TongKhachHang = tongKhachHang;
             ViewBag.HocVienChinhThuc = hocVienChinhThuc;
             ViewBag.TyLeChuyenDoi = tyLeChuyenDoi;
-            ViewBag.PhanHoiMoi = 0; // Tạm để 0 vì chưa có bảng thông báo phản hồi
+            ViewBag.PhanHoiMoi = 0; 
 
-            // --- DỮ LIỆU BIỂU ĐỒ 1: XU HƯỚNG CỘT KÉP (6 tháng gần nhất) ---
+            // Xu hướng
             var labelsTrend = new List<string>();
             var totalLeads = new List<int>();      // Cột Tổng tiếp nhận
             var successLeads = new List<int>();    // Cột Đã đăng ký thành công
@@ -829,14 +826,14 @@ namespace TTNguVan.Controllers
                 var targetDate = DateTime.Now.AddMonths(-i);
                 labelsTrend.Add($"Tháng {targetDate.Month}");
 
-                // Lọc khách dựa trên NgayTiepNhan (Tổng phễu marketing)
+                // Lọc khách dựa trên NgayTiepNhan 
                 int countTong = allKhachHang.Count(x =>
                     x.NgayTiepNhan.HasValue &&
                     x.NgayTiepNhan.Value.Month == targetDate.Month &&
                     x.NgayTiepNhan.Value.Year == targetDate.Year);
                 totalLeads.Add(countTong);
 
-                // Lọc khách dựa trên NgayDangKy (Kết quả chốt Sale)
+                // Lọc khách dựa trên NgayDangKy
                 int countThanhCong = allKhachHang.Count(x =>
                     x.NgayDangKy.HasValue &&
                     x.NgayDangKy.Value.Month == targetDate.Month &&
@@ -849,7 +846,7 @@ namespace TTNguVan.Controllers
             ViewBag.TrendDataTotal = "[" + string.Join(", ", totalLeads) + "]";
             ViewBag.TrendDataSuccess = "[" + string.Join(", ", successLeads) + "]";
 
-            // --- DỮ LIỆU BIỂU ĐỒ 2: PHÂN BỐ KHỐI LỚP (Biểu đồ tròn) ---
+            // Biểu đồ phân bố khối lớp 
             var khoiData = new List<int>();
             for (int i = 6; i <= 12; i++)
             {
@@ -858,7 +855,7 @@ namespace TTNguVan.Controllers
             ViewBag.KhoiLabels = "['Lớp 6', 'Lớp 7', 'Lớp 8', 'Lớp 9', 'Lớp 10', 'Lớp 11', 'Lớp 12']";
             ViewBag.KhoiData = "[" + string.Join(", ", khoiData) + "]";
 
-            // --- DỮ LIỆU BIỂU ĐỒ 3: NGUỒN TIẾP NHẬN (Biểu đồ tròn) ---
+            // Biểu đồ nguồn tiếp nhận
             var nguonGroup = allKhachHang.GroupBy(x => string.IsNullOrEmpty(x.NguonDen) ? "Chưa rõ" : x.NguonDen)
                                          .Select(g => new { Nguon = g.Key, Count = g.Count() })
                                          .ToList();
@@ -866,7 +863,7 @@ namespace TTNguVan.Controllers
             ViewBag.NguonLabels = "['" + string.Join("', '", nguonGroup.Select(x => x.Nguon)) + "']";
             ViewBag.NguonData = "[" + string.Join(", ", nguonGroup.Select(x => x.Count)) + "]";
 
-            // --- DỮ LIỆU BIỂU ĐỒ 4: TRẠNG THÁI HỌC VIÊN (Biểu đồ tròn) ---
+            // Biểu đồ trạng thái học viên
             // Lấy toàn bộ dữ liệu từ bảng Học Viên
             var allHocVien = await _context.HocViens.ToListAsync();
 
@@ -882,8 +879,8 @@ namespace TTNguVan.Controllers
             return View();
         }
 
-        // LỜI NHẮC
-        // 1. TRANG DANH SÁCH LỜI NHẮC
+        // Trang lời nhắc
+        // Trang danh sách lời nhắc
         [HttpGet]
         public async Task<IActionResult> LoiNhac(string loai = "binhthuong")
         {
@@ -922,18 +919,18 @@ namespace TTNguVan.Controllers
             ViewBag.DaHoanThanh = allData.Count(x => x.TrangThai);
             ViewBag.ChuaHoanThanh = allData.Count(x => !x.TrangThai);
 
-            // 2. PHÂN LOẠI DỮ LIỆU THEO THỜI GIAN
+            // Phân loại dữ liệu theo thời gian
             DateTime bayGio = DateTime.Now;
 
-            // Tab Bình thường: Những việc đã xong HOẶC những việc chưa xong nhưng còn hạn
+            // Tab Lời nhắc: Những việc đã xong hoặc những việc chưa xong nhưng còn hạn
             var dsBinhThuong = allData.Where(x => x.TrangThai || (x.HanChot >= bayGio))
                                       .OrderBy(x => x.TrangThai).ThenBy(x => x.HanChot).ToList();
 
-            // Tab Quá hạn: Những việc CHƯA XONG và ĐÃ HẾT HẠN
+            // Tab Quá hạn: Những việc chưa xong và đã hết hạn
             var dsQuaHan = allData.Where(x => !x.TrangThai && x.HanChot < bayGio)
                                   .OrderByDescending(x => x.HanChot).ToList();
 
-            // 3. Đưa thông tin sang View
+            // Đưa thông tin sang View
             ViewBag.TabActive = loai;
             ViewBag.CountBinhThuong = dsBinhThuong.Count;
             ViewBag.CountQuaHan = dsQuaHan.Count;
@@ -943,7 +940,7 @@ namespace TTNguVan.Controllers
             return View(dsBinhThuong);
         }
 
-        // 2. HÀM THÊM MỚI LỜI NHẮC
+        // Hàm thêm lời nhắc mới
         [HttpPost]
         public async Task<IActionResult> ThemLoiNhac(string TieuDe, string NoiDung, DateTime HanChot, string MucDo)
         {
@@ -967,14 +964,13 @@ namespace TTNguVan.Controllers
             }
             catch (Exception ex)
             {
-                // Hiện lỗi thật sự để debug cho nhanh
                 var innerError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                 TempData["ErrorMessage"] = "Lỗi hệ thống: " + innerError;
             }
             return RedirectToAction("LoiNhac");
         }
 
-        // 3. HÀM ĐÁNH DẤU ĐÃ XONG
+        // Hàm đánh dấu đã xong lời nhắc
         [HttpPost]
         public async Task<IActionResult> DanhDauXong(string id)
         {
@@ -993,7 +989,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("LoiNhac");
         }
 
-        // 4. HÀM XÓA LỜI NHẮC
+        // Hàm xóa lời nhắc
         [HttpPost]
         public async Task<IActionResult> XoaLoiNhac(string id)
         {
@@ -1057,6 +1053,8 @@ namespace TTNguVan.Controllers
                      .Replace('đ', 'd')
                      .Replace('Đ', 'D');
         }
+
+        // Hàm tạo cảnh báo tự động của hệ thống
         private void TaoLoiNhacTuDong(string maLop, string maTk)
         {
             var dsHocVien = _context.HocViens.Where(h => h.MaLop == maLop).ToList();
@@ -1112,9 +1110,11 @@ namespace TTNguVan.Controllers
             }
             _context.SaveChanges();
         }
+
+        // Hàm tạo lời nhắc tự động nhắc CSKH
         private void TuDongNhacSaleKhachHang()
         {
-            // 1. Giữ nguyên mốc thời gian và danh sách khách hàng quá hạn
+            // Giữ nguyên mốc thời gian và danh sách khách hàng quá hạn
             var mocThoiGian = DateOnly.FromDateTime(DateTime.Now.AddDays(-7));
             var dsKhachHang = _context.KhachHangs
                 .AsEnumerable()
@@ -1126,7 +1126,7 @@ namespace TTNguVan.Controllers
 
             if (dsKhachHang.Any())
             {
-                // 2. SỬA Ở ĐÂY: Lấy cả nhân viên Sale và CSKH
+                // Lấy cả nhân viên Sale và CSKH
                 var dsNhanVienRemind = _context.TaiKhoans
                     .Include(t => t.MaChucVuNavigation)
                     .Where(t => t.MaChucVuNavigation.TenChucVu.Contains("Sale") ||
@@ -1135,11 +1135,11 @@ namespace TTNguVan.Controllers
 
                 foreach (var kh in dsKhachHang)
                 {
-                    foreach (var nv in dsNhanVienRemind) // Đổi biến thành 'nv' cho tổng quát
+                    foreach (var nv in dsNhanVienRemind) 
                     {
                         string uniqueNoiDung = $"[HỆ THỐNG] Khách hàng {kh.TenKhachHang} ({kh.MaKhachHang}) đã quan tâm 1 tuần. Hãy liên hệ lại ngay!";
 
-                        // Kiểm tra xem nhân viên này (dù là Sale hay CSKH) đã có lời nhắc này chưa
+                        // Kiểm tra xem nhân viên này đã có lời nhắc này chưa
                         bool daCoNhac = _context.LoiNhacs.Any(l =>
                             l.MaTk == nv.MaTk &&
                             l.NoiDung == uniqueNoiDung &&

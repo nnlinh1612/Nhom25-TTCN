@@ -10,7 +10,6 @@
     int ngayTrongThang = DateTime.DaysInMonth(nam, thang);
     int thuDauThang = ((int)dauThang.DayOfWeek == 0) ? 7 : (int)dauThang.DayOfWeek;
 
-    // ĐÃ ĐỔI TÊN BIẾN THEO Ý ÔNG
     var lichDay = ViewBag.LichDay as List<TTNguVan.Models.LichHoc>;
     var loiNhacs = ViewBag.LoiNhacs as List<TTNguVan.Models.LoiNhac>;
     var canhBaos = ViewBag.CanhBaos as List<TTNguVan.Models.CanhBao>;
@@ -216,7 +215,6 @@
             int thu = ((int)ngayHienTai.DayOfWeek == 0) ? 8 : (int)ngayHienTai.DayOfWeek + 1;
             bool isToday = (ngayHienTai.Date == DateTime.Now.Date);
 
-            // Sử dụng tên biến lichDay mới của ông
             var lichTrongNgay = lichDay.Where(x => x.Thu == thu).ToList();
             var loiNhacTrongNgay = loiNhacs.Where(x => x.HanChot.HasValue && x.HanChot.Value.Date == ngayHienTai.Date).ToList();
             var canhBaoTrongNgay = canhBaos.Where(x => x.HanChot.HasValue && x.HanChot.Value.Date == ngayHienTai.Date).ToList();
@@ -226,12 +224,12 @@
 
                 @foreach (var l in lichTrongNgay)
                 {
-                    // LẤY GIỜ TỪ DATABASE (Cột GioBatDau và GioKetThuc)
+                    // Lấy giờ học từ CSDL
                     string gioHoc = (l.GioBatDau.HasValue && l.GioKetThuc.HasValue)
                     ? $"{l.GioBatDau.Value.ToString(@"hh\:mm")} - {l.GioKetThuc.Value.ToString(@"hh\:mm")}"
                     : l.TenCa;
 
-                    // LẤY TÊN LỚP (Từ bảng LOP_HOC thông qua Navigation)
+                    //Lấy tên lớp
                     string tenLopHienThi = l.MaLopNavigation != null ? l.MaLopNavigation.TenLop : l.MaLop;
 
                     <div class="event-badge badge-schedule" title="@gioHoc | @tenLopHienThi">

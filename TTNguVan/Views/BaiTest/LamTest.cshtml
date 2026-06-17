@@ -28,7 +28,7 @@
             overflow: hidden;
         }
 
-        /* HEADER */
+        /* Header */
         .header-test {
             background: white;
             padding: 15px 30px;
@@ -83,7 +83,7 @@
             text-align: right;
         }
 
-        /* BODY */
+        /* Body */
         .main-container {
             flex: 1;
             display: flex;
@@ -151,7 +151,7 @@
                 box-shadow: 0 0 0 4px rgba(82, 171, 152, 0.1);
             }
 
-        /* FOOTER */
+        /* Footer */
         .footer-test {
             background: white;
             padding: 15px 30px;
@@ -315,7 +315,7 @@
     <script>
         var isSubmitting = false;
 
-        // ĐÃ NÂNG CẤP: Hàm hiện Toast thông báo góc phải (Xanh / Đỏ)
+        // Toast thông báo
             function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
             const icon = toast.querySelector('i');
@@ -327,11 +327,11 @@
             toast.classList.remove('toast-green', 'toast-red', 'show');
 
             if (isError) {
-                // NẾU LỖI: Gắn class đỏ và icon tam giác
+                // Nếu lỗi: Gắn class đỏ và icon tam giác
                 toast.classList.add('toast-red');
                 if (icon) icon.className = 'fas fa-exclamation-triangle';
             } else {
-                // NẾU THÀNH CÔNG: Gắn class xanh và icon check tròn
+                // Nếu thành công: Gắn class xanh và icon check tròn
                 toast.classList.add('toast-green');
                 if (icon) icon.className = 'fas fa-check-circle';
             }
@@ -339,25 +339,24 @@
             // Hiện Toast lên
             setTimeout(() => { toast.classList.add('show'); }, 10);
 
-            // 3 giây sau tự cất đi
+            // 3 giây sau tự mất đi
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // ĐÃ NÂNG CẤP: Kiểm tra xem textarea có trống không
+        // Kiểm tra xem bài làm có trống không
         function kiemTraNopBai() {
             const noiDung = document.getElementById('NoiDungBaiLam').value.trim();
 
             if (noiDung === "") {
-                // Truyền chữ "true" vào cuối để hệ thống biết đây là lỗi -> Bật màu đỏ
                 showToast("Cảnh báo: Bạn chưa nhập nội dung bài làm!", true);
                 return;
             }
 
-            // Nếu đã có chữ -> Mở cái Modal xác nhận xịn sò lên
+            // Nếu đã có chữ => Mở modal xác nhận
             document.getElementById('modal-confirm').style.display = 'flex';
         }
 
-        // Hàm này chạy khi bấm nút "Nộp ngay" trên Modal
+        // Khi ấn nút nộp ngay
         function finalSubmit() {
             isSubmitting = true;
             document.getElementById("formThi").submit();

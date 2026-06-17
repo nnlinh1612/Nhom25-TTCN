@@ -1,13 +1,11 @@
 ﻿@model IEnumerable<TTNguVan.Models.HocVien>
 @{
-    // Khai báo Layout dùng chung và Title
     ViewData["Title"] = "Danh sách học viên - " + ViewBag.TenLop;
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 @section Styles {
     <style>
-        /* Nút quay lại */
         .btn-back {
             background: none;
             border: none;
@@ -25,20 +23,18 @@
 
             .btn-back:hover {
                 color: var(--primary-hover);
-                transform: translateX(-4px); /* Lùi lại mượt hơn */
+                transform: translateX(-4px); 
             }
 
-        /* KHUNG CARD DÀNH RIÊNG CHO BẢNG (Bỏ padding để bảng tràn viền) */
         .card-bento-table {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            overflow: hidden; /* Ép bảng bo góc theo card */
+            overflow: hidden; 
             margin-bottom: 30px;
         }
 
-        /* CSS BẢNG CHUẨN BENTO */
         .table-hv {
             width: 100%;
             border-collapse: collapse;
@@ -73,7 +69,6 @@
                 transition: 0.2s;
             }
 
-        /* Nút Xem chi tiết (Chuyển sang nền nhạt, chữ đậm) */
         .action-link-btn {
             background: #eaf4f1;
             color: #52ab98;

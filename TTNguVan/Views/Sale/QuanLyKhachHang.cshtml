@@ -6,21 +6,19 @@
 
 @section Styles {
     <style>
-        /* --- THANH TOOLBAR TÌM KIẾM VÀ LỌC --- */
         .toolbar-bento {
             background: #fff;
             border-radius: 16px;
             border: 1px solid var(--border-color);
             padding: 16px;
             display: flex;
-            flex-wrap: nowrap; /* Bắt buộc tất cả nằm trên 1 dòng */
-            overflow-x: auto; /* Hiển thị thanh cuộn ngang nếu màn hình quá nhỏ */
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
             gap: 16px;
             align-items: center;
             margin-bottom: 24px;
         }
 
-            /* Tùy chỉnh thanh cuộn ngang cho Toolbar mượt mà hơn */
             .toolbar-bento::-webkit-scrollbar {
                 height: 6px;
             }
@@ -30,7 +28,6 @@
                 border-radius: 10px;
             }
 
-        /* --- BẢNG DỮ LIỆU --- */
         .card-bento-table {
             background: #fff;
             border-radius: 16px;
@@ -75,7 +72,6 @@
                 transition: 0.2s;
             }
 
-        /* --- BỘ LỌC VÀ TÌM KIẾM --- */
         .search-box {
             flex: 1 1 auto;
             min-width: 250px;
@@ -113,15 +109,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap; /* Không cho chữ rớt dòng */
-            flex-shrink: 0; /* Không cho nút bị bóp méo */
+            white-space: nowrap; 
+            flex-shrink: 0; 
         }
 
             .btn-primary-custom:hover {
                 background: var(--primary-hover);
             }
 
-        /* --- BADGE TRẠNG THÁI --- */
         .badge-custom {
             padding: 6px 12px;
             border-radius: 8px;
@@ -157,7 +152,6 @@
             color: #475569;
         }
 
-        /* --- THAO TÁC (ICON ACTIONS) --- */
         .action-icon {
             cursor: pointer;
             margin: 0 4px;
@@ -204,7 +198,6 @@
                     box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
                 }
 
-        /* --- MODAL BENTO --- */
         .modal-bento {
             border-radius: 20px;
             border: none;
@@ -250,7 +243,7 @@
                 border-color: var(--primary);
                 background-color: #fff;
             }
-        /* Style ô chọn ngày chuẩn Bento */
+
         .form-control-date-bento {
             padding: 12px 16px;
             border-radius: 12px;
@@ -566,7 +559,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // 1. XỬ LÝ TÌM KIẾM
+            // Xử lý tìm kiếm
 
             const inputTk = document.querySelector('input[name="searchString"]');
             const formTk = document.querySelector('.toolbar-bento');
@@ -576,7 +569,7 @@
                 });
             }
 
-            // 2. XỬ LÝ NGÀY THÁNG & ẨN HIỆN TRONG MODAL THÊM MỚI
+            // Xử lý ngày tháng và ẩn hiện trong modal thêm mới
             const statusSelect = document.getElementById('addTrangThai');
             const groupNgayDangKy = document.getElementById('groupNgayDangKy');
             const inputNTN = document.getElementById('addNgayTiepNhan');

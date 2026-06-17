@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<TTNguVan.Models.BaiTest>
 @{
-    // Trỏ về Layout của Quản lý (với style y hệt Giáo viên)
     ViewData["Title"] = "Quản lý kho bài test";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
@@ -8,7 +7,6 @@
 @section Styles {
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <style>
-        /* --- CSS ĐẶC THÙ --- */
         .link-wrapper {
             display: flex;
             align-items: center;
@@ -39,7 +37,6 @@
                 transform: scale(1.1);
             }
 
-        /* --- ĐỒNG BỘ NÚT THAO TÁC XỊN SÒ --- */
         .action-icon {
             cursor: pointer; margin: 0 4px; font-size: 16px; transition: all 0.2s ease-in-out;
             display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
@@ -50,7 +47,6 @@
         .action-icon.delete { color: #ef4444; }
         .action-icon.delete:hover { background-color: #ef4444; color: white; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
 
-        /* Modal Form chuẩn Bento */
         .modal {
             display: none;
             position: fixed;
@@ -104,7 +100,6 @@
                     border-color: var(--primary);
                 }
 
-        /* Kế thừa CKEditor bo góc */
         .ck-editor__editable_inline {
             min-height: 300px;
             border-bottom-left-radius: 12px !important;
@@ -116,7 +111,6 @@
             border-top-right-radius: 12px !important;
         }
 
-        /* Modal Xác nhận xóa */
         .modal-confirm-content {
             background: white;
             width: 400px;
@@ -133,7 +127,6 @@
             margin-bottom: 20px;
         }
 
-        /* Toast Thông báo */
         #toast {
             position: fixed;
             top: 30px;
@@ -287,11 +280,11 @@
 
 @section Scripts {
     <script>
-        // --- KHỞI TẠO CKEDITOR ---
+        // Khởi tạo CKEditor
         let myEditor;
         ClassicEditor.create(document.querySelector('#editor')).then(editor => { myEditor = editor; });
 
-        // --- HÀM TOAST ---
+        // Toast thông báo
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
@@ -309,7 +302,7 @@
             navigator.clipboard.writeText(text).then(() => { showToast("Đã copy link bài test thành công!"); });
         }
 
-        // --- XỬ LÝ MODAL ---
+        // Xử lý modal
         function openConfirm(id) {
             document.getElementById('idXoa').value = id;
             document.getElementById('modalConfirm').style.display = 'flex';

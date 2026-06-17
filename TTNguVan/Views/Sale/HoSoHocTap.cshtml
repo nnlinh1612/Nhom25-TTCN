@@ -3,14 +3,12 @@
     Layout = "~/Views/Shared/_LayoutSale.cshtml";
     ViewData["Title"] = "Hồ sơ học tập: " + Model.TenHocVien;
     ViewBag.ActiveMenu = "TheoDoiHocTap";
-    // Giả sử Controller truyền 2 ViewBag này sang
     var lichSuTuongTac = ViewBag.LichSuTuongTac as IEnumerable<TTNguVan.Models.LichSuTuongTac>;
     var lichSuHocTap = ViewBag.LichSuHocTap as IEnumerable<TTNguVan.Models.KqHocTap>;
 }
 
 @section Styles {
     <style>
-        /* --- NÚT BẤM VÀ ĐIỀU HƯỚNG CHUẨN BENTO --- */
         .btn-back {
             background: none;
             border: none;
@@ -52,7 +50,6 @@
                 box-shadow: 0 5px 15px rgba(82, 171, 152, 0.3);
             }
 
-        /* --- KHUNG BENTO (CARD) --- */
         .card-bento {
             background: #fff;
             border-radius: 20px;
@@ -62,7 +59,6 @@
             margin-bottom: 24px;
         }
 
-        /* --- INFO BLOCKS (THÔNG TIN CHUNG) --- */
         .icon-tron-nho {
             width: 44px;
             height: 44px;
@@ -93,7 +89,6 @@
             margin: 0;
         }
 
-        /* --- BADGES TRẠNG THÁI --- */
         .badge-custom {
             padding: 6px 14px;
             border-radius: 8px;
@@ -116,25 +111,23 @@
             color: #475569;
         }
 
-        /* --- SỬA LỖI 2: CSS TABS CHỮ NHẬT BO GÓC, BỎ DẤU CHẤM --- */
         .nav-tabs-bento {
-            border-bottom: none; /* Bỏ viền dưới gạch ngang */
-            gap: 12px; /* Khoảng cách giữa 2 ô */
-            list-style: none !important; /* QUAN TRỌNG: Bỏ dấu chấm tròn */
-            padding-left: 0; /* Bỏ padding mặc định */
+            border-bottom: none; 
+            gap: 12px; 
+            list-style: none !important; 
+            padding-left: 0; 
             margin-bottom: 25px;
             display: flex;
         }
 
-        /* Ô chữ nhật mặc định */
         .nav-link-bento {
             color: #64748b;
             font-weight: 600;
             font-size: 14px;
             padding: 10px 20px;
-            border: 1px solid #e2e8f0; /* Viền mỏng */
-            background-color: #f8fafc; /* Nền xám nhạt */
-            border-radius: 10px; /* Bo góc 10px */
+            border: 1px solid #e2e8f0; 
+            background-color: #f8fafc; 
+            border-radius: 10px; 
             transition: 0.3s;
             cursor: pointer;
             text-transform: uppercase;
@@ -147,15 +140,13 @@
                 background-color: #eaf4f1;
             }
 
-            /* Ô chữ nhật khi được chọn (Active) */
             .nav-link-bento.active {
                 color: white !important;
-                background-color: #52ab98 !important; /* Nền xanh */
+                background-color: #52ab98 !important; 
                 border-color: #52ab98 !important;
                 box-shadow: 0 4px 10px rgba(82, 171, 152, 0.2);
             }
 
-        /* --- CSS LỊCH SỬ TƯƠNG TÁC (TABLE BENTO) --- */
         .table-responsive-bento {
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -196,9 +187,8 @@
                 background-color: #f8fafc;
             }
 
-        /* --- SỬA LỖI 1: CSS MODAL & INPUT CHUẨN BENTO (HÌNH 2) --- */
         .modal-bento {
-            border-radius: 20px; /* Bo góc modal lớn */
+            border-radius: 20px;
             border: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
@@ -212,13 +202,12 @@
             letter-spacing: 0.5px;
         }
 
-        /* Ô nhập liệu bo góc lớn, nền xám nhạt */
         .form-control-bento, .form-select-bento {
             padding: 12px 16px;
-            border-radius: 12px; /* Bo góc 12px */
-            border: 1px solid #cbd5e1; /* Viền màu đậm hơn xíu */
+            border-radius: 12px; 
+            border: 1px solid #cbd5e1; 
             font-size: 14px;
-            background-color: #f8fafc; /* Nền xám */
+            background-color: #f8fafc; 
             color: #1e293b;
             width: 100%;
             transition: 0.2s;
@@ -226,12 +215,11 @@
 
             .form-control-bento:focus, .form-select-bento:focus {
                 border-color: #52ab98;
-                background-color: #fff; /* Chuyển nền trắng khi gõ */
+                background-color: #fff; 
                 box-shadow: 0 0 0 3px rgba(82, 171, 152, 0.1);
                 outline: none;
             }
 
-        /* --- CSS TIMELINE HỌC TẬP (GIỮ NGUYÊN) --- */
         .timeline-container {
             position: relative;
             padding-left: 24px;
@@ -283,7 +271,7 @@
                 background-color: #ef4444;
                 box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
             }
-        /* --- THAO TÁC --- */
+
         .action-icon {
             color: var(--text-muted);
             cursor: pointer;
@@ -419,7 +407,6 @@
                         int buoiSo = totalBuoi - currentIndex;
                         bool laBuoiTot = !kq.DiemDanh.Contains("Nghỉ") && !kq.Btvn.Contains("Chưa");
 
-                        // Khôi phục lại các biến màu sắc gốc của bạn
                         string colorClass = laBuoiTot ? "success" : "danger";
                         string textTheme = laBuoiTot ? "text-success" : "text-danger";
                         string bgTheme = laBuoiTot ? "bg-gray-light" : "bg-red-light";
@@ -636,7 +623,7 @@
 
 @section Scripts {
     <script>
-         // Biến toàn cục để lưu trữ thông tin báo cáo sau khi lọc
+         // Biến lưu trữ thông tin báo cáo sau khi lọc
          let reportData = {
              thoiGianLieu: "thời gian qua",
              soBuoiCoMat: 0,
@@ -706,13 +693,13 @@
              let tyLeChuyenCan = Math.round((reportData.soBuoiCoMat / reportData.tongSoBuoiHoc) * 100) || 0;
 
              //  Xây dựng nội dung Báo cáo
-             let textToCopy = `✨ TRUNG TÂM NGỮ VĂN MINH ANH ✨\n`;
-             textToCopy += `📊 BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
-             textToCopy += `👤 Học viên: ${tenHV}\n`;
+             let textToCopy = `TRUNG TÂM NGỮ VĂN MINH ANH ✨\n`;
+             textToCopy += `BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
+             textToCopy += `Học viên: ${tenHV}\n`;
              textToCopy += `--------------------------\n`;
 
              // Thêm phần TỔNG QUAN
-             textToCopy += `📌 TỔNG QUAN:\n`;
+             textToCopy += `TỔNG QUAN:\n`;
              textToCopy += `- Chuyên cần: ${tyLeChuyenCan}% (${reportData.soBuoiCoMat}/${reportData.tongSoBuoiHoc} buổi có mặt)\n`;
              if(reportData.soBaiBTVN > 0) {
                  textToCopy += `- Điểm BTVN TB: ${reportData.diemTrungBinh}/10\n`;
@@ -720,7 +707,7 @@
                  textToCopy += `- Điểm BTVN TB: Chưa có dữ liệu\n`;
              }
              textToCopy += `--------------------------\n`;
-             textToCopy += `📝 CHI TIẾT CÁC BUỔI HỌC:\n`;
+             textToCopy += `CHI TIẾT CÁC BUỔI HỌC:\n`;
 
              // Đảo ngược mảng để in từ buổi cũ nhất -> buổi mới nhất
              visibleItems.reverse().forEach(item => {
@@ -830,20 +817,19 @@
                  linkTheoDoi.classList.add('active');
              }
          });
-         // --- XỬ LÝ GIỮ NGUYÊN TAB SAU KHI RELOAD TRANG ---
          document.addEventListener("DOMContentLoaded", function() {
-             // 1. Kiểm tra xem trong bộ nhớ có tab nào đang được lưu không
+             // Kiểm tra xem trong bộ nhớ có tab nào đang được lưu không
              let activeTab = localStorage.getItem('activeTabHoSo');
              if (activeTab) {
                  let tabBtn = document.getElementById(activeTab);
                  if (tabBtn) {
-                     // Dùng lệnh của Bootstrap 5 để kích hoạt lại Tab đó
+                     // kích hoạt lại Tab đó
                      let tabInstance = new bootstrap.Tab(tabBtn);
                      tabInstance.show();
                  }
              }
 
-             // 2. Mỗi khi người dùng bấm chuyển sang tab nào, thì lưu ID của tab đó lại
+             // Mỗi khi người dùng bấm chuyển sang tab nào, thì lưu ID của tab đó lại
              let tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
              tabButtons.forEach(btn => {
                  btn.addEventListener('shown.bs.tab', function(event) {

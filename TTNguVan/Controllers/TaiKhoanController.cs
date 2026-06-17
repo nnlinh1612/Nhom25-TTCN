@@ -20,7 +20,7 @@ namespace TTNguVan.Controllers
             _context = context;
         }
 
-        // 1. Hàm để mở trang Đăng Ký
+        // Hàm để mở trang Đăng Ký
         [HttpGet]
         public IActionResult DangKy()
         {
@@ -28,8 +28,6 @@ namespace TTNguVan.Controllers
             return View();
         }
 
-        // Khi nhấn nút đăng ký
-        [HttpPost]
         // Khi nhấn nút đăng ký
         [HttpPost]
         public IActionResult DangKy(TaiKhoan user)
@@ -97,7 +95,7 @@ namespace TTNguVan.Controllers
                 return View();
             }
 
-            // Vượt qua hết lỗi -> Đăng nhập thành công 
+            // Vượt qua hết lỗi => Đăng nhập thành công 
             HttpContext.Session.SetString("MaTK", user.MaTk);
             HttpContext.Session.SetString("Role", user.MaChucVu ?? "");
             HttpContext.Session.SetString("HoTen", user.HoTen ?? "");
@@ -105,21 +103,21 @@ namespace TTNguVan.Controllers
 
             switch (user.MaChucVu)
             {
-                // Admin -> Vào AdminController, trang Dashboard
+                // Admin => Vào AdminController, trang Dashboard
                 case "CV001":
                     return RedirectToAction("QuanLyNguoiDung", "Admin");
 
-                // Nhóm Sale & CSKH -> Vào SaleController, trang QuanLyKhachHang
+                // Nhóm Sale & CSKH => Vào SaleController, trang QuanLyKhachHang
                 case "CV002":
                 case "CV003":
                     return RedirectToAction("QuanLyKhachHang", "Sale");
 
-                // Nhóm Giáo viên & Trợ giảng -> Vào GiaoVienController, trang Dashboard
+                // Nhóm Giáo viên & Trợ giảng => Vào GiaoVienController, trang Dashboard
                 case "CV004": 
                 case "CV005": 
                     return RedirectToAction("LichDay", "GiaoVien");
 
-                // Quản lý -> Vào QuanLyController, trang Dashboard
+                // Quản lý => Vào QuanLyController, trang Dashboard
                 case "CV006":
                     return RedirectToAction("Dashboard", "QuanLy");
 
@@ -128,11 +126,15 @@ namespace TTNguVan.Controllers
                     return View();
             }
         }
+
+        // Hàm đăng xuất
         public IActionResult DangXuat()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("DangNhap", "TaiKhoan");
         }
+
+        // Hàm quên mật khẩu
         [HttpGet]
         public IActionResult QuenMatKhau() => View();
 
@@ -177,7 +179,7 @@ namespace TTNguVan.Controllers
             DateTime expiryTime = DateTime.Parse(expiryStr);
             if (DateTime.Now > expiryTime)
             {
-                // Quá hạn -> Xóa luôn session để chặn nhập lại
+                // Quá hạn => Xóa luôn session để chặn nhập lại
                 HttpContext.Session.Remove("ResetCode");
                 HttpContext.Session.Remove("ResetEmail");
                 HttpContext.Session.Remove("ResetExpiry");

@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<TTNguVan.Models.LopHoc>
 @{
-    // Nạp Layout dùng chung
     ViewData["Title"] = "Quản lý lớp học";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 
@@ -10,7 +9,6 @@
 
 @section Styles {
     <style>
-        /* CSS riêng cho Icon Thống Kê & Nút thao tác của trang này */
         .icon-tron {
             width: 48px;
             height: 48px;
@@ -21,7 +19,6 @@
             font-size: 20px;
         }
 
-        /* --- CSS CHO BẢNG CÓ THANH CUỘN (SCROLLBAR) --- */
         .card-bento-table {
             background: #fff;
             border-radius: 16px;
@@ -37,13 +34,12 @@
             overflow-y: auto;
         }
 
-        /* Cố định tiêu đề bảng khi cuộn */
         .table-custom thead th {
             position: sticky;
             top: 0;
-            background-color: #f8fafc; /* Giữ màu nền để không bị trong suốt khi cuộn */
+            background-color: #f8fafc; 
             z-index: 10;
-            box-shadow: 0 1px 0 var(--border-color); /* Tạo viền dưới cho header */
+            box-shadow: 0 1px 0 var(--border-color); 
             padding: 16px;
             color: #64748b;
             font-size: 12px;
@@ -62,7 +58,6 @@
             transition: 0.2s;
         }
 
-        /* --- CSS NÚT THAO TÁC (ĐỒNG BỘ VỚI TRANG TRÊN) --- */
         .action-icon {
             cursor: pointer; margin: 0 4px; font-size: 16px; transition: all 0.2s ease-in-out;
             display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
@@ -73,7 +68,6 @@
         .action-icon.delete { color: #ef4444; }
         .action-icon.delete:hover { background-color: #ef4444; color: white; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
 
-        /* Modal form Lớp Học */
         .modal {
             display: none;
             position: fixed;
@@ -125,7 +119,6 @@
             border-color: var(--primary);
         }
 
-        /* --- CSS CHO MODAL XÓA MOCKUP --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px); }
         .modal-delete { background: #fff; width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px 24px; position: relative; text-align: center; animation: slideDown 0.3s ease-out; }
         @@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -142,12 +135,11 @@
         .btn-primary-custom { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
         .btn-primary-custom:hover { background: var(--primary-hover); }
 
-        /* Toast Thông báo */
         #toast {
             position: fixed;
             top: 30px;
             right: 30px;
-            background: var(--primary); /* Màu xanh mặc định */
+            background: var(--primary); 
             color: white;
             padding: 16px 24px;
             border-radius: 12px;
@@ -165,7 +157,6 @@
                 transform: translateX(0);
             }
 
-            /* Thêm class này để đổi màu đỏ khi có lỗi */
             #toast.toast-error {
                 background: #ef4444 !important;
             }
@@ -238,7 +229,6 @@
                     var tenGV = dsUser.FirstOrDefault(u => u.MaTk == gv?.MaTk)?.HoTen ?? "Chưa phân công";
                     var tenTG = dsUser.FirstOrDefault(u => u.MaTk == TG?.MaTk)?.HoTen ?? "Chưa phân công";
 
-                    // Trích xuất số lượng học viên an toàn (Nếu null sẽ hiển thị 0)
                     int soLuongHV = item.HocViens != null ? item.HocViens.Count() : 0;
 
                     <tr>
@@ -348,7 +338,7 @@
 
 @section Scripts {
     <script>
-        // --- XỬ LÝ MODAL THÊM/SỬA LỚP ---
+        // Xử lý modal thêm, sửa lớp
         function toggleModal(show) {
             document.getElementById('modalLop').style.display = show ? 'flex' : 'none';
         }
@@ -376,7 +366,7 @@
             toggleModal(true);
         }
 
-        // --- XỬ LÝ MODAL XÓA ---
+        // Xử lý modal xóa
         function openDeleteModal(id, name) {
             document.getElementById('delete-id').value = id;
             document.getElementById('delete-name-display').innerText = name; 
@@ -399,7 +389,8 @@
                 closeDeleteModal();
             }
         }
-                // --- HÀM TOAST ĐA NĂNG ---
+
+        // Toast thông báo
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             const icon = toast.querySelector('i');

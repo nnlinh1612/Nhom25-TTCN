@@ -131,7 +131,6 @@
             margin-top: 4px;
         }
 
-        /* --- STYLE CHO Ô LỌC THÁNG NĂM --- */
         .filter-select-sm {
             padding: 8px 12px;
             border-radius: 8px;
@@ -391,7 +390,7 @@
 </div>
 
 <script>
-    // --- HÀM TẠO TOAST XỊN SÒ ---
+    // Toast thông báo
     function showModernToast(message) {
         let container = document.getElementById('modern-toast-container');
         if (!container) {
@@ -417,7 +416,7 @@
         setTimeout(() => {
             toast.style.transform = 'translateX(120%)';
             toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 400); // Xóa khỏi DOM
+            setTimeout(() => toast.remove(), 400);
         }, 3000);
     }
 
@@ -425,14 +424,14 @@
         // Lấy dữ liệu từ Dropdown
         const thangEl = document.getElementById("thangFilter");
         const namEl = document.getElementById("namFilter");
-        const thang = thangEl.options[thangEl.selectedIndex].text; // Lấy chữ "Tháng 5" hoặc "Cả năm"
-        const nam = namEl.options[namEl.selectedIndex].text;       // Lấy chữ "Năm 2026"
+        const thang = thangEl.options[thangEl.selectedIndex].text; 
+        const nam = namEl.options[namEl.selectedIndex].text;       
 
         const tenHV = '@Html.Raw(hv.TenHocVien)';
 
-        let textToCopy = `✨ TRUNG TÂM NGỮ VĂN MINH ANH ✨\n`;
-        textToCopy += `📊 BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
-        textToCopy += `👤 Học viên: ${tenHV}\n`;
+        let textToCopy = `TRUNG TÂM NGỮ VĂN MINH ANH\n`;
+        textToCopy += `BÁO CÁO HỌC TẬP ${thang.toUpperCase()} - ${nam.toUpperCase()}\n`;
+        textToCopy += `Học viên: ${tenHV}\n`;
         textToCopy += `--------------------------\n`;
 
         @foreach (var item in Model.OrderBy(x => x.MaBuoiHocNavigation.NgayHoc))

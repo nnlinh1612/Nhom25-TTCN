@@ -6,7 +6,6 @@
 
 @section Styles {
     <style>
-        /* --- STYLE BIẾN TẤU MÀU SẮC CHUYÊN NGHIỆP --- */
         :root {
             --primary-soft: #6366f1;
             --success-soft: #10b981;
@@ -97,7 +96,6 @@
             width: 100%;
         }
 
-        /* --- STYLE BẢNG LỊCH HỌC NÂNG CẤP --- */
         .bento-table {
             width: 100%;
             border-collapse: collapse;
@@ -127,7 +125,6 @@
                 transition: 0.2s;
             }
 
-        /* Chuyển đổi màu chữ lớp sang màu xanh biển đậm quý phái, chuyên nghiệp */
         .text-xanh-bien-dam {
             color: #1e3a8a !important;
             font-weight: 700;
@@ -161,7 +158,6 @@
             border: 1px solid #e0e7ff;
         }
 
-        /* --- EMPTY STATE & DROPDOWN --- */
         .chart-relative-box {
             position: relative;
             flex: 1;
@@ -407,7 +403,7 @@
             Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
 
-            // 1. CHART NGUỒN KHÁCH HÀNG (Doughnut)
+            // Chart nguồn khách hàng
             const labelsNguon = [@Html.Raw(ViewBag.LabelsNguon)];
             if (labelsNguon.length > 0) {
                 new Chart(document.getElementById('bieuDoNguon'), {
@@ -420,7 +416,7 @@
                 });
             }
 
-            // 2. CHART THU HÚT & CHUYỂN ĐỔI (Bar Kép)
+            // Chart thu hút và chuyển đổi
             const ctxTS = document.getElementById('bieuDoThuHut').getContext('2d');
             const gradTS = ctxTS.createLinearGradient(0, 0, 0, 300);
             gradTS.addColorStop(0, '#10b981'); gradTS.addColorStop(1, 'rgba(16, 185, 129, 0.5)');
@@ -437,7 +433,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } } }
             });
 
-            // 3. CHART KHỐI LỚP (Bar Ngang)
+            // Chart khối lớp
             new Chart(document.getElementById('bieuDoKhoi'), {
                 type: 'bar',
                 data: {
@@ -447,7 +443,7 @@
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { borderDash: [4, 4] }, border: { display: false } }, y: { grid: { display: false }, border: { display: false } } } }
             });
 
-            // 4. BIỂU ĐỒ KẾT HỢP (MIXED CHART)
+            // Biểu đồ kết hợp
             const chartDataMap = @Html.Raw(ViewBag.MixedChartData ?? "{}");
             const ctx = document.getElementById('bieuDoKiep').getContext('2d');
 

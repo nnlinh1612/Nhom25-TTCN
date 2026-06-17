@@ -32,7 +32,7 @@ namespace TTNguVan.Controllers
             return View();
         }
 
-        // 2. Hàm Phê Duyệt
+        // Hàm Phê Duyệt
         [HttpPost]
         public IActionResult PheDuyet(string id)
         {
@@ -51,7 +51,7 @@ namespace TTNguVan.Controllers
             return RedirectToAction("QuanLyNguoiDung");
         }
 
-        // 3. Hàm Từ Chối (Xóa khỏi DB)
+        // Hàm Từ Chối (Xóa khỏi DB)
         [HttpPost]
         public IActionResult TuChoi(string id)
         {
@@ -72,7 +72,7 @@ namespace TTNguVan.Controllers
             }
             return RedirectToAction("QuanLyNguoiDung");
         }
-        // --- 4. API LẤY THÔNG TIN ĐỂ HIỂN THỊ LÊN MODAL SỬA ---
+        // Lấy thông tin người dùng khi ấn nút Sửa
         [HttpGet]
         public IActionResult LayThongTinNguoiDung(string id)
         {
@@ -87,12 +87,12 @@ namespace TTNguVan.Controllers
                     maTk = user.MaTk,
                     hoTen = user.HoTen,
                     maChucVu = user.MaChucVu,
-                    trangThai = user.TrangThai // Lấy thêm trạng thái
+                    trangThai = user.TrangThai 
                 }
             });
         }
 
-        // --- 5. HÀM CẬP NHẬT (SỬA) THÔNG TIN ---
+        // Cập nhật thông tin người dùng (hoặc sửa)
         [HttpPost]
         public IActionResult SuaNguoiDung(string maTk, string hoTen, string maChucVu, string trangThai)
         {
@@ -101,15 +101,14 @@ namespace TTNguVan.Controllers
             {
                 user.HoTen = hoTen;
                 user.MaChucVu = maChucVu;
-                user.TrangThai = trangThai; // Cập nhật trạng thái
+                user.TrangThai = trangThai; 
                 _context.SaveChanges();
                 TempData["ThongBao"] = "Cập nhật nhân sự thành công!";
             }
             return RedirectToAction("QuanLyNguoiDung");
         }
 
-        // --- 6. HÀM XÓA NHÂN SỰ ĐÃ DUYỆT ---
-        // --- 6. HÀM XÓA NHÂN SỰ ĐÃ DUYỆT ---
+        // Xóa nhân sự đã được duyệt
         [HttpPost]
         public IActionResult XoaNguoiDung(string id)
         {

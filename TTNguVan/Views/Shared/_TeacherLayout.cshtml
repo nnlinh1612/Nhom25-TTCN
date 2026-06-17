@@ -1,11 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor Accessor
 @{
-    // Lấy thông tin từ Session của Sale
     var hoTen = Accessor.HttpContext?.Session.GetString("HoTen") ?? "Nhân viên Sale";
     var Email = Accessor.HttpContext?.Session.GetString("Email") ?? "admin@gmail.com";
 
-    // Lấy chữ cái đầu tiên làm Avatar
     var avatarChar = !string.IsNullOrEmpty(hoTen) ? hoTen.Substring(0, 1).ToUpper() : "S";
 }
 <!DOCTYPE html>
@@ -20,7 +18,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 
     <style>
-            /* --- CSS BIẾN TOÀN CỤC --- */
             :root {
                 --primary: #52ab98;
                 --primary-hover: #428e7d;
@@ -47,7 +44,6 @@
                 overflow: hidden !important;
             }
 
-            /* --- SIDEBAR CHUẨN --- */
             .thanh-sidebar {
                 width: var(--sidebar-width) !important;
                 min-width: var(--sidebar-width) !important;
@@ -167,7 +163,6 @@
                 font-weight: 500;
             }
 
-            /* --- VÙNG NỘI DUNG (MAIN CONTENT) --- */
             .main-content {
                 flex: 1 !important;
                 height: 100vh !important;
@@ -177,8 +172,6 @@
                 flex-direction: column;
             }
 
-            /* --- CÁC COMPONENT DÙNG CHUNG --- */
-            /* Tiêu đề trang */
             .page-title-group {
                 margin-bottom: 25px;
             }
@@ -196,7 +189,6 @@
                     margin: 0;
                 }
 
-            /* Thẻ Card (Chuẩn hóa bo góc 20px, bóng đổ mịn) */
             .card-custom {
                 background: white;
                 border-radius: var(--radius-card);
@@ -208,7 +200,7 @@
             .card-bento {
                 background-color: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-radius: 20px; /* Bo góc tròn trịa giống hình */
+                border-radius: 20px; 
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
                 padding: 24px;
                 transition: all 0.3s ease;
@@ -219,7 +211,6 @@
                     transform: translateY(-2px);
                     border-color: #cbd5e1;
                 }
-            /* Nút bấm cuẩn */
             .btn-primary-custom {
                 background: var(--primary);
                 color: white;
@@ -238,7 +229,6 @@
                     transform: translateY(-2px);
                 }
 
-            /* Bảng (Table) chuẩn Minimalist */
             .table-custom thead th {
                 background: #f8fafc;
                 color: var(--text-muted);
@@ -256,7 +246,6 @@
                 font-size: 14px;
             }
 
-            /* Toast Thông báo */
             .toast-container {
                 position: fixed;
                 top: 20px;

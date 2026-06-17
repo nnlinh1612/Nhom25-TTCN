@@ -1,13 +1,11 @@
 ﻿@model TTNguVan.Models.QuanLyBaiTestViewModel
 @{
-    // Trỏ về Layout chung, gọt sạch râu ria HTML bên ngoài
     ViewData["Title"] = "Quản lý bài test";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 @section Styles {
     <style>
-        /* GIỮ NGUYÊN CSS BẢNG CỦA ÔNG & ĐỔI SANG KHUNG BENTO VIỀN MỎNG */
         .table thead th {
             background-color: #f8fafc;
             color: #64748b;
@@ -15,7 +13,6 @@
             font-weight: 600;
             border: none;
             padding: 16px;
-            /* ĐÃ THÊM: Cố định Header khi cuộn */
             position: sticky;
             top: 0;
             z-index: 10;
@@ -36,13 +33,11 @@
             overflow: hidden;
         }
 
-        /* --- ĐÃ THÊM: CLASS TẠO THANH CUỘN CHO BẢNG --- */
         .scrollable-table-wrap {
-            max-height: 400px; /* Bạn có thể tăng giảm số này tùy ý thích (chiều cao bảng) */
+            max-height: 400px; 
             overflow-y: auto;
         }
 
-            /* Custom thanh cuộn cho mượt mà, hợp phong cách Bento */
             .scrollable-table-wrap::-webkit-scrollbar {
                 width: 6px;
             }
@@ -59,7 +54,6 @@
                 .scrollable-table-wrap::-webkit-scrollbar-thumb:hover {
                     background: #94a3b8;
                 }
-        /* ----------------------------------------------- */
 
         .table thead th:first-child {
             border-top-left-radius: 16px;

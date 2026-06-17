@@ -2,13 +2,11 @@
 @{
     ViewData["Title"] = "Chi tiết khách hàng";
     Layout = "~/Views/Shared/_LayoutSale.cshtml";
-    // Lấy lịch sử tương tác từ Controller truyền sang
     var lichSuList = ViewBag.LichSuTuongTac as IEnumerable<TTNguVan.Models.LichSuTuongTac>;
 }
 
 @section Styles {
     <style>
-        /* --- BẢNG (TABLE) CHUẨN BENTO TRÀN VIỀN --- */
         .card-bento-table {
             background: #fff;
             border-radius: 16px;
@@ -17,15 +15,14 @@
             margin-bottom: 30px;
         }
 
-        /* --- KHUNG BỌC LỊCH SỬ TƯ VẤN --- */
         .card-history-wrapper {
             background: #fff;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            padding: 24px; /* Tạo khoảng cách thở bên trong khung */
+            padding: 24px; 
             margin-top: 30px;
             margin-bottom: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Bóng đổ nhẹ */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); 
         }
 
         .table-custom {
@@ -65,7 +62,6 @@
                 transition: 0.2s;
             }
 
-        /* Nút quay lại chuẩn */
         .btn-back {
             background: none;
             border: none;
@@ -86,7 +82,6 @@
                 transform: translateX(-4px);
             }
 
-        /* --- ICON INFO --- */
         .icon-tron-nho {
             width: 44px;
             height: 44px;
@@ -117,7 +112,6 @@
             margin: 0;
         }
 
-        /* --- BADGES --- */
         .badge-custom {
             padding: 6px 12px;
             border-radius: 8px;
@@ -150,7 +144,6 @@
             color: #475569;
         }
 
-        /* --- THAO TÁC --- */
         .action-icon {
             color: var(--text-muted);
             cursor: pointer;
@@ -184,7 +177,6 @@
                     box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
                 }
 
-        /* --- MODAL BENTO --- */
         .modal-bento {
             border-radius: 24px;
             border: none;
@@ -282,7 +274,6 @@
 </div>
 
 
-<!-- BẮT ĐẦU KHUNG BỌC LỊCH SỬ TƯ VẤN -->
 <div class="card-history-wrapper">
     
     <!-- Phần Tiêu đề và Nút bấm -->
@@ -314,7 +305,6 @@
                     int stt = 1;
                     foreach (var ls in lichSuList)
                     {
-                        // ĐỔI MÀU LOẠI TƯ VẤN
                         string badgeBg = "#f1f5f9";
                         string badgeText = "#475569";
 

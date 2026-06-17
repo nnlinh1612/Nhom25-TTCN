@@ -6,7 +6,7 @@
     var lop = ViewBag.Lop as TTNguVan.Models.LopHoc;
     string ngay = ViewBag.Ngay;
     string ca = ViewBag.Ca;
-    // Nạp danh sách điểm cũ từ ViewBag sang biến kqCu
+    // Lấy danh sách điểm cũ từ ViewBag sang biến kqCu
     var kqCu = ViewBag.DiemCu as List<TTNguVan.Models.KqHocTap> ?? new List<TTNguVan.Models.KqHocTap>();
 }
 
@@ -195,7 +195,7 @@
                         int i = 0;
                         foreach (var hocVien in Model)
                         {
-                            // Tìm chính xác dòng điểm cũ của em học sinh này
+                            // Tìm chính xác dòng điểm cũ của học sinh này
                             var kq = kqCu.FirstOrDefault(k => k.MaHocVien == hocVien.MaHocVien);
 
                             <tr>
@@ -257,22 +257,17 @@
 
 @section Scripts {
     <script>
-        // Cách lấy cờ an toàn tuyệt đối, bất chấp chữ Hoa hay chữ Thường từ C#
         var daCapNhat = '@(ViewBag.DaCapNhat)'.toLowerCase() === 'true';
-
-        // In ra màn hình console (F12) để kiểm tra
         console.log("Kiểm tra trạng thái cập nhật:", daCapNhat);
 
-        // Nắm lấy cái form và cái modal
         var form = document.getElementById('formCapNhat');
         var modal = document.getElementById('modal-overwrite');
 
-        // Bắt sự kiện khi người dùng bấm nút Submit
         form.onsubmit = function(e) {
             if (daCapNhat) {
-                e.preventDefault(); // Chặn đứng việc gửi dữ liệu
+                e.preventDefault(); 
                 console.log("Đã chặn submit, đang hiện modal...");
-                modal.style.display = 'flex'; // Hiện cái bảng cảnh báo lên
+                modal.style.display = 'flex'; 
                 return false;
             }
         };
@@ -284,9 +279,9 @@
 
         // Hàm xác nhận ghi đè
         function xacNhanLuu() {
-            daCapNhat = false; // Tắt chốt an toàn
+            daCapNhat = false; 
             console.log("Đã xác nhận ghi đè, đang gửi form...");
-            form.submit(); // Cho phép gửi form đi thật sự
+            form.submit(); 
         }
     </script>
 }

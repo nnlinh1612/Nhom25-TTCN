@@ -17,6 +17,7 @@ namespace TTNguVan.Controllers
             _config = config;
         }
 
+        // Kiểm tra phải có nội dung câu hỏi thì mới được bấm gửi
         [HttpPost("chat")]
         public async Task<IActionResult> Chat(
             string mode,
@@ -330,6 +331,7 @@ namespace TTNguVan.Controllers
                 "- Chính tả, trình bày, sáng tạo phù hợp: 1 điểm.";
         }
 
+        // Gọi API key của gemini để trả lời câu hỏi
         private async Task<string> GoiGemini(string prompt)
         {
             try
@@ -343,6 +345,7 @@ namespace TTNguVan.Controllers
 
                 var model = new GenerativeModel(apiKey, "gemini-2.5-flash");
 
+                // trong trường hợp API quá tải, tự động gọi lại 
                 for (int lanThu = 1; lanThu <= 3; lanThu++)
                 {
                     try

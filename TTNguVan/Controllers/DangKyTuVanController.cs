@@ -14,12 +14,14 @@ namespace TTNguVan.Controllers
             _context = context;
         }
 
+        // Gộp dữ liệu đăng ký vào một model
         [HttpGet("")]
         public IActionResult Index()
         {
             return View("DangKyTuVan", new DangKyTuVanViewModel());
         }
 
+        // Kiểm tra các trường nhập liệu
         [HttpPost("")]
         public async Task<IActionResult> Index(DangKyTuVanViewModel model)
         {
@@ -53,16 +55,19 @@ namespace TTNguVan.Controllers
             }
 
             string sdt = model.SoDienThoai.Trim();
+            string hoTen = model.HoTen.Trim();
 
             var khachHangTonTai = await _context.KhachHangs
-                .FirstOrDefaultAsync(x => x.Sdt == sdt);
+                .FirstOrDefaultAsync(x => x.Sdt == sdt && x.TenKhachHang.ToLower() == hoTen.ToLower());
 
             if (khachHangTonTai != null)
             {
-                TempData["SuccessMessage"] = "Thông tin đã được ghi nhận trước đó. Trung tâm sẽ liên hệ tư vấn sớm nhất.";
+                TempData["SuccessMessage"] = "Thông tin đã được ghi nhận. Trung tâm sẽ liên hệ tư vấn sớm nhất.";
                 return RedirectToAction("ThanhCong");
             }
 
+            // Khách hàng mới, trạng thái mặc định là quan tâm
+            // Tự động cộng mã khách hàng
             var khachHang = new KhachHang
             {
                 MaKhachHang = await TaoMaKhachHangMoi(),
@@ -81,7 +86,7 @@ namespace TTNguVan.Controllers
 
             await TaoLoiNhacChoSale(khachHang);
 
-            TempData["SuccessMessage"] = "Đăng ký thành công. Trung tâm Ngữ Văn Minh Anh sẽ liên hệ tư vấn sớm nhất.";
+            TempData["SuccessMessage"] = "Đăng ký thành công. Trung tâm sẽ liên hệ tư vấn sớm nhất.";
             return RedirectToAction("ThanhCong");
         }
 
@@ -119,6 +124,7 @@ namespace TTNguVan.Controllers
             return newMaKH;
         }
 
+        // Sau khi có người đăng kí, hệ thống sẽ gửi thông báo đến sale
         private async Task TaoLoiNhacChoSale(KhachHang khachHang)
         {
             var dsNhanVienSale = await _context.TaiKhoans

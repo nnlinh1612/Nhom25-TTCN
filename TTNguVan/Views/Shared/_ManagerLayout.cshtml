@@ -1,11 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor Accessor
 @{
-    // Lấy thông tin từ Session của Sale
     var hoTen = Accessor.HttpContext?.Session.GetString("HoTen") ?? "Nhân viên Sale";
     var Email = Accessor.HttpContext?.Session.GetString("Email") ?? "admin@gmail.com";
-
-    // Lấy chữ cái đầu tiên làm Avatar
     var avatarChar = !string.IsNullOrEmpty(hoTen) ? hoTen.Substring(0, 1).ToUpper() : "S";
 }
 <!DOCTYPE html>
@@ -44,7 +41,6 @@
             overflow: hidden !important;
         }
 
-        /* --- SIDEBAR CHUẨN QUẢN LÝ --- */
         .thanh-sidebar {
             width: var(--sidebar-width) !important;
             min-width: var(--sidebar-width) !important;
@@ -166,7 +162,6 @@
             font-weight: 500;
         }
 
-        /* --- VÙNG NỘI DUNG CHÍNH --- */
         .vung-chinh {
             flex: 1 !important;
             height: 100vh !important;
@@ -177,7 +172,6 @@
             gap: 5px;
         }
 
-        /* --- CLASS BENTO CHUẨN DÙNG CHUNG --- */
         .page-title-group {
             display: flex;
             justify-content: space-between;
