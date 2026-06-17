@@ -27,6 +27,15 @@ jobs:
       - name: Publish
         run: dotnet publish TTNguVan/TTNguVan.csproj --configuration Release --output ./publish --no-build
 
+      - name: Create production appsettings
+        shell: pwsh
+        run: |
+          $json = @{
+            GeminiApiKey = "${{ secrets.GeminiAPIKey }}"
+          } | ConvertTo-Json -Depth 10
+
+          Set-Content -Path "./publish/appsettings.Production.json" -Value $json -Encoding UTF8
+
       - name: Deploy to MonsterASP via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
