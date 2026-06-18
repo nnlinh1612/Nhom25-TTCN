@@ -213,7 +213,7 @@
                 {
                     foreach (var item in Model)
                     {
-                        var publicLink = "https://localhost:7149/BaiTest/XacThucDauVao?maDe=" + item.MaBaiTest;
+                        var publicLink = Url.Action("XacThucDauVao", "BaiTest", new { maDe = item.MaBaiTest }, Context.Request.Scheme);
                         <tr>
                             <td class="ps-4" style="font-weight: 600; color: var(--text-muted); font-family: monospace;">
                                 @item.MaBaiTest
