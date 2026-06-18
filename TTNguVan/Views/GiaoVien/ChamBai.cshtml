@@ -146,6 +146,27 @@
                 transform: translateY(-2px);
             }
 
+        .btn-copy {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto; 
+        }
+
+            .btn-copy:hover {
+                background: #f8fafc;
+                color: var(--primary);
+                border-color: var(--primary);
+            }
+
         #edu-toast {
             position: fixed;
             top: 30px;
@@ -212,9 +233,16 @@
 
         <!-- Nửa dưới: Bài làm của học sinh -->
         <div class="card-cham-bai" style="height: auto; flex: 1; min-height: 0;">
-            <div class="card-header-cb"><i class="fas fa-file-alt"></i> Nội dung bài làm của học sinh</div>
+            <div class="card-header-cb">
+                <i class="fas fa-file-alt"></i> Nội dung bài làm của học sinh
+
+                <button type="button" class="btn-copy" onclick="copyBaiLam()" title="Copy bài làm">
+                    <i class="far fa-copy"></i> <span>Copy</span>
+                </button>
+            </div>
+
             <div style="overflow-y: auto; padding: 25px; flex: 1;">
-                <div style="line-height: 1.8; color: var(--text-main); font-size: 15px;">
+                <div id="noiDungHocSinh" style="line-height: 1.8; color: var(--text-main); font-size: 15px;">
                     @Html.Raw(Model.NoiDungBaiLam?.Replace("\n", "<br/>") ?? "Học sinh chưa nộp bài.")
                 </div>
             </div>
@@ -244,7 +272,7 @@
                         <label class="form-label fw-semibold" style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Lớp đề xuất</label>
 
                         <select name="GhiChu" class="form-select" style="border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: none;" required>
-                            <option value="">-- Chưa đề xuất --</option>
+                            <option value="">Chưa đề xuất</option>
 
                             @{
                                 var cacLop = ViewBag.DanhSachLop as List<string> ?? new List<string>();
@@ -307,5 +335,44 @@
             })
             .catch(error => console.error('Error:', error));
         });
+
+        // Hàm copy bài làm
+        function copyBaiLam() {
+            const content = document.getElementById('noiDungHocSinh').innerText;
+
+            if (content.trim() === "Học sinh chưa nộp bài.") {
+                alert("Học sinh chưa nộp bài!");
+                return;
+            }
+
+            // Gọi API Copy 
+            navigator.clipboard.writeText(content).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+
+                // Lưu lại class cũ
+                const originalIconClass = icon.className;
+
+                // Đổi sang màu xanh báo thành công
+                icon.className = 'fas fa-check text-success';
+                icon.style.color = '#10b981';
+                text.innerText = 'Đã copy';
+                text.style.color = '#10b981';
+                btn.style.borderColor = '#10b981';
+
+                // Trả về như cũ sau 2 giây
+                setTimeout(() => {
+                    icon.className = originalIconClass;
+                    icon.style.color = '';
+                    text.innerText = 'Copy';
+                    text.style.color = '';
+                    btn.style.borderColor = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Lỗi khi copy: ', err);
+                alert("Trình duyệt không hỗ trợ copy tự động.");
+            });
+        }
     </script>
 }

@@ -62,7 +62,6 @@ namespace TTNguVan.Controllers
 
             if (khachHangTonTai != null)
             {
-                TempData["SuccessMessage"] = "Thông tin đã được ghi nhận. Trung tâm sẽ liên hệ tư vấn sớm nhất.";
                 return RedirectToAction("ThanhCong");
             }
 
@@ -85,8 +84,6 @@ namespace TTNguVan.Controllers
             await _context.SaveChangesAsync();
 
             await TaoLoiNhacChoSale(khachHang);
-
-            TempData["SuccessMessage"] = "Đăng ký thành công. Trung tâm sẽ liên hệ tư vấn sớm nhất.";
             return RedirectToAction("ThanhCong");
         }
 

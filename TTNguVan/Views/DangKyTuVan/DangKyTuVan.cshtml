@@ -12,7 +12,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         * {
@@ -21,202 +22,193 @@
 
         body {
             margin: 0;
-            font-family: 'Lexend', sans-serif;
-            background: linear-gradient(135deg, #edf7f5 0%, #f7fbfa 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: #f6f8f9; 
             color: #1f2937;
         }
 
-        .register-page {
+        .page-container {
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 16px;
         }
 
-        .register-card {
-            width: 100%;
-            max-width: 540px;
-            background: #ffffff;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(20, 82, 73, 0.12);
-            border: 1px solid rgba(79, 186, 164, 0.16);
-        }
-
-        .register-header {
-            background: linear-gradient(135deg, #54c3b0 0%, #2fa392 100%);
-            color: white;
+        .header-section {
             text-align: center;
-            padding: 28px 24px 24px;
+            margin-bottom: 24px;
         }
 
-        .register-logo {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 14px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.18);
+        .brand-icon {
+            background-color: #52b7a4;
+            color: white;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            backdrop-filter: blur(8px);
+            font-size: 26px;
+            margin: 0 auto 16px;
         }
 
-        .register-title {
-            margin: 0;
+        .header-title {
+            margin: 0 0 8px;
             font-size: 24px;
             font-weight: 700;
-            letter-spacing: -0.3px;
+            color: #111827;
         }
 
-        .register-subtitle {
-            margin-top: 8px;
-            font-size: 15px;
-            font-weight: 400;
-            opacity: 0.96;
+        .header-subtitle {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
         }
 
-        .register-body {
-            padding: 28px 28px 24px;
+        .form-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px; 
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
-            color: #1f2937;
+            color: #374151;
         }
 
         .required {
             color: #ef4444;
-            margin-left: 3px;
+        }
+
+        /* BỌC INPUT ĐỂ CHỨA ICON */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #9ca3af;
+            font-size: 14px;
         }
 
         .form-control,
-        .form-select,
-        textarea.form-control {
+        .form-select {
             width: 100%;
-            border: 1.5px solid #d7ebe7;
-            background: #fcfefe;
-            border-radius: 16px;
-            padding: 14px 16px;
-            font-size: 15px;
-            font-family: 'Lexend', sans-serif;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 12px 14px 12px 40px; 
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
             color: #1f2937;
             outline: none;
             transition: all 0.2s ease;
         }
 
-            .form-control::placeholder,
-            textarea.form-control::placeholder {
-                color: #94a3b8;
-            }
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px 12px;
+        }
 
-            .form-control:focus,
-            .form-select:focus,
-            textarea.form-control:focus {
-                border-color: #42b8a4;
-                box-shadow: 0 0 0 4px rgba(66, 184, 164, 0.14);
-                background: #ffffff;
-            }
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
 
-        textarea.form-control {
-            min-height: 96px;
-            resize: vertical;
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #52b7a4;
+            box-shadow: 0 0 0 3px rgba(82, 183, 164, 0.15);
         }
 
         .submit-btn {
             width: 100%;
             border: none;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #54c3b0 0%, #2fa392 100%);
+            border-radius: 8px;
+            background-color: #52b7a4;
             color: white;
-            font-family: 'Lexend', sans-serif;
-            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
             font-weight: 600;
-            padding: 15px 20px;
+            padding: 14px;
             cursor: pointer;
-            box-shadow: 0 10px 24px rgba(47, 163, 146, 0.24);
-            transition: all 0.2s ease;
+            transition: background-color 0.2s;
+            margin-top: 8px;
         }
 
             .submit-btn:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 14px 28px rgba(47, 163, 146, 0.28);
+                background-color: #429f8e;
             }
-
-            .submit-btn:active {
-                transform: translateY(0);
-            }
-
-        .register-note {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.6;
-        }
 
         .validation-summary-errors,
         .text-danger {
             color: #dc2626;
-            font-size: 13px;
+            font-size: 12px;
             margin-top: 6px;
-        }
-
-        @@media (max-width: 576px) {
-            .register-body {
-                padding: 22px 18px 20px;
-            }
-
-            .register-title {
-                font-size: 22px;
-            }
-
-            .register-subtitle {
-                font-size: 14px;
-            }
+            display: block;
         }
     </style>
 </head>
 
 <body>
-    <div class="register-page">
-        <div class="register-card">
-            <div class="register-header">
-                <h1 class="register-title">Ngữ Văn Minh Anh</h1>
-                <div class="register-subtitle">Đăng ký nhận tư vấn khóa học</div>
+    <div class="page-container">
+
+        <div class="header-section">
+            <div class="brand-icon">
+                <i class="fas fa-graduation-cap"></i>
             </div>
+            <h1 class="header-title">Đăng ký tư vấn</h1>
+            <p class="header-subtitle">Điền thông tin để trung tâm hỗ trợ bạn sớm nhất</p>
+        </div>
 
-            <div class="register-body">
-                <form asp-controller="DangKyTuVan" asp-action="Index" method="post">
-                    <div class="form-group">
-                        <label asp-for="HoTen" class="form-label">
-                            Họ tên phụ huynh / học sinh <span class="required">*</span>
-                        </label>
-                        <input asp-for="HoTen" class="form-control" placeholder="Ví dụ: Nguyễn Thị Thu Hà" />
-                        <span asp-validation-for="HoTen" class="text-danger"></span>
+        <div class="form-card">
+            <form asp-controller="DangKyTuVan" asp-action="Index" method="post">
+
+                <div class="form-group">
+                    <label asp-for="HoTen" class="form-label">
+                        Họ tên học sinh <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="input-icon far fa-user"></i>
+                        <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên..." />
                     </div>
+                    <span asp-validation-for="HoTen" class="text-danger"></span>
+                </div>
 
-                    <div class="form-group">
-                        <label asp-for="SoDienThoai" class="form-label">
-                            Số điện thoại liên hệ <span class="required">*</span>
-                        </label>
-                        <input asp-for="SoDienThoai" class="form-control" maxlength="10" placeholder="Ví dụ: 0983112233" />
-                        <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="SoDienThoai" class="form-label">
+                        Số điện thoại <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="input-icon fas fa-phone-alt"></i>
+                        <input asp-for="SoDienThoai" class="form-control" maxlength="10" placeholder="0123456789" />
                     </div>
+                    <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                </div>
 
-                    <div class="form-group">
-                        <label asp-for="KhoiLop" class="form-label">
-                            Khối lớp quan tâm <span class="required">*</span>
-                        </label>
+                <div class="form-group">
+                    <label asp-for="KhoiLop" class="form-label">
+                        Khối lớp <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="input-icon fas fa-book-open"></i>
                         <select asp-for="KhoiLop" class="form-select">
                             <option value="6">Lớp 6</option>
                             <option value="7">Lớp 7</option>
@@ -226,33 +218,33 @@
                             <option value="11">Lớp 11</option>
                             <option value="12">Lớp 12</option>
                         </select>
-                        <span asp-validation-for="KhoiLop" class="text-danger"></span>
                     </div>
+                    <span asp-validation-for="KhoiLop" class="text-danger"></span>
+                </div>
 
-                    <div class="form-group">
-                        <label asp-for="NguonDen" class="form-label">
-                            Nguồn tiếp nhận <span class="required">*</span>
-                        </label>
+                <div class="form-group">
+                    <label asp-for="NguonDen" class="form-label">
+                        Bạn biết đến trung tâm qua đâu? <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="input-icon fas fa-map-marker-alt"></i>
                         <select asp-for="NguonDen" class="form-select">
                             <option value="Website">Website</option>
                             <option value="Facebook">Facebook</option>
                             <option value="Hotline">Hotline</option>
-                            <option value="Giới thiệu">Giới thiệu</option>
-                            <option value="Khác">Khác</option>
+                            <option value="Giới thiệu">Người quen giới thiệu</option>
+                            <option value="Khác">Kênh khác</option>
                         </select>
-                        <span asp-validation-for="NguonDen" class="text-danger"></span>
                     </div>
+                    <span asp-validation-for="NguonDen" class="text-danger"></span>
+                </div>
 
-                    <button type="submit" class="submit-btn">
-                        Gửi đăng ký tư vấn
-                    </button>
-
-                    <div class="register-note">
-                        Sau khi gửi thông tin, trung tâm sẽ liên hệ lại trong thời gian sớm nhất.
-                    </div>
-                </form>
-            </div>
+                <button type="submit" class="submit-btn">
+                    Gửi đăng ký
+                </button>
+            </form>
         </div>
+
     </div>
 </body>
 </html>
